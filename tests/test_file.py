@@ -1,0 +1,126 @@
+#!python
+# -*- coding: UTF-8 -*-
+'''
+################################################################
+# Tests: file-based synchronization.
+# @ Test script for Sync-stream
+# Produced by
+# Yuchen Jin @ cainmagi@gmail.com,
+#              yjin4@uh.edu.
+# Requirements: (Pay attention to version)
+#   python 3.6+
+#   fasterners 0.16+
+# Test scripts of the module `file`.
+################################################################
+'''
+
+import os
+import sys
+import time
+import warnings
+import multiprocessing
+import logging
+import shutil
+
+try:
+    from typing import Tuple
+except ImportError:
+    from builtins import tuple as Tuple
+
+import pytest
+
+try:
+    from syncstream import LineFileBuffer  # pylint: disable=import-error
+except ImportError:
+    pytest.skip('The requirements for the file lock module is not installed, the test is skipped.', allow_module_level=True)
+
+
+def create_warn(catch: bool = False) -> None:
+    '''Create a warn message by the stdlib. Different from the logging module,
+    the messages created by this way could be catched by the process-safe
+    line buffer.
+    '''
+    if catch:
+        with warnings.catch_warnings(record=True):
+            warnings.filterwarnings('error')
+            warnings.warn('An example of python warning.', UserWarning)
+    else:
+        warnings.warn('An example of python warning.', UserWarning)
+
+
+def worker_process(log_info: Tuple[str, int]) -> None:
+    '''The worker for the process-mode testing.
+    The process should be ended by a send_error() or a send_eof().
+    Each end signal should be only sent by once.
+    Arguments:
+        log_info: a tuple of (<log_path>, <log_len>)
+            log_path: the path of the log files.
+            log_len: the maximal number of log files.
+    '''
+    buffer = LineFileBuffer(log_info[0], maxlen=log_info[1], tmp_id=os.getpid())
+    sys.stdout = buffer
+    sys.stderr = buffer
+    for i in range(10):
+        time.sleep(0.01)
+        print('Line', 'buffer', 'new', i, end='\n')
+    create_warn()
+
+
+class TestFile:
+    '''Test the file module of the package.'''
+    def setup(self) -> None:
+        '''The setup stage for each test.'''
+        self.log_folder = 'data-logs'  # pylint: disable=attribute-defined-outside-init
+        if os.path.isdir(self.log_folder):
+            shutil.rmtree(self.log_folder)
+        os.makedirs(self.log_folder, exist_ok=True)
+        self.log_path = os.path.join(self.log_folder, 'test-file.log')  # pylint: disable=attribute-defined-outside-init
+
+    def teardown(self) -> None:
+        '''The teardown stage for each test.'''
+        shutil.rmtree(self.log_folder)
+
+    def test_file_buffer(self) -> None:
+        '''Test the file.LineFileBuffer in the single thread mode.'''
+        log = logging.getLogger('test_file')
+        buffer = LineFileBuffer(self.log_path, maxlen=10)
+
+        # Write buffer.
+        sys.stdout = buffer
+        print('Hello!')
+        print('Multiple', 'sep', 'example')
+        print('An example of \n splitted message.\n')
+        print('An extra message.')
+        print('An example of long and unicode message: I/O层次结构的顶部是抽象基类 IOBase 。它定义了流的基本接口。但是请注意，对流的读取和写入之间没有分离。如果实现不支持指定的操作，则会引发 UnsupportedOperation 。\n抽象基类 RawIOBase 是 IOBase 的子类。它负责将字节读取和写入流中。 RawIOBase 的子类 FileIO 提供计算机文件系统中文件的接口。\n抽象基类 BufferedIOBase 继承了 IOBase ，处理原始二进制流（ RawIOBase ）上的缓冲。其子类 BufferedWriter 、 BufferedReader 和 BufferedRWPair 分别缓冲可读、可写以及可读写的原始二进制流。 BufferedRandom 提供了带缓冲的可随机访问流接口。 BufferedIOBase 的另一个子类 BytesIO 是内存中字节流。\n抽象基类 TextIOBase 继承了 IOBase 。它处理可表示文本的流，并处理字符串的编码和解码。类 TextIOWrapper 继承了 TextIOBase ，是原始缓冲流（ BufferedIOBase ）的缓冲文本接口。最后， StringIO 是文本的内存流。\n参数名不是规范的一部分，只有 open() 的参数才用作关键字参数。')
+        print('Multiple', 'sep', 'example', end='')
+        sys.stdout = sys.__stdout__
+
+        # Check the validity of the buffer results.
+        messages = buffer.read(4)
+        assert messages[0] == '抽象基类 BufferedIOBase 继承了 IOBase ，处理原始二进制流（ RawIOBase ）上的缓冲。其子类 BufferedWriter 、 BufferedReader 和 BufferedRWPair 分别缓冲可读、可写以及可读写的原始二进制流。 BufferedRandom 提供了带缓冲的可随机访问流接口。 BufferedIOBase 的另一个子类 BytesIO 是内存中字节流。'
+        assert messages[1] == '抽象基类 TextIOBase 继承了 IOBase 。它处理可表示文本的流，并处理字符串的编码和解码。类 TextIOWrapper 继承了 TextIOBase ，是原始缓冲流（ BufferedIOBase ）的缓冲文本接口。最后， StringIO 是文本的内存流。'
+        assert messages[2] == '参数名不是规范的一部分，只有 open() 的参数才用作关键字参数。'
+        assert messages[3] == 'Multiple sep example'
+
+        # Show the buffer results.
+        messages = buffer.read()
+        for i, item in enumerate(messages):
+            log.info('%s', '{0:02d}: {1}'.format(i, item))
+        assert len(messages) == 10
+
+    def test_file_process(self) -> None:
+        '''Test the file.LineFileBuffer in the multi-process mode.'''
+        log = logging.getLogger('test_file')
+        pbuf = LineFileBuffer(self.log_path, maxlen=20)
+
+        # Write buffer.
+        with multiprocessing.Pool(4) as pool:
+            pool.map(worker_process, tuple((self.log_path, 20) for _ in range(4)))
+            log.debug('The main stdout is not influenced.')
+        log.debug('Confirm: The main stdout is not influenced.')
+
+        # Show the buffer results.
+        messages = pbuf.read()
+        for i, item in enumerate(messages):
+            log.info('%s', '{0:02d}: {1}'.format(i, item))
+        assert len(messages) == 20
