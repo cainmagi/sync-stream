@@ -24,6 +24,10 @@ To be built...
 
 ## Update reports
 
+### 0.2.1 @ 5/24/2021
+
+1. Add the PyPI publish workflow.
+
 ### 0.2.0 @ 5/24/2021
 
 1. Finish the synchronization based on the file lock package `fasteners`.

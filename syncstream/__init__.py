@@ -9,8 +9,8 @@
 # Requirements: (Pay attention to version)
 #   python 3.6+
 #   fasteners 0.16+
-# A python tool for synchronize the messages from different
-# threads, processes or hosts.
+# A python tool for synchronizing the messages from different
+# threads, processes, or hosts.
 # This package provides 4 modes for the synchronization,
 # including:
 # 1. thread-sync: used when we need to capture messages among
@@ -26,6 +26,8 @@
 ################################################################
 # Update reports:
 # ---------------
+# 0.2.1 @ 5/24/2021
+#   1. Add the PyPI publish workflow.
 # 0.2.0 @ 5/24/2021
 #   1. Finish the synchronization based on the file lock package
 #      `fasteners`.
