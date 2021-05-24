@@ -28,7 +28,10 @@ from syncstream.base import GroupedMessage  # pylint: disable=import-error
 def worker_writter() -> None:
     '''The worker for the thread-mode testing.
     '''
-    thd_id = threading.get_native_id()
+    try:
+        thd_id = threading.get_native_id()
+    except AttributeError:
+        thd_id = threading.get_ident()  # Fall back to py37
     for i in range(10):
         time.sleep(0.1)
         print('Thd: "{0}";'.format(thd_id), 'Line:', 'buffer', 'new', i)

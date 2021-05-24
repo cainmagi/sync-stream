@@ -44,7 +44,10 @@ def worker_writter(address: str) -> None:
     '''The worker for the thread-mode testing.
     '''
     hbuf = LineHostMirror(address=address)
-    thd_id = threading.get_native_id()
+    try:
+        thd_id = threading.get_native_id()
+    except AttributeError:
+        thd_id = threading.get_ident()  # Fall back to py37
     for i in range(10):
         time.sleep(0.1)
         sys.stdout = hbuf

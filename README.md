@@ -28,6 +28,7 @@ To be built...
 
 1. Finish the synchronization based on the file lock package `fasteners`.
 2. Finish the synchronization based on the web service packages `flask`, `flask-restful` and `urllib3`.
+3. Fix the compatibility of the testing scripts for `py36`, `py37`.
 
 ### 0.1.0 @ 5/22/2021
 
