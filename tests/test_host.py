@@ -55,6 +55,22 @@ def worker_writter(address: str) -> None:
     hbuf.send_eof()
 
 
+def worker_writter_lite(address: str) -> None:
+    '''The worker for the thread-mode testing (lite).
+    This version only writes two lines.
+    '''
+    hbuf = LineHostMirror(address=address)
+    try:
+        thd_id = threading.get_native_id()
+    except AttributeError:
+        thd_id = threading.get_ident()  # Fall back to py37
+    for i in range(2):
+        time.sleep(0.1)
+        sys.stdout = hbuf
+        print('Thd: "{0}";'.format(thd_id), 'Line:', 'buffer', 'new', i)
+    hbuf.send_eof()
+
+
 def create_warn(catch: bool = False) -> None:
     '''Create a warn message by the stdlib. Different from the logging module,
     the messages created by this way could be catched by the process-safe
@@ -90,6 +106,21 @@ def worker_process(address: str) -> None:
         buffer.send_error(err)
     else:
         buffer.send_eof()
+
+
+def worker_process_lite(address: str) -> None:
+    '''The worker for the process-mode testing (clear).
+    The process only write two lines for each process.
+    The process should be ended by a send_error() or a send_eof().
+    Each end signal should be only sent by once.
+    '''
+    buffer = LineHostMirror(address=address)
+    sys.stdout = buffer
+    sys.stderr = buffer
+    for i in range(2):
+        time.sleep(0.01)
+        print('Line:', 'buffer', 'new', i, end='\n')
+    buffer.send_eof()
 
 
 def create_test_api(name: str = 'api_name') -> Tuple[flask.Flask, Api]:
@@ -241,3 +272,108 @@ class TestHost:
             else:
                 log.info('%s', '{0:02d}: {1}'.format(i, item))
         assert len(messages) == 10
+
+    def test_host_thread_clear(self, temp_server) -> None:
+        '''Test the file.LineHostBuffer.clear() in the multi-thread mode.
+        '''
+        log = logging.getLogger('test_file')
+        address = 'http://localhost:5000/sync-stream'
+        verify_online(address)
+        log.info('Successfully connect to the remote server.')
+
+        # Clear, then check message items, should be 0 now.
+        res = requests.delete(url=address)
+        assert res.json()['message'] == 'success'
+        log.debug('Clear all messages.')
+        res = requests.get(url=address)
+        messages = res.json()['data']
+        assert len(messages) == 0
+
+        def write_2_threads() -> None:
+            thd_pool = list()
+            for _ in range(2):
+                thd = threading.Thread(target=worker_writter_lite, args=(address, ))
+                thd_pool.append(thd)
+            for thd in thd_pool:
+                thd.start()
+            for thd in thd_pool:
+                thd.join()
+
+        # Write buffer.
+        write_2_threads()
+        write_2_threads()
+        sys.stdout = sys.__stdout__
+
+        # Check message items, should be 8 now.
+        res = requests.get(url=address)
+        messages = res.json()['data']
+        assert len(messages) == 8
+
+        # Clear, then check message items, should be 0 now.
+        res = requests.delete(url=address)
+        assert res.json()['message'] == 'success'
+        log.debug('Clear all messages.')
+        res = requests.get(url=address)
+        messages = res.json()['data']
+        assert len(messages) == 0
+
+        # Write buffer with a clear.
+        write_2_threads()
+        sys.stdout = sys.__stdout__
+        res = requests.delete(url=address)
+        assert res.json()['message'] == 'success'
+        log.debug('Clear all messages.')
+        write_2_threads()
+        sys.stdout = sys.__stdout__
+
+        # Check message items, should be 4 now.
+        res = requests.get(url=address)
+        messages = res.json()['data']
+        assert len(messages) == 4
+
+    def test_host_process_clear(self, temp_server) -> None:
+        '''Test the file.LineHostBuffer.clear() in the multi-process mode.
+        '''
+        log = logging.getLogger('test_file')
+        address = 'http://localhost:5000/sync-stream'
+        verify_online(address)
+        log.info('Successfully connect to the remote server.')
+        
+        # Clear, then check message items, should be 0 now.
+        res = requests.delete(url=address)
+        assert res.json()['message'] == 'success'
+        log.debug('Clear all messages.')
+        res = requests.get(url=address)
+        messages = res.json()['data']
+        assert len(messages) == 0
+
+        # Write buffer.
+        with multiprocessing.Pool(2) as pool:
+            pool.map(worker_process_lite, tuple(address for _ in range(2)))
+            pool.map(worker_process_lite, tuple(address for _ in range(2)))
+
+        # Check message items, should be 8 now.
+        res = requests.get(url=address)
+        messages = res.json()['data']
+        assert len(messages) == 8
+
+        # Clear, then check message items, should be 0 now.
+        res = requests.delete(url=address)
+        assert res.json()['message'] == 'success'
+        log.debug('Clear all messages.')
+        res = requests.get(url=address)
+        messages = res.json()['data']
+        assert len(messages) == 0
+
+        # Write buffer with a clear.
+        with multiprocessing.Pool(2) as pool:
+            pool.map(worker_process_lite, tuple(address for _ in range(2)))
+            res = requests.delete(url=address)
+            assert res.json()['message'] == 'success'
+            log.debug('Clear all messages.')
+            pool.map(worker_process_lite, tuple(address for _ in range(2)))
+
+        # Check message items, should be 4 now.
+        res = requests.get(url=address)
+        messages = res.json()['data']
+        assert len(messages) == 4

@@ -98,6 +98,19 @@ class LineHostMirror:
             self.__buffer_lock_ = threading.Lock()
         return self.__buffer_lock_
 
+    def clear(self) -> None:
+        '''Clear the temporary buffer.
+        This method would clear the temporary buffer of the mirror. If the mirror works
+        in the `aggresive` mode, the temporary buffer would not be used. In this case,
+        this method would not exert any influences to the mirror.
+        This method is thread-safe. Mirrors in different processes would not share the
+        temporary buffer. Note that the shared queue would not be cleared by this
+        method.
+        '''
+        with self.__buffer_lock:
+            self.__buffer.seek(0, os.SEEK_SET)
+            self.__buffer.truncate(0)
+
     def new_line(self) -> None:
         R'''Manually trigger a new line to the buffer. If the current stream is already
         a new line, do nothing.
@@ -305,7 +318,7 @@ class LineHostBuffer(LineBuffer):
                         pass
                     else:
                         raise TypeError('The message type could not be recognized.')
-                    return {'message': 'success'}, 202
+                    return {'message': 'success'}, 201
 
             def get(self):
                 '''Get all message items from the storage.
@@ -320,9 +333,7 @@ class LineHostBuffer(LineBuffer):
                 '''Delete all message items.
                 '''
                 with config_lock:
-                    rself.storage.clear()
-                    rself.last_line.seek(0, os.SEEK_SET)
-                    rself.last_line.truncate(0)
+                    rself.clear()
                 return {'message': 'success'}, 200
 
         api.add_resource(BufferPost, self.api_route, endpoint=self.endpoint)

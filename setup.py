@@ -38,7 +38,7 @@ INSTALL_REQUIRES_HOST = [
 
 setuptools.setup(
     name='syncstream',
-    version='0.2.1',
+    version='0.2.2',
     author='Yuchen Jin',
     author_email='cainmagi@gmail.com',
     description='A python tool for synchronize the messages from different threads, processes or hosts.',
@@ -61,7 +61,7 @@ setuptools.setup(
     ],
     license='MIT',
     keywords=[
-        'stdout', 'multiprocessing', 'synchronization', 'stream',
+        'stdout', 'stdout-redirection', 'multiprocessing', 'synchronization', 'stream',
         'python', 'python3', 'python-library'
     ],
     packages=setuptools.find_packages(),

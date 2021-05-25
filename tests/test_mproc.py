@@ -37,6 +37,19 @@ def worker_writter() -> None:
         print('Thd: "{0}";'.format(thd_id), 'Line:', 'buffer', 'new', i)
 
 
+def worker_writter_lite() -> None:
+    '''The worker for the thread-mode testing (lite).
+    This version only writes two lines.
+    '''
+    try:
+        thd_id = threading.get_native_id()
+    except AttributeError:
+        thd_id = threading.get_ident()  # Fall back to py37
+    for i in range(2):
+        time.sleep(0.1)
+        print('Thd: "{0}";'.format(thd_id), 'Line:', 'buffer', 'new', i)
+
+
 def create_warn(catch: bool = False) -> None:
     '''Create a warn message by the stdlib. Different from the logging module,
     the messages created by this way could be catched by the process-safe
@@ -71,6 +84,20 @@ def worker_process(buffer: LineProcMirror) -> None:
         buffer.send_error(err)
     else:
         buffer.send_eof()
+
+
+def worker_process_lite(buffer: LineProcMirror) -> None:
+    '''The worker for the process-mode testing (clear).
+    The process only write two lines for each process.
+    The process should be ended by a send_error() or a send_eof().
+    Each end signal should be only sent by once.
+    '''
+    sys.stdout = buffer
+    sys.stderr = buffer
+    for i in range(2):
+        time.sleep(0.01)
+        print('Line:', 'buffer', 'new', i, end='\n')
+    buffer.send_eof()
 
 
 class TestMProc:
@@ -178,3 +205,79 @@ class TestMProc:
             else:
                 log.info('%s', '{0:02d}: {1}'.format(i, item))
         assert len(messages) == 20
+
+    def test_mproc_thread_clear(self) -> None:
+        '''Test the mproc.LineBuffer.clear() in the multi-thread mode.'''
+        log = logging.getLogger('test_mproc')
+        tbuf = LineBuffer(20)
+
+        def write_4_threads() -> None:
+            sys.stdout = tbuf
+            thd_pool = list()
+            for _ in range(4):
+                thd = threading.Thread(target=worker_writter_lite)
+                thd_pool.append(thd)
+            for thd in thd_pool:
+                thd.start()
+            for thd in thd_pool:
+                thd.join()
+            sys.stdout = sys.__stdout__
+
+        # Write buffer.
+        write_4_threads()
+        write_4_threads()
+
+        # Check message items, should be 16 now.
+        messages = tbuf.read()
+        assert len(messages) == 16
+
+        # Clear, then check message items, should be 0 now.
+        tbuf.clear()
+        log.debug('Clear all messages.')
+        messages = tbuf.read()
+        assert len(messages) == 0
+
+        # Write buffer with a clear.
+        write_4_threads()
+        tbuf.clear()
+        log.debug('Clear all messages.')
+        write_4_threads()
+
+        # Check message items, should be 8 now.
+        messages = tbuf.read()
+        assert len(messages) == 8
+
+    def test_mproc_process_clear(self) -> None:
+        '''Test the mproc.LineBuffer.clear() in the multi-process mode.'''
+        log = logging.getLogger('test_mproc')
+        pbuf = LineProcBuffer(maxlen=20)
+
+        # Write buffer.
+        with multiprocessing.Pool(4) as pool:
+            pool.map_async(worker_process_lite, tuple(pbuf.mirror for _ in range(4)))
+            pbuf.wait()
+            pool.map_async(worker_process_lite, tuple(pbuf.mirror for _ in range(4)))
+            pbuf.wait()
+
+        # Check message items, should be 16 now.
+        messages = pbuf.read()
+        assert len(messages) == 16
+
+        # Clear, then check message items, should be 0 now.
+        pbuf.clear()
+        log.debug('Clear all messages.')
+        messages = pbuf.read()
+        assert len(messages) == 0
+
+        # Write buffer with a clear.
+        with multiprocessing.Pool(4) as pool:
+            pool.map_async(worker_process_lite, tuple(pbuf.mirror for _ in range(4)))
+            pbuf.wait()
+            pbuf.clear()
+            log.debug('Clear all messages.')
+            pool.map_async(worker_process_lite, tuple(pbuf.mirror for _ in range(4)))
+            pbuf.wait()
+
+        # Check message items, should be 8 now.
+        messages = pbuf.read()
+        assert len(messages) == 8

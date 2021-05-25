@@ -64,6 +64,24 @@ def worker_process(log_info: Tuple[str, int]) -> None:
         time.sleep(0.01)
         print('Line', 'buffer', 'new', i, end='\n')
     create_warn()
+    buffer.new_line()  # A final signal
+
+
+def worker_process_lite(log_info: Tuple[str, int]) -> None:
+    '''The worker for the process-mode testing (clear).
+    The process only write two lines for each process.
+    Arguments:
+        log_info: a tuple of (<log_path>, <log_len>)
+            log_path: the path of the log files.
+            log_len: the maximal number of log files.
+    '''
+    buffer = LineFileBuffer(log_info[0], maxlen=log_info[1], tmp_id=os.getpid())
+    sys.stdout = buffer
+    sys.stderr = buffer
+    for i in range(2):
+        time.sleep(0.01)
+        print('Line', 'buffer', 'new', i, end='\n')
+    buffer.new_line()  # A final signal
 
 
 class TestFile:
@@ -124,3 +142,41 @@ class TestFile:
         for i, item in enumerate(messages):
             log.info('%s', '{0:02d}: {1}'.format(i, item))
         assert len(messages) == 20
+
+    def test_file_process_clear(self) -> None:
+        '''Test the file.LineFileBuffer.clear() in the multi-process mode.
+        '''
+        log = logging.getLogger('test_file')
+        pbuf = LineFileBuffer(self.log_path, maxlen=20)
+
+        # Clear, then check message items, should be 0 now.
+        pbuf.clear()
+        log.debug('Clear all messages.')
+        messages = pbuf.read()
+        assert len(messages) == 0
+
+        # Write buffer
+        with multiprocessing.Pool(4) as pool:
+            pool.map(worker_process_lite, tuple((self.log_path, 20) for _ in range(4)))
+            pool.map(worker_process_lite, tuple((self.log_path, 20) for _ in range(4)))
+
+        # Check message items, should be 16 now.
+        messages = pbuf.read()
+        assert len(messages) == 16
+
+        # Clear, then check message items, should be 0 now.
+        pbuf.clear()
+        log.debug('Clear all messages.')
+        messages = pbuf.read()
+        assert len(messages) == 0
+
+        # Write buffer with a clear
+        with multiprocessing.Pool(4) as pool:
+            pool.map(worker_process_lite, tuple((self.log_path, 20) for _ in range(4)))
+            pbuf.clear()
+            log.debug('Clear all messages.')
+            pool.map(worker_process_lite, tuple((self.log_path, 20) for _ in range(4)))
+
+        # Check message items, should be 8 now.
+        messages = pbuf.read()
+        assert len(messages) == 8

@@ -16,6 +16,7 @@
 '''
 
 import os
+import glob
 
 try:
     from typing import Tuple, Sequence
@@ -71,7 +72,7 @@ class LineFileBuffer:
         '''Get the temporary file path of this buffer.
         This property is private and should not be exposed to users.
         '''
-        return '{0}-{1}.log'.format(self.__file_path, self.__tmp_id)
+        return '{0}-{1}.tmp'.format(self.__file_path, self.__tmp_id)
 
     def new_line(self) -> None:
         R'''Manually trigger a new line to the buffer. If the current stream is already
@@ -85,10 +86,24 @@ class LineFileBuffer:
         if self.__get_last_line() != '':
             self.__write('\n')
 
+    def clear(self) -> None:
+        '''Clear all log files.
+        This method would search and remove all log files, including the temporary file.
+        However, the lock files would not be removed. A typical usage of this method is
+        to clear files only in the main process.
+        '''
+        with self.__file_lock.write_lock():
+            for fpath_remove in glob.iglob('{0}-*.log'.format(self.__file_path), recursive=False):
+                os.remove(fpath_remove)
+        with self.__file_tmp_lock.write_lock():
+            tmp_path = self.__tmp_file_path
+            if os.path.isfile(tmp_path):
+                os.remove(tmp_path)
+
     def flush(self) -> None:
         '''Flush the current written line stream.
         '''
-        pass
+        pass  # pylint: disable=unnecessary-pass
 
     def __update_records(self, lines: Sequence[str]) -> None:
         '''Update the log files.
@@ -98,24 +113,23 @@ class LineFileBuffer:
         Arguments:
             lines: the new lines to be written in the log files.
         '''
-        # Check the number of lines, and truncate the lines.
-        n_lines = len(lines)
-        if n_lines <= 0:
-            return
-        if n_lines >= self.maxlen:
-            lines = lines[-self.maxlen:]
-            n_lines = self.maxlen
-        # Check the number of log files.
-        with self.__file_lock.read_lock():
-            log_files = os.listdir(self.__file_dir)
-        n_current = 0  # Current number of log files.
-        for n in range(self.maxlen):
-            if '{0}-{1:d}.log'.format(self.__file_name, n) in log_files:
-                n_current += 1
-            else:
-                break
         # Lock the log files in writer mode.
         with self.__file_lock.write_lock():
+            # Check the number of lines, and truncate the lines.
+            n_lines = len(lines)
+            if n_lines <= 0:
+                return
+            if n_lines >= self.maxlen:
+                lines = lines[-self.maxlen:]
+                n_lines = self.maxlen
+            # Check the number of log files.
+            log_files = os.listdir(self.__file_dir)
+            n_current = 0  # Current number of log files.
+            for n in range(self.maxlen):
+                if '{0}-{1:d}.log'.format(self.__file_name, n) in log_files:
+                    n_current += 1
+                else:
+                    break
             # Move the existing files.
             n_remain = min(n_current, self.maxlen - n_lines)
             for n in range(n_remain - 1, -1, -1):

@@ -1,5 +1,6 @@
 # Ignore temp files.
 /alpha*
+/data*
 /legacy*
 /docs*
 /temp*

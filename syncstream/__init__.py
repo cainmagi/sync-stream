@@ -26,6 +26,9 @@
 ################################################################
 # Update reports:
 # ---------------
+# 0.2.2 @ 5/25/2021
+#   1. Add `clear()` methods for all buffers and mirrors.
+#   2. Fix typos in the package setup and info file.
 # 0.2.1 @ 5/24/2021
 #   1. Add the PyPI publish workflow.
 # 0.2.0 @ 5/24/2021
@@ -59,7 +62,7 @@ except ImportError:
     IS_HOST_ENABLED = False
 
 
-__version__ = '0.2.0'
+__version__ = '0.2.2'
 
 __all__ = (
     'base', 'mproc',

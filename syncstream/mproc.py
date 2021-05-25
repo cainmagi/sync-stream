@@ -50,6 +50,17 @@ class LineBuffer:
         self.last_line = io.StringIO()
         self.__last_line_lock = threading.Lock()
 
+    def clear(self) -> None:
+        '''Clear the whole buffer.
+        This method would clear the storage and the last line stream of this buffer. However,
+        it would not clear any mirrors or copies of this object. This method is thread-safe
+        and should always success.
+        '''
+        with self.__last_line_lock:
+            self.last_line.seek(0, os.SEEK_SET)
+            self.last_line.truncate(0)
+        self.storage.clear()
+
     def new_line(self) -> None:
         R'''Manually trigger a new line to the buffer. If the current stream is already
         a new line, do nothing.
@@ -200,6 +211,19 @@ class LineProcMirror:
         if self.__buffer_lock_ is None:
             self.__buffer_lock_ = threading.Lock()
         return self.__buffer_lock_
+
+    def clear(self) -> None:
+        '''Clear the temporary buffer.
+        This method would clear the temporary buffer of the mirror. If the mirror works
+        in the `aggresive` mode, the temporary buffer would not be used. In this case,
+        this method would not exert any influences to the mirror.
+        This method is thread-safe. Mirrors in different processes would not share the
+        temporary buffer. Note that the shared queue would not be cleared by this
+        method.
+        '''
+        with self.__buffer_lock:
+            self.__buffer.seek(0, os.SEEK_SET)
+            self.__buffer.truncate(0)
 
     def new_line(self) -> None:
         R'''Manually trigger a new line to the buffer. If the current stream is already

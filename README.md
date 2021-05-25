@@ -15,14 +15,19 @@ pip install syncstream[option1,option2...]
 
 | Option  | Supports |
 | :-----: | :------- |
-| `file` | The `file` module, including `syncstream.LineFileBuffer`. |
-| `host` | The `host` module, including `syncstream.LineHostBuffer`, and `syncstream.LineHostMirror`. |
+| `file` | Install dependencies for the `file` module. The module provides `syncstream.LineFileBuffer`. |
+| `host` | Install dependencies for the `host` module. The module provides `syncstream.LineHostBuffer`, and `syncstream.LineHostMirror`. |
 
 ## Documentation
 
 To be built...
 
 ## Update reports
+
+### 0.2.2 @ 5/25/2021
+
+1. Add `clear()` methods for all buffers and mirrors.
+2. Fix typos in the package setup and info file.
 
 ### 0.2.1 @ 5/24/2021
 
