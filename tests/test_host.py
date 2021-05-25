@@ -90,11 +90,11 @@ def worker_process(address: str) -> None:
     Each end signal should be only sent by once.
     '''
     buffer = LineHostMirror(address=address)
-    sys.stdout = buffer
-    sys.stderr = buffer
     for i in range(10):
         time.sleep(0.01)
+        sys.stdout = buffer
         print('Line:', 'buffer', 'new', i, end='\n')
+    sys.stderr = buffer
     create_warn()
     try:
         create_warn(catch=True)
@@ -115,10 +115,9 @@ def worker_process_lite(address: str) -> None:
     Each end signal should be only sent by once.
     '''
     buffer = LineHostMirror(address=address)
-    sys.stdout = buffer
-    sys.stderr = buffer
     for i in range(2):
         time.sleep(0.01)
+        sys.stdout = buffer
         print('Line:', 'buffer', 'new', i, end='\n')
     buffer.send_eof()
 
@@ -338,7 +337,7 @@ class TestHost:
         address = 'http://localhost:5000/sync-stream'
         verify_online(address)
         log.info('Successfully connect to the remote server.')
-        
+
         # Clear, then check message items, should be 0 now.
         res = requests.delete(url=address)
         assert res.json()['message'] == 'success'

@@ -28,6 +28,7 @@ To be built...
 
 1. Add `clear()` methods for all buffers and mirrors.
 2. Fix typos in the package setup and info file.
+3. Fix a bug caused by writing data to the host in the testing scripts for Linux.
 
 ### 0.2.1 @ 5/24/2021
 

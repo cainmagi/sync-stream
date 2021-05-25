@@ -313,9 +313,10 @@ class LineHostBuffer(LineBuffer):
                     elif dtype in ('error', 'warning'):
                         data = args.get('data', None)
                         if data is not None:
+                            rself.new_line()
                             rself.storage.append(data)
                     elif dtype == 'close':
-                        pass
+                        rself.new_line()
                     else:
                         raise TypeError('The message type could not be recognized.')
                     return {'message': 'success'}, 201
