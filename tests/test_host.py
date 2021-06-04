@@ -26,7 +26,7 @@ try:
 except ImportError:
     from builtins import tuple as Tuple
 
-from werkzeug.serving import make_server
+from werkzeug.serving import make_server, WSGIRequestHandler
 import requests
 import flask
 from flask_restful import Api
@@ -122,6 +122,26 @@ def worker_process_lite(address: str) -> None:
     buffer.send_eof()
 
 
+def worker_process_stop(address: str) -> None:
+    '''The worker for the thread-mode testing (lite).
+    The process used for testing the manually terminating.
+    The process should be ended by a send_error() or a send_eof().
+    Each end signal should be only sent by once.
+    '''
+    buffer = LineHostMirror(address=address)
+    try:
+        for i in range(10):
+            time.sleep(0.1)
+            sys.stdout = buffer
+            print('Line:', 'buffer', 'new', i, end='\n')
+            if i > 0:
+                time.sleep(10.0)
+    except Exception as error:  # pylint: disable=broad-except
+        buffer.send_error(error)
+    else:
+        buffer.send_eof()
+
+
 def create_test_api(name: str = 'api_name') -> Tuple[flask.Flask, Api]:
     app_ = flask.Flask(name)
     api = Api(app_)
@@ -179,6 +199,21 @@ def verify_online(address: str, retries: int = 5) -> None:
 class TestHost:
     '''Test the host module of the package.'''
 
+    @staticmethod
+    def show_messages(log: logging.Logger, messages: dict) -> None:
+        '''Show the messages from the buffer.'''
+        for i, item in enumerate(messages):
+            if isinstance(item, dict) and item.get('/is_syncsdata', False):
+                item = GroupedMessage.deserialize(item)
+                if item.type == 'error':
+                    log.critical('%s', '{0:02d}: {1}'.format(i, item))
+                elif item.type == 'warning':
+                    log.warning('%s', '{0:02d}: {1}'.format(i, item))
+                else:
+                    log.info('%s', '{0:02d}: {1}'.format(i, item))
+            else:
+                log.info('%s', '{0:02d}: {1}'.format(i, item))
+
     def test_host_buffer(self, temp_server) -> None:
         '''Test the host.LineHostBuffer in the single thread mode.'''
         log = logging.getLogger('test_host')
@@ -214,8 +249,7 @@ class TestHost:
         # Show the buffer results.
         res = requests.get(url=address)
         messages = res.json()['data']
-        for i, item in enumerate(messages):
-            log.info('%s', '{0:02d}: {1}'.format(i, item))
+        self.show_messages(log, messages)
         assert len(messages) == 10
 
     def test_host_thread(self, temp_server) -> None:
@@ -239,8 +273,7 @@ class TestHost:
         # Show the buffer results.
         res = requests.get(url=address)
         messages = res.json()['data']
-        for i, item in enumerate(messages):
-            log.info('%s', '{0:02d}: {1}'.format(i, item))
+        self.show_messages(log, messages)
         assert len(messages) == 10
 
     def test_host_process(self, temp_server) -> None:
@@ -259,23 +292,13 @@ class TestHost:
         # Show the buffer results.
         res = requests.get(url=address)
         messages = res.json()['data']
-        for i, item in enumerate(messages):
-            if isinstance(item, dict) and item.get('/is_syncsdata', False):
-                item = GroupedMessage.deserialize(item)
-                if item.type == 'error':
-                    log.critical('%s', '{0:02d}: {1}'.format(i, item))
-                elif item.type == 'warning':
-                    log.warning('%s', '{0:02d}: {1}'.format(i, item))
-                else:
-                    log.info('%s', '{0:02d}: {1}'.format(i, item))
-            else:
-                log.info('%s', '{0:02d}: {1}'.format(i, item))
+        self.show_messages(log, messages)
         assert len(messages) == 10
 
     def test_host_thread_clear(self, temp_server) -> None:
-        '''Test the file.LineHostBuffer.clear() in the multi-thread mode.
+        '''Test the host.LineHostBuffer.clear() in the multi-thread mode.
         '''
-        log = logging.getLogger('test_file')
+        log = logging.getLogger('test_host')
         address = 'http://localhost:5000/sync-stream'
         verify_online(address)
         log.info('Successfully connect to the remote server.')
@@ -331,9 +354,9 @@ class TestHost:
         assert len(messages) == 4
 
     def test_host_process_clear(self, temp_server) -> None:
-        '''Test the file.LineHostBuffer.clear() in the multi-process mode.
+        '''Test the host.LineHostBuffer.clear() in the multi-process mode.
         '''
-        log = logging.getLogger('test_file')
+        log = logging.getLogger('test_host')
         address = 'http://localhost:5000/sync-stream'
         verify_online(address)
         log.info('Successfully connect to the remote server.')
@@ -376,3 +399,29 @@ class TestHost:
         res = requests.get(url=address)
         messages = res.json()['data']
         assert len(messages) == 4
+
+    def test_host_process_stop(self, temp_server) -> None:
+        '''Test the host.LineHostBuffer.stop_all_mirrors() in the multi-process mode.'''
+        log = logging.getLogger('test_host')
+        address = 'http://localhost:5000/sync-stream'
+        verify_online(address)
+        log.info('Successfully connect to the remote server.')
+
+        # Write buffer.
+        log.debug('Start to write the buffer.')
+        with multiprocessing.Pool(4) as pool:
+            workers = pool.map_async(worker_process_stop, tuple(address for _ in range(4)))
+            time.sleep(1.0)
+            log.debug('Send the close signal to the sub-processes.')
+            res = requests.post(url=address + '-state', json={'state': 'closed', 'value': 'true'})
+            assert res.status_code < 400
+            workers.wait()
+
+        res = requests.delete(url=address + '-state')
+        assert res.status_code < 400
+
+        # Show the buffer results.
+        res = requests.get(url=address)
+        messages = res.json()['data']
+        log.critical(messages)
+        self.show_messages(log, messages)

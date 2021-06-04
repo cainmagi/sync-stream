@@ -100,8 +100,42 @@ def worker_process_lite(buffer: LineProcMirror) -> None:
     buffer.send_eof()
 
 
+def worker_process_stop(buffer: LineProcMirror) -> None:
+    '''The worker for the process-mode testing (stop).
+    The process used for testing the manually terminating.
+    The process should be ended by a send_error() or a send_eof().
+    Each end signal should be only sent by once.
+    '''
+    try:
+        sys.stdout = buffer
+        sys.stderr = buffer
+        for i in range(10):
+            time.sleep(0.1)
+            print('Line:', 'buffer', 'new', i, end='\n')
+            if i > 0:
+                time.sleep(0.9)
+    except Exception as error:  # pylint: disable=broad-except
+        buffer.send_error(error)
+    else:
+        buffer.send_eof()
+
+
 class TestMProc:
     '''Test the mproc module of the package.'''
+
+    @staticmethod
+    def show_messages(log: logging.Logger, messages: dict) -> None:
+        '''Show the messages from the buffer.'''
+        for i, item in enumerate(messages):
+            if isinstance(item, GroupedMessage):
+                if item.type == 'error':
+                    log.critical('%s', '{0:02d}: {1}'.format(i, item))
+                elif item.type == 'warning':
+                    log.warning('%s', '{0:02d}: {1}'.format(i, item))
+                else:
+                    log.info('%s', '{0:02d}: {1}'.format(i, item))
+            else:
+                log.info('%s', '{0:02d}: {1}'.format(i, item))
 
     def test_mproc_buffer(self) -> None:
         '''Test the mproc.LineBuffer in the single thread mode.'''
@@ -127,8 +161,7 @@ class TestMProc:
 
         # Show the buffer results.
         messages = tbuf.read()
-        for i, item in enumerate(messages):
-            log.info('%s', '{0:02d}: {1}'.format(i, item))
+        self.show_messages(log, messages)
         assert len(messages) == 10
 
     def test_mproc_with_logging(self, capsys) -> None:
@@ -153,8 +186,7 @@ class TestMProc:
         sys.stderr = sys.__stderr__
         tbuf.write(capsys.readouterr().err)  # This step is not required out of pytest, because pytest always captures the std stream created by log.
         messages = tbuf.read()
-        for i, item in enumerate(messages):
-            log.info('%s', '{0:02d}: {1}'.format(i, item))
+        self.show_messages(log, messages)
         assert len(messages) == 3
 
     def test_mproc_thread(self) -> None:
@@ -176,8 +208,7 @@ class TestMProc:
 
         # Show the buffer results.
         messages = tbuf.read()
-        for i, item in enumerate(messages):
-            log.info('%s', '{0:02d}: {1}'.format(i, item))
+        self.show_messages(log, messages)
         assert len(messages) == 10
 
     def test_mproc_process(self) -> None:
@@ -194,17 +225,8 @@ class TestMProc:
 
         # Show the buffer results.
         messages = pbuf.read()
-        for i, item in enumerate(messages):
-            if isinstance(item, GroupedMessage):
-                if item.type == 'error':
-                    log.critical('%s', '{0:02d}: {1}'.format(i, item))
-                elif item.type == 'warning':
-                    log.warning('%s', '{0:02d}: {1}'.format(i, item))
-                else:
-                    log.info('%s', '{0:02d}: {1}'.format(i, item))
-            else:
-                log.info('%s', '{0:02d}: {1}'.format(i, item))
         assert len(messages) == 20
+        self.show_messages(log, messages)
 
     def test_mproc_thread_clear(self) -> None:
         '''Test the mproc.LineBuffer.clear() in the multi-thread mode.'''
@@ -281,3 +303,24 @@ class TestMProc:
         # Check message items, should be 8 now.
         messages = pbuf.read()
         assert len(messages) == 8
+
+    def test_mproc_process_stop(self) -> None:
+        '''Test the mproc.LineBuffer.stop_all_mirrors() in the multi-process mode.'''
+        log = logging.getLogger('test_mproc')
+        pbuf = LineProcBuffer(maxlen=20)
+
+        # Write buffer.
+        log.debug('Start to write the buffer.')
+        with multiprocessing.Pool(4) as pool:
+            pool.map_async(worker_process_stop, tuple(pbuf.mirror for _ in range(4)))
+            time.sleep(1.0)
+            log.debug('Send the close signal to the sub-processes.')
+            pbuf.stop_all_mirrors()
+            pbuf.wait()
+            pbuf.reset_states()
+
+        # Check message items, should be 16 now.
+        messages = pbuf.read()
+        assert len(messages) >= 4
+        # Show the buffer results.
+        self.show_messages(log, messages)

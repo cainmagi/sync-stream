@@ -24,6 +24,12 @@ To be built...
 
 ## Update reports
 
+### 0.3.0 @ 6/4/2021
+
+1. Support the stop signal for `mproc` and `host` modules.
+2. Fix some bugs in the testing script.
+3. Fix typos.
+
 ### 0.2.2 @ 5/25/2021
 
 1. Add `clear()` methods for all buffers and mirrors.

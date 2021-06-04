@@ -50,16 +50,16 @@ class LineFileBuffer:
                     processes to interrupt each other.
         '''
         if not isinstance(maxlen, int) or maxlen < 1:
-            raise TypeError('The argument "maxlen" should be a positive integer.')
+            raise TypeError('syncstream: The argument "maxlen" should be a positive integer.')
         if not isinstance(file_path, str) or file_path == '':
-            raise TypeError('The argument "file_path" should be a non-empty str.')
+            raise TypeError('syncstream: The argument "file_path" should be a non-empty str.')
         tmp_id = str(tmp_id)
         if not isinstance(tmp_id, str) or tmp_id == '':
-            raise TypeError('The argument "tmp_id" should be a non-empty str.')
+            raise TypeError('syncstream: The argument "tmp_id" should be a non-empty str.')
         self.__file_path = os.path.splitext(file_path)[0]
         file_dir, file_name = os.path.split(self.__file_path)
         if file_name == '':
-            raise TypeError('The argument "file_path" should contain a non-empty file name.')
+            raise TypeError('syncstream: The argument "file_path" should contain a non-empty file name.')
         self.__file_dir = '.' if file_dir == '' else file_dir
         self.__file_name = file_name
         self.__tmp_id = tmp_id

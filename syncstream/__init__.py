@@ -26,6 +26,10 @@
 ################################################################
 # Update reports:
 # ---------------
+# 0.3.0 @ 6/4/2021
+#   1. Support the stop signal for `mproc` and `host` modules.
+#   2. Fix some bugs in the testing script.
+#   3. Fix typos.
 # 0.2.2 @ 5/25/2021
 #   1. Add `clear()` methods for all buffers and mirrors.
 #   2. Fix typos in the package setup and info file.
@@ -64,7 +68,7 @@ except ImportError:
     IS_HOST_ENABLED = False
 
 
-__version__ = '0.2.2'
+__version__ = '0.3.0'
 
 __all__ = (
     'base', 'mproc',

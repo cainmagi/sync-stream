@@ -45,7 +45,7 @@ class LineBuffer:
             maxlen: the maximal number of stored lines.
         '''
         if not isinstance(maxlen, int) or maxlen < 1:
-            raise TypeError('The argument "maxlen" should be a positive integer.')
+            raise TypeError('syncstream: The argument "maxlen" should be a positive integer.')
         self.storage = collections.deque(maxlen=maxlen)
         self.last_line = io.StringIO()
         self.__last_line_lock = threading.Lock()
@@ -175,8 +175,8 @@ class LineProcMirror:
     This mirror is initialized by `LineProcBuffer`, and would be used for managing the lines
     written to the buffer.
     '''
-    def __init__(self, q_maxsize: int = 0, aggressive: bool = False, timeout: int = None,
-                 _queue: queue.Queue = None) -> None:
+    def __init__(self, q_maxsize: int = 0, aggressive: bool = False, timeout: float = None,
+                 _queue: queue.Queue = None, _state: dict = None, _state_lock: threading.Lock = None) -> None:
         '''Initialization
         Arguments:
             q_maxsize: the `maxsize` of the queue. Use 0 means no limitation. A size limited
@@ -191,6 +191,8 @@ class LineProcMirror:
                     created by multiprocessing.Queue(). A recommended way is to set
                     this value by multiprocessing.Manager(). In this case, `q_maxsize`
                     would not be used.
+            _state, _state_lock: required for getting the buffer states. If not set, would
+                                 not turn on the stop signal.
         '''
         self.__buffer = io.StringIO()
         self.__buffer_lock_ = None
@@ -201,6 +203,11 @@ class LineProcMirror:
             self.__queue = multiprocessing.Queue(maxsize=q_maxsize)
         else:
             self.__queue = _queue
+        if _state is not None and _state_lock is not None:
+            self.__state_lock = _state_lock
+            self.__state = _state
+        else:
+            self.__state_lock = None
 
     @property
     def __buffer_lock(self) -> threading.Lock:
@@ -311,6 +318,14 @@ class LineProcMirror:
         '''The write() method without lock.
         This method is private and should not be used by users.
         '''
+        try:
+            if self.__state_lock is not None:
+                with self.__state_lock:
+                    is_closed = self.__state.get('closed', False)
+                    if is_closed:
+                        raise StopIteration('syncstream: The sub-process is terminated by users.')
+        except queue.Empty:
+            pass
         message_lines = data.splitlines()
         if self.aggressive:
             self.send_data(data=data)
@@ -336,7 +351,7 @@ class LineProcMirror:
             data: the data that would be written in the stream.
         '''
         with self.__buffer_lock:
-            self.__write(data)
+            return self.__write(data)
 
 
 class LineProcBuffer(LineBuffer):
@@ -364,7 +379,9 @@ class LineProcBuffer(LineBuffer):
         '''
         super().__init__(maxlen=maxlen)
         self.__manager = multiprocessing.Manager()
-        self.__mirror = LineProcMirror(q_maxsize=2 * maxlen, aggressive=False, timeout=None, _queue=self.__manager.Queue())
+        self.__state = self.__manager.dict(closed=False)
+        self.__state_lock = self.__manager.Lock()  # pylint: disable=no-member
+        self.__mirror = LineProcMirror(q_maxsize=2 * maxlen, aggressive=False, timeout=None, _queue=self.__manager.Queue(), _state=self.__state, _state_lock=self.__state_lock)
         self.n_mirrors = 0
         self.__config_lock = threading.Lock()
 
@@ -377,10 +394,33 @@ class LineProcBuffer(LineBuffer):
         self.n_mirrors += 1
         return self.__mirror
 
+    def stop_all_mirrors(self) -> None:
+        '''Send stop signals to all mirrors.
+        This operation is used for terminating the sub-processes safely. It does not
+        guarantee that the processes would be closed instantly. Each time when the new
+        message is written by the sub-processes, a check would be triggered.
+        If users want to use this method, please ensure that the StopIteration error
+        is catched by the process. The error would not be catched automatically. If
+        users do not catch the error, the main process would stuck at `wait()`.
+        '''
+        with self.__config_lock:
+            with self.__state_lock:
+                self.__state['closed'] = True
+
+    def reset_states(self) -> None:
+        '''Reset the states of the buffer.
+        This method should be used if the buffer needs to be reused.
+        '''
+        with self.__config_lock:
+            with self.__state_lock:
+                self.__state.clear()
+                self.__state['closed'] = False
+
     def __check_close(self) -> bool:
         '''Check whether to finish the `wait()` method.
         This method would be used when receiving a closing signal.
         This method is private and should not be used by users.
+        Note that this method is always triggered in the config_lock.
         '''
         self.n_mirrors -= 1
         if self.n_mirrors > 0:
@@ -423,5 +463,5 @@ class LineProcBuffer(LineBuffer):
         Arguments:
             data: the data that would be written in the stream.
         '''
-        raise NotImplementedError('sync-stdout: Should not use this method, use '
+        raise NotImplementedError('syncstream: Should not use this method, use '
                                   '`self.mirror.write()` for instead.')

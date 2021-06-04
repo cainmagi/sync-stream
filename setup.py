@@ -38,7 +38,7 @@ INSTALL_REQUIRES_HOST = [
 
 setuptools.setup(
     name='syncstream',
-    version='0.2.2',
+    version='0.3.0',
     author='Yuchen Jin',
     author_email='cainmagi@gmail.com',
     description='A python tool for synchronize the messages from different threads, processes or hosts.',
