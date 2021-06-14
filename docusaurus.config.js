@@ -1,0 +1,111 @@
+/** @type {import('@docusaurus/types').DocusaurusConfig} */
+module.exports = {
+  title: 'SyncStream',
+  tagline: 'A python tool for synchronizing the messages from different threads, processes, or hosts.',
+  url: 'https://cainmagi.github.io/sync-stream',
+  baseUrl: '/',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'warn',
+  favicon: 'img/favicon.ico',
+  organizationName: 'cainmagi', // Usually your GitHub org/user name.
+  projectName: 'sync-stream', // Usually your repo name.
+  plugins: ['docusaurus-plugin-sass'],
+  themeConfig: {
+    prism: {
+      theme: require('prism-react-renderer/themes/github'),
+      darkTheme: require('prism-react-renderer/themes/dracula'),
+    },
+    hideableSidebar: true,
+    navbar: {
+      title: 'SyncStream',
+      logo: {
+        alt: 'SyncStream Logo',
+        src: 'img/logo.svg',
+      },
+      items: [
+        {
+          type: 'doc',
+          docId: 'introduction',
+          position: 'left',
+          label: 'Tutorial',
+        },
+        {
+          type: 'doc',
+          docId: 'apis',
+          position: 'left',
+          label: 'APIs',
+        },
+        {
+          href: 'https://github.com/cainmagi/sync-stream',
+          label: 'GitHub',
+          position: 'right',
+        },
+      ],
+    },
+    footer: {
+      style: 'dark',
+      links: [
+        {
+          title: 'Docs',
+          items: [
+            {
+              label: 'Tutorial',
+              to: '/docs/',
+            },
+            {
+              label: 'APIs',
+              to: '/docs/apis/',
+            },
+          ],
+        },
+        {
+          title: 'Contact the author',
+          items: [
+            {
+              label: 'Website',
+              href: 'https://cainmagi.github.io/',
+            },
+            {
+              label: 'Email',
+              href: 'mailto:cainmagi@gmail.com',
+            },
+            {
+              label: 'Github',
+              href: 'https://github.com/cainmagi',
+            },
+          ],
+        },
+        {
+          title: 'Community',
+          items: [
+            {
+              label: 'UH MODAL Lib',
+              to: 'https://modal.ece.uh.edu/',
+            },
+            {
+              label: 'University of Houston',
+              href: 'https://www.uh.edu/',
+            },
+          ],
+        },
+      ],
+      copyright: `Copyright © ${new Date().getFullYear()} Sync-Stream, Yuchen Jin. Built with Docusaurus.`,
+    },
+  },
+  presets: [
+    [
+      '@docusaurus/preset-classic',
+      {
+        docs: {
+          sidebarPath: require.resolve('./sidebars.js'),
+          // Please change this to your repo.
+          editUrl:
+            'https://github.com/cainmagi/sync-stream/edit/docs/',
+        },
+        theme: {
+          customCss: require.resolve('./src/css/custom.scss'),
+        },
+      },
+    ],
+  ],
+};

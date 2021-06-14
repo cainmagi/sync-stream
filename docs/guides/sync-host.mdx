@@ -1,0 +1,80 @@
+---
+id: sync-host
+title: Synchronize among devices
+sidebar_label: Sync. among devices
+slug: /sync-host
+description: A tutorial about synchronizing the message among devices.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+In some cases, we need to synchornize the messages among differrent devices. Each device could not get access to the file system of the other devices. The synchronization needs to be implemented by the web service. We design the `LineHostBuffer` based on [`flask`][doc-flask] and [`flask-restful`][doc-flask-restful], and the `LineHostMirror` based on [`urllib3`][doc-urllib3].
+
+In the following example, we provide two scripts (`client.py` and `host.py`). The host should be launched before the client starts. Then the messages from the client would be catched by the host.
+
+<Tabs
+  defaultValue="client"
+  values={[
+    { label: 'Client', value: 'client', },
+    { label: 'Host', value: 'host', },
+  ]
+}>
+
+<TabItem value="client">
+
+```python {6,8,14,17} title="client.py"
+from contextlib import redirect_stdout, redirect_stderr
+import requests
+import syncstream
+
+address = 'http://localhost:5000/sync-stream'
+buffer = syncstream.LineHostMirror(address=address)
+
+with redirect_stdout(buffer), redirect_stderr(buffer):
+    for i in range(3):
+        print('Message', f'"{i:02d}".')
+    print('Line break\nin middle.', end='')
+    print('No line break.', end='')
+
+buffer.send_eof()  # Send the final signal.
+
+# The following part could be split to another device.
+data = requests.get(address).json()['data']
+for mitem in data:
+    print(mitem)
+```
+
+</TabItem>
+
+<TabItem value="host">
+
+```python {8} title="host.py"
+import flask
+from flask_restful import Api
+import syncstream
+
+app = flask.Flask('test')
+api = Api(app)
+
+syncstream.LineHostBuffer(api_route='/sync-stream', maxlen=10).serve(api)
+
+if __name__ == '__main__':
+    app.run('localhost', port=5000)
+```
+
+</TabItem>
+
+</Tabs>
+
+The buffer is defined on the host side. However, users do not need to do anything special with the host. The `LineHostBuffer` is only used for providng the API to an existing Flask app. In our example, writing and reading the messages are performed in `client.py`. In the first part, the stdout and stderr of the client is redirected to the remote host. Each time `print` is called, the message would be sent to the remote side. After all messages sent, we start another request for getting the results from the host. Actually, the reading and the writing operations could be split in two different scripts, even split on two different devices.
+
+:::caution
+
+Some packages (like `pytest`) may redirect the stdout and stderr. When working with such packages, `LineHostMirror` may fail to redirect the messages to the remote side.
+
+:::
+
+[doc-flask]:https://flask.palletsprojects.com/en/2.0.x/ "Flask"
+[doc-flask-restful]:https://flask-restful.readthedocs.io/en/latest/index.html "Flask-RESTful"
+[doc-urllib3]:https://urllib3.readthedocs.io/en/latest/index.html "urllib3"
