@@ -38,7 +38,7 @@ jobs:
           node-version: '12.x'
       - name: Release to GitHub Pages
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GIT_USER: cainmagi
         run: |
           git config --global user.email "cainmagi@gmail.com"
