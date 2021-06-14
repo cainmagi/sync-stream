@@ -26,6 +26,11 @@
 ################################################################
 # Update reports:
 # ---------------
+# 0.3.2 @ 6/14/2021
+#   1. Fix a bug caused by stopping the mirrors.
+#   2. Format the meta-data defined in `setup.py`.
+#   3. Add the documentation. Currently only the tutorial is
+#      finished.
 # 0.3.0 @ 6/4/2021
 #   1. Support the stop signal for `mproc` and `host` modules.
 #   2. Fix some bugs in the testing script.
@@ -68,7 +73,7 @@ except ImportError:
     IS_HOST_ENABLED = False
 
 
-__version__ = '0.3.0'
+__version__ = '0.3.2'
 
 __all__ = (
     'base', 'mproc',

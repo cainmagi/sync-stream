@@ -38,7 +38,7 @@ INSTALL_REQUIRES_HOST = [
 
 setuptools.setup(
     name='syncstream',
-    version='0.3.0',
+    version='0.3.2',
     author='Yuchen Jin',
     author_email='cainmagi@gmail.com',
     description='A python tool for synchronize the messages from different threads, processes or hosts.',
@@ -46,7 +46,8 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url='https://github.com/cainmagi/sync-stream',
     project_urls={
-        'Bug Tracker': 'https://github.com/cainmagi/sync-stream/issues',
+        'Tracker': 'https://github.com/cainmagi/sync-stream/issues',
+        'Documentation': 'https://cainmagi.github.io/sync-stream/',
     },
     classifiers=[
         'Programming Language :: Python :: 3',

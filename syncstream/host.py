@@ -417,15 +417,13 @@ class LineHostBuffer(LineBuffer):
         If users want to use this method, please ensure that the StopIteration error
         is catched by the process. The error would not be sent back to the buffer.
         '''
-        with self.__config_lock:
-            with self.__state_lock:
-                self.__state['closed'] = True
+        with self.__state_lock:
+            self.__state['closed'] = True
 
     def reset_states(self) -> None:
         '''Reset the states of the buffer.
         This method should be used if the buffer needs to be reused.
         '''
-        with self.__config_lock:
-            with self.__state_lock:
-                self.__state.clear()
-                self.__state['closed'] = False
+        with self.__state_lock:
+            self.__state.clear()
+            self.__state['closed'] = False

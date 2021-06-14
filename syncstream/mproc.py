@@ -403,18 +403,16 @@ class LineProcBuffer(LineBuffer):
         is catched by the process. The error would not be catched automatically. If
         users do not catch the error, the main process would stuck at `wait()`.
         '''
-        with self.__config_lock:
-            with self.__state_lock:
-                self.__state['closed'] = True
+        with self.__state_lock:
+            self.__state['closed'] = True
 
     def reset_states(self) -> None:
         '''Reset the states of the buffer.
         This method should be used if the buffer needs to be reused.
         '''
-        with self.__config_lock:
-            with self.__state_lock:
-                self.__state.clear()
-                self.__state['closed'] = False
+        with self.__state_lock:
+            self.__state.clear()
+            self.__state['closed'] = False
 
     def __check_close(self) -> bool:
         '''Check whether to finish the `wait()` method.

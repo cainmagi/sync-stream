@@ -20,9 +20,15 @@ pip install syncstream[option1,option2...]
 
 ## Documentation
 
-To be built...
+View the documentation here: [:blue_book: https://cainmagi.github.io/sync-stream/](https://cainmagi.github.io/sync-stream/)
 
 ## Update reports
+
+### 0.3.2 @ 6/14/2021
+
+1. Fix a bug caused by stopping the mirrors.
+2. Format the meta-data defined in `setup.py`.
+3. Add the documentation. Currently only the tutorial is finished.
 
 ### 0.3.0 @ 6/4/2021
 
