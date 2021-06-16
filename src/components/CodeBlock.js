@@ -18,6 +18,7 @@ import useThemeContext from '@theme/hooks/useThemeContext'; //docs: https://v2.d
 
 function CodeBlock(props) {
   const { isDarkTheme } = useThemeContext();
+  console.log(isDarkTheme);
   const curTheme = isDarkTheme ? themeDracula : themeGithub;
   return (
     <Highlight {...defaultProps} code={props.code} language={props.language} theme={curTheme}>
