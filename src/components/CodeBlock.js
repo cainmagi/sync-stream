@@ -9,7 +9,7 @@
  */
 
 import React, { Component } from 'react';
-import Highlight, { defaultProps } from 'prism-react-renderer';
+import Highlight, { Prism } from 'prism-react-renderer';
 import themeGithub from 'prism-react-renderer/themes/github';
 import themeDracula from 'prism-react-renderer/themes/dracula';
 
@@ -18,10 +18,9 @@ import useThemeContext from '@theme/hooks/useThemeContext'; //docs: https://v2.d
 
 function CodeBlock(props) {
   const { isDarkTheme } = useThemeContext();
-  console.log(isDarkTheme);
   const curTheme = isDarkTheme ? themeDracula : themeGithub;
   return (
-    <Highlight {...defaultProps} code={props.code} language={props.language} theme={curTheme}>
+    <Highlight Prism={Prism} code={props.code} language={props.language} theme={curTheme}>
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
       <pre className={className} style={{ ...style, textAlign: 'left' }}>
         {tokens.map((line, i) => (
