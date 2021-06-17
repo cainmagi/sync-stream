@@ -8,17 +8,17 @@
  * @emails oncall+i18n_fbt_js
  */
 
-import React, { Component } from 'react';
+import React from 'react';
 import Highlight, { Prism } from 'prism-react-renderer';
-import themeGithub from 'prism-react-renderer/themes/github';
-import themeDracula from 'prism-react-renderer/themes/dracula';
 
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useThemeContext from '@theme/hooks/useThemeContext'; //docs: https://v2.docusaurus.io/docs/2.0.0-alpha.69/theme-classic#usethemecontext
 
 
 function CodeBlock(props) {
+  const { siteConfig } = useDocusaurusContext();
   const { isDarkTheme } = useThemeContext();
-  const curTheme = isDarkTheme ? themeDracula : themeGithub;
+  const curTheme = isDarkTheme ? siteConfig.themeConfig.prism.darkTheme : siteConfig.themeConfig.prism.theme;
   return (
     <Highlight Prism={Prism} code={props.code} language={props.language} theme={curTheme}>
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
