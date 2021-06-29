@@ -27,7 +27,7 @@ View the documentation here: [:blue_book: https://cainmagi.github.io/sync-stream
 ### 0.3.3 @ 6/29/2021
 
 1. Fix small typos.
-2. Bump the depedencies to the newest versions.
+2. Bump the dependencies to the newest versions.
 
 ### 0.3.2 @ 6/14/2021
 

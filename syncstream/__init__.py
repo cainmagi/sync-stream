@@ -28,7 +28,7 @@
 # ---------------
 # 0.3.3 @ 6/29/2021
 #   1. Fix small typos.
-#   2. Bump the depedencies to the newest versions.
+#   2. Bump the dependencies to the newest versions.
 # 0.3.2 @ 6/14/2021
 #   1. Fix a bug caused by stopping the mirrors.
 #   2. Format the meta-data defined in `setup.py`.
