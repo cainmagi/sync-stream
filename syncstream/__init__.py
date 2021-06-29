@@ -26,6 +26,9 @@
 ################################################################
 # Update reports:
 # ---------------
+# 0.3.3 @ 6/29/2021
+#   1. Fix small typos.
+#   2. Bump the depedencies to the newest versions.
 # 0.3.2 @ 6/14/2021
 #   1. Fix a bug caused by stopping the mirrors.
 #   2. Format the meta-data defined in `setup.py`.
@@ -73,7 +76,7 @@ except ImportError:
     IS_HOST_ENABLED = False
 
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 __all__ = (
     'base', 'mproc',

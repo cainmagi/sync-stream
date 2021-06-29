@@ -129,7 +129,7 @@ class TestFile:
     def test_file_process(self) -> None:
         '''Test the file.LineFileBuffer in the multi-process mode.'''
         log = logging.getLogger('test_file')
-        pbuf = LineFileBuffer(self.log_path, maxlen=20)
+        fbuf = LineFileBuffer(self.log_path, maxlen=20)
 
         # Write buffer.
         with multiprocessing.Pool(4) as pool:
@@ -138,7 +138,7 @@ class TestFile:
         log.debug('Confirm: The main stdout is not influenced.')
 
         # Show the buffer results.
-        messages = pbuf.read()
+        messages = fbuf.read()
         for i, item in enumerate(messages):
             log.info('%s', '{0:02d}: {1}'.format(i, item))
         assert len(messages) == 20
@@ -147,12 +147,12 @@ class TestFile:
         '''Test the file.LineFileBuffer.clear() in the multi-process mode.
         '''
         log = logging.getLogger('test_file')
-        pbuf = LineFileBuffer(self.log_path, maxlen=20)
+        fbuf = LineFileBuffer(self.log_path, maxlen=20)
 
         # Clear, then check message items, should be 0 now.
-        pbuf.clear()
+        fbuf.clear()
         log.debug('Clear all messages.')
-        messages = pbuf.read()
+        messages = fbuf.read()
         assert len(messages) == 0
 
         # Write buffer
@@ -161,22 +161,22 @@ class TestFile:
             pool.map(worker_process_lite, tuple((self.log_path, 20) for _ in range(4)))
 
         # Check message items, should be 16 now.
-        messages = pbuf.read()
+        messages = fbuf.read()
         assert len(messages) == 16
 
         # Clear, then check message items, should be 0 now.
-        pbuf.clear()
+        fbuf.clear()
         log.debug('Clear all messages.')
-        messages = pbuf.read()
+        messages = fbuf.read()
         assert len(messages) == 0
 
         # Write buffer with a clear
         with multiprocessing.Pool(4) as pool:
             pool.map(worker_process_lite, tuple((self.log_path, 20) for _ in range(4)))
-            pbuf.clear()
+            fbuf.clear()
             log.debug('Clear all messages.')
             pool.map(worker_process_lite, tuple((self.log_path, 20) for _ in range(4)))
 
         # Check message items, should be 8 now.
-        messages = pbuf.read()
+        messages = fbuf.read()
         assert len(messages) == 8

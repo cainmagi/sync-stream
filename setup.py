@@ -25,20 +25,20 @@ with open('README.md', 'r') as fh:
     LONG_DESCRIPTION = fh.read()
 
 INSTALL_REQUIRES_FILE = [
-    'fasteners>=0.16',
+    'fasteners>=0.16.3',
 ]
 
 INSTALL_REQUIRES_HOST = [
-    'flask>=2.0.0',
+    'flask>=2.0.1',
     'flask-restful>=0.3.9',
-    'jinja2>=3.0.0',
+    'jinja2>=3.0.1',
     'werkzeug>=2.0.1',
-    'urllib3>=1.26.4'
+    'urllib3>=1.26.6'
 ]
 
 setuptools.setup(
     name='syncstream',
-    version='0.3.2',
+    version='0.3.3',
     author='Yuchen Jin',
     author_email='cainmagi@gmail.com',
     description='A python tool for synchronize the messages from different threads, processes or hosts.',

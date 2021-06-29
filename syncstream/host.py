@@ -36,8 +36,9 @@ from .mproc import LineBuffer
 
 class LineHostMirror:
     '''The mirror for the host-safe line-based buffer.
-    This mirror is initialized by `LineProcBuffer`, and would be used for managing the lines
-    written to the buffer.
+    This mirror is the client of the services from LineHostBuffer. It should be initialized
+    independently, and would be used for managing the lines written to the buffer. Different
+    from LineProcMirror, the independent mirror does not require shared queue.
     '''
     def __init__(self, address: str, aggressive: bool = False, timeout: int = None) -> None:
         '''Initialization
@@ -104,8 +105,7 @@ class LineHostMirror:
         in the `aggresive` mode, the temporary buffer would not be used. In this case,
         this method would not exert any influences to the mirror.
         This method is thread-safe. Mirrors in different processes would not share the
-        temporary buffer. Note that the shared queue would not be cleared by this
-        method.
+        temporary buffer.
         '''
         with self.__buffer_lock:
             self.__buffer.seek(0, os.SEEK_SET)
@@ -121,8 +121,9 @@ class LineHostMirror:
 
     def send_eof(self) -> None:
         '''Send an EOF signal to the main buffer.
-        The EOF signal is used for telling the main buffer stop to wait. Note that this
-        method would not close the queue. The mirror could be reused for another program.
+        The EOF signal is used for telling the main buffer flush the temporary buffer.
+        Note that this method would not close the queue. The mirror could be reused for
+        another program.
         '''
         self.new_line()
         with SafeRequest(self.__http.request(
@@ -167,11 +168,7 @@ class LineHostMirror:
 
     def send_data(self, data: str) -> None:
         '''Send the data to the main buffer.
-        This method is equivalent to call the main buffer (LineProcBuffer) by the following
-        method protected by host-safe synchronization:
-        ```python
-        pbuf.write(data)
-        ```
+        This method would fire a POST service of the main buffer, and send the str data.
         This method is used by other methods implicitly, and should not be used by users.
         Arguments:
             data: a str to be sent to the main buffer.
@@ -257,13 +254,13 @@ class LineHostMirror:
 class LineHostBuffer(LineBuffer):
     '''The host service provider for the line-based buffer.
     The rotating buffer with a maximal storage length. This buffer is the extended version of
-    the basic `LineBuffer`. It is used for the case of multi-processing. Use the shared queue
-    of this buffer to ensure the synchronization among processes. For example,
+    the basic `LineBuffer`. It is used in the case of multi-devices. It supports the one-host-
+    multi-clients mode, and supports the syncholization by the web services. For example,
     ```python
     def f(address):
         buffer = LineHostMirror(address=address, timeout=5)
-        sys.stdout = buffer
-        print('example')
+        with contextlib.redirect_stdout(buffer):
+            print('example')
         buffer.send_eof()
 
     pbuf = LineHostBuffer('/sync-stream', maxlen=10)
@@ -273,7 +270,7 @@ class LineHostBuffer(LineBuffer):
     def another_service():
         address = 'http://localhost:5000/sync-stream'
         with multiprocessing.Pool(4) as p:
-            p.map_async(f, tuple(address for _ in range(4))))
+            p.map(f, tuple(address for _ in range(4)))
         print(pbuf.read())
 
     if __name__ == '__main__':
@@ -284,7 +281,7 @@ class LineHostBuffer(LineBuffer):
     or multi-thread cases. If users insist on doing that, each time the print function is
     used, the stream needs to be set.
     '''
-    def __init__(self, api_route='/sync-stream', endpoint=None, maxlen: int = 20) -> None:
+    def __init__(self, api_route: str = '/sync-stream', endpoint: str = None, maxlen: int = 20) -> None:
         '''Initialization.
         Arguments:
             api_route: the address of the api.
@@ -311,7 +308,7 @@ class LineHostBuffer(LineBuffer):
         self.__state_lock = threading.Lock()
         self.__state = dict(closed=False)
 
-    def serve(self, api: Api) -> bool:
+    def serve(self, api: Api) -> None:
         '''Provide the service of the host buffer.
         The service would be equipped as an independent thread. Each time the request
         is received, the service would be triggered, and the thread-safe results would

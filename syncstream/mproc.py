@@ -361,9 +361,10 @@ class LineProcBuffer(LineBuffer):
     of this buffer to ensure the synchronization among processes. For example,
     ```python
     def f(buffer):
-        sys.stdout = buffer
-        print('example')
+        with contextlib.redirect_stdout(buffer):
+            print('example')
         buffer.send_eof()
+
     if __name__ == '__main__':
         pbuf = LineProcBuffer(maxlen=10)
         with multiprocessing.Pool(4) as p:
@@ -428,7 +429,7 @@ class LineProcBuffer(LineBuffer):
 
     def receive(self) -> bool:
         '''Receive one item from the mirror.
-        This method would fetch one item from the process-saft queue, and write the results
+        This method would fetch one item from the process-safe queue, and write the results
         in the thread-safe buffer.
         '''
         with self.__config_lock:
