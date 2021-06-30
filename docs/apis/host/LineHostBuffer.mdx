@@ -24,8 +24,8 @@ import { SourceURL, Splitter } from '@site/src/envs/variables';
 </p>
 
 ```python
-pbuf = syncstream.host.LineHostBuffer(api_route='/sync-stream', endpoint=None, maxlen=2)
-pbuf = syncstream.LineHostBuffer(...)  # Alias
+hbuf = syncstream.host.LineHostBuffer(api_route='/sync-stream', endpoint=None, maxlen=2)
+hbuf = syncstream.LineHostBuffer(...)  # Alias
 ```
 
 The host service provider for the line-based buffer.
