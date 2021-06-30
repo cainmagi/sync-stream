@@ -27,7 +27,31 @@ module.exports = {
     },
   ],
   apis: [
-    'apis'
+    'apis',
+    {
+      type: 'category',
+      label: 'base',
+      collapsed: true,
+      items: ['apis/base/is_end_line_break', 'apis/base/GroupedMessage'],
+    },
+    {
+      type: 'category',
+      label: 'mproc',
+      collapsed: true,
+      items: ['apis/mproc/LineBuffer', 'apis/mproc/LineProcBuffer', 'apis/mproc/LineProcMirror'],
+    },
+    {
+      type: 'category',
+      label: 'file',
+      collapsed: true,
+      items: ['apis/file/LineFileBuffer'],
+    },
+    {
+      type: 'category',
+      label: 'host',
+      collapsed: true,
+      items: ['apis/host/LineHostBuffer', 'apis/host/LineHostMirror'],
+    }
   ]
 
   // But you can create a sidebar manually

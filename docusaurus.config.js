@@ -37,8 +37,9 @@ module.exports = {
         },
         {
           href: 'https://github.com/cainmagi/sync-stream',
-          label: 'GitHub',
           position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
         },
       ],
     },

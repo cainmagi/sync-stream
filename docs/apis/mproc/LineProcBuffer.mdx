@@ -1,0 +1,229 @@
+---
+id: LineProcBuffer
+title: LineProcBuffer
+sidebar_label: LineProcBuffer
+slug: /apis/mproc/LineProcBuffer
+description: The process-safe line-based buffer.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import MDIIcon from '@mdi/react';
+import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
+import { Icon, InlineIcon } from "@iconify/react";
+import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
+import vsiSymbolMethod from '@iconify-icons/codicon/symbol-method';
+import vsiSymbolVariable from '@iconify-icons/codicon/symbol-variable';
+import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
+import { SourceURL, Splitter } from '@site/src/envs/variables';
+
+<p>
+  <InlineIcon icon={vsiSymbolClass} width='1.35rem' style={{"verticalAlign": "bottom"}} /> Class
+  <Splitter />
+  <SourceURL url="mproc.py#L357">
+    <FileCodeIcon size={18} verticalAlign="middle" /> Source
+  </SourceURL>
+</p>
+
+```python
+pbuf = syncstream.mproc.LineProcBuffer(maxlen=20)
+pbuf = syncstream.LineProcBuffer(...)  # Alias
+```
+
+The process-safe line-based buffer.
+
+The rotating buffer with a maximal storage length. This buffer is the extended version of the basic `LineBuffer`. It is used for the case of multi-processing. Use the shared queue of this buffer to ensure the synchronization among processes. To learn how to use this buffer, see the [example](#example) on this page, or the [tutorial](/sync-stream/docs/sync-proc).
+
+## Arguments
+
+### Requires
+
+|  Argument  |  Type  |  <center>Description</center>  |
+| :--------: | :----: | :----------------------------- |
+| `maxlen`   | `int`  | The maximal number of stored lines. This value has the same meaning of [<LinkExternalIcon size={18} verticalAlign="middle" />`deque.maxlen`](https://docs.python.org/3/library/collections.html#collections.deque.maxlen) |
+
+## Methods
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `clear`
+
+```python
+pbuf.clear()
+```
+
+Clear the whole buffer.
+
+This method would clear the storage and the last line stream of this buffer. However, it would not clear any mirrors or copies of this object. This method is thread-safe and should always success.
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `stop_all_mirrors`
+
+```python
+pbuf.stop_all_mirrors()
+```
+
+Send stop signals to all mirrors.
+
+This operation is used for terminating the sub-processes safely. However, this method would not trigger `TERMINATE` or `KILL` signals. Instead, each mirror accepting the stop signal would trigger a `StopIteartion` exception. The checking for the stop signal happens each time when `write()` is used by the mirrors. By this way, most programs would be interrupted.
+
+:::danger
+
+Since this method does not send `TERMINATE` or `KILL` signals, it does not guarantee that the processes would be closed instantly. If users want to use this method, please ensure that the `StopIteration` exception is catched by the `LineProcMirror.send_error()`. The error would not be catched automatically. If users do not catch the error, the main process would stuck at `wait()`.
+
+:::
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `reset_states`
+
+```python
+pbuf.stop_all_mirrors()
+```
+
+Reset the states of the buffer.
+
+During the interaction with the mirrors, the states of the buffer may change. If user want to reuse the buffer and start a new group of sub-processes, please use this method.
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `receive`
+
+```python
+is_live = pbuf.receive()
+```
+
+Receive one item from the mirror.
+
+This method would fetch one item from the process-safe queue, and write the results in the thread-safe buffer. The fetched results would be saved in the storage.
+
+#### Returns
+
+|  Argument  |  Type  |  <center>Description</center>  |
+| :--------: | :----: | :----------------------------- |
+| `is_live`   | `bool` | The finish flag. If this value is `True`, it means the buffer still needs to receive more messages from the mirrors. If `False`, it means that the close signals from all mirrors have been received. |
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `wait`
+
+```python
+pbuf.wait()
+```
+
+The block waiting method. This method is simply implemented by the following codes:
+
+```python
+while pbuf.receive():
+    pass
+```
+
+The method would make the current thread keeping blocked until the buffer receives all messages from the mirrors.
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `parse_lines`
+
+```python
+pbuf.parse_lines(lines)
+```
+
+Parse the lines.
+
+This method would be triggered when the new lines are received (the exception or warning is not included). The default behavior is adding the item into the storage.
+
+Users could inherit this method and override it with their customized parsing method, like regular expression searching. The default behavior is implemented by:
+
+```python
+pbuf.storage.extend(lines)
+```
+
+#### Requires
+
+|  Argument  |  Type  |  <center>Description</center>  |
+| :--------: | :----: | :----------------------------- |
+| `lines`    | `[str]`  | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `read`
+
+```python
+lines = pbuf.read(size=None)
+```
+
+Fetch the stored record items from the buffer. Using the `read()` method is thread-safe and would not influence the cursor of `write()` method.
+
+If the current written line is not blank, the `read()` method would regard it as the last record item.
+
+#### Requires
+
+|  Argument  |  Type  |  <center>Description</center>  |
+| :--------: | :----: | :----------------------------- |
+| `size`     | `int`  | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
+
+#### Returns
+
+|  Argument  |  Type  |  <center>Description</center>  |
+| :--------: | :----: | :----------------------------- |
+| `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `write`
+
+:::caution
+
+This method is prohibited for this class. Because the `write()` method should be only used by the mirror objects.
+
+:::
+
+## Properties
+
+### <InlineIcon icon={vsiSymbolVariable} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `mirror`
+
+```python
+pbuf.mirror
+```
+
+Get the mirror of this buffer.
+
+The buffer should not be used in sub-processes directly. Instead, the buffer/mirror work in master/slave mode. The property `pbuf.mirror` is an instance of [`LineProcMirror`](./LineProcMirror). It is used for providing the process-safe mirror of the buffer in the sub-process.
+
+This property could not be modified after the initialization.
+
+### <InlineIcon icon={vsiSymbolVariable} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `n_mirrors`
+
+```python
+pbuf.n_mirrors
+```
+
+Current living mirrors. The buffer should still need to receive message until `n_mirrors` becomes 0. Each time `pbuf.mirror` is invoked, this value would be increased by 1.
+
+## Example
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python
+import contextlib
+import multiprocessing
+from syncstream.mproc import LineProcBuffer
+
+
+def f(buffer):
+    with contextlib.redirect_stdout(buffer):
+        print('example')
+    buffer.send_eof()
+
+
+if __name__ == '__main__':
+    pbuf = LineProcBuffer(maxlen=10)
+    with multiprocessing.Pool(4) as p:
+        p.map_async(f, tuple(pbuf.mirror for _ in range(4)))
+        pbuf.wait()
+    print(pbuf.read())
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```shell
+('example', 'example', 'example', 'example')
+```
+
+</TabItem>
+</Tabs>

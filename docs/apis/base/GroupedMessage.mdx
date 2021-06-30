@@ -1,0 +1,116 @@
+---
+id: GroupedMessage
+title: GroupedMessage
+sidebar_label: GroupedMessage
+slug: /apis/base/GroupedMessage
+description: A group of messages.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import MDIIcon from '@mdi/react';
+import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
+import { Icon, InlineIcon } from "@iconify/react";
+import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
+import vsiSymbolMethod from '@iconify-icons/codicon/symbol-method';
+import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
+import { SourceURL, Splitter } from '@site/src/envs/variables';
+
+<p>
+  <InlineIcon icon={vsiSymbolClass} width='1.35rem' style={{"verticalAlign": "bottom"}} /> Class
+  <Splitter />
+  <MDIIcon path={mdiLockOutline} size={0.9} style={{"verticalAlign": "bottom"}} /> Private
+  <Splitter />
+  <SourceURL url="base.py#L37">
+    <FileCodeIcon size={18} verticalAlign="middle" /> Source
+  </SourceURL>
+</p>
+
+```python
+gpm = syncstream.base.GroupedMessage(data=None)
+```
+
+A group of messages.
+
+Used for wrapping muliple `str` lines (info), a warning object, or an exception object.
+
+This class would be used by `mproc.LineProcMirror` and `host.LineHostMirror` automatically. In most cases, users do not need to use this class directly.
+
+## Arguments
+
+### Requires
+
+|  Argument  |  Type  |  <center>Description</center>  |
+| :--------: | :----: | :----------------------------- |
+| `data`     | `[str]`, or `Warning` or `Exception`  | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
+
+## Methods
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `serialize`
+
+```python
+jdata = gpm.serialize()
+```
+
+Serialize this message item into a JSON compatible dict.
+
+#### Returns
+
+|  Argument  |  Type  |  <center>Description</center>  |
+| :--------: | :----: | :----------------------------- |
+| `jdata` | `dict`  | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#deserialize) method. |
+
+### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `deserialize`
+
+```python
+gpm = GroupedMessage.deserialize(jdata)
+```
+
+#### Requires
+
+|  Argument  |  Type  |  <center>Description</center>  |
+| :--------: | :----: | :----------------------------- |
+| `jdata` | `dict`  | The serialized dictionary. This dictionary is JSON compatible, and could be transmitted by the web packages. |
+
+#### Returns
+
+|  Argument  |  Type  |  <center>Description</center>  |
+| :--------: | :----: | :----------------------------- |
+| `gpm` | `GroupedMessage`  | The deserialized object. This object could be converted to formatted strings by `str(gpm)`. |
+
+## Example
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python
+from syncstream.base import GroupedMessage
+
+try:
+   raise ImportError('A testing exception object.')
+except ImportError as error:
+   gpm = GroupedMessage(error)
+
+print(gpm)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```shell
+Traceback (most recent call last):
+  File "C:\Documents (no sync)\GitHub\sync-stream\alpha\test.py", line 4, in <module>
+    raise ImportError('A testing exception object.')
+ImportError: A testing exception object.
+```
+
+</TabItem>
+</Tabs>
