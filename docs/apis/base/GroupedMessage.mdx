@@ -12,7 +12,6 @@ import MDIIcon from '@mdi/react';
 import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
 import { Icon, InlineIcon } from "@iconify/react";
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import vsiSymbolMethod from '@iconify-icons/codicon/symbol-method';
 import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
@@ -46,7 +45,7 @@ This class would be used by `mproc.LineProcMirror` and `host.LineHostMirror` aut
 
 ## Methods
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `serialize`
+### `serialize` {#serialize}
 
 ```python
 jdata = gpm.serialize()
@@ -60,7 +59,7 @@ Serialize this message item into a JSON compatible dict.
 | :--------: | :----: | :----------------------------- |
 | `jdata` | `dict`  | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#deserialize) method. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `deserialize`
+### `deserialize` {#deserialize}
 
 ```python
 gpm = GroupedMessage.deserialize(jdata)

@@ -12,7 +12,6 @@ import MDIIcon from '@mdi/react';
 import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
 import { Icon, InlineIcon } from "@iconify/react";
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import vsiSymbolMethod from '@iconify-icons/codicon/symbol-method';
 import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
@@ -53,7 +52,7 @@ Note that this handle is process-safe, not thread-safe. In other words, each pro
 
 ## Methods
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `clear`
+### `clear` {#clear}
 
 ```python
 fbuf.clear()
@@ -63,7 +62,7 @@ Clear the whole buffer.
 
 This method would search and remove all log files, including the temporary file. However, the lock files would not be removed. A typical usage of this method is to clear files only in the main process.
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `new_line`
+### `new_line` {#new_line}
 
 ```python
 fbuf.new_line()
@@ -78,7 +77,7 @@ if (last line is not empty):
     write('\n')
 ```
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `flush`
+### `flush` {#flush}
 
 ```python
 fbuf.flush()
@@ -92,7 +91,7 @@ This method does nothing, because the file-based buffer does not need to flush t
 
 :::
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `parse_lines`
+### `parse_lines` {#parse_lines}
 
 ```python
 fbuf.parse_lines(lines)
@@ -114,7 +113,7 @@ fbuf.__update_records(lines)
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | A sequence of strs to be written in the log files. Users could catch any line item, and extract any specific information from it. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `read`
+### `read` {#read}
 
 ```python
 lines = fbuf.read(size=None)
@@ -136,7 +135,7 @@ If the current written line is not blank, the `read()` method would regard it as
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `write`
+### `write` {#write}
 
 ```python
 n_bytes = fbuf.write(data)

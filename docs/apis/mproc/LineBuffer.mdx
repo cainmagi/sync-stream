@@ -12,7 +12,6 @@ import MDIIcon from '@mdi/react';
 import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
 import { Icon, InlineIcon } from "@iconify/react";
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import vsiSymbolMethod from '@iconify-icons/codicon/symbol-method';
 import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
@@ -43,7 +42,7 @@ This buffer provides a rotating item stroage for the text-based stream. The text
 
 ## Methods
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `clear`
+### `clear` {#clear}
 
 ```python
 tbuf.clear()
@@ -53,7 +52,7 @@ Clear the whole buffer.
 
 This method would clear the storage and the last line stream of this buffer. However, it would not clear any mirrors or copies of this object. This method is thread-safe and should always success.
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `new_line`
+### `new_line` {#new_line}
 
 ```python
 tbuf.new_line()
@@ -68,7 +67,7 @@ if tbuf.last_line.tell() > 0:
     write('\n')
 ```
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `flush`
+### `flush` {#flush}
 
 ```python
 tbuf.flush()
@@ -76,7 +75,7 @@ tbuf.flush()
 
 Flush the current written line stream (temporary buffer).
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `parse_lines`
+### `parse_lines` {#parse_lines}
 
 ```python
 tbuf.parse_lines(lines)
@@ -98,7 +97,7 @@ tbuf.storage.extend(lines)
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `read`
+### `read` {#read}
 
 ```python
 lines = tbuf.read(size=None)
@@ -120,7 +119,7 @@ If the current written line is not blank, the `read()` method would regard it as
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `write`
+### `write` {#write}
 
 ```python
 n_bytes = tbuf.write(data)

@@ -12,8 +12,6 @@ import MDIIcon from '@mdi/react';
 import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
 import { Icon, InlineIcon } from "@iconify/react";
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import vsiSymbolMethod from '@iconify-icons/codicon/symbol-method';
-import vsiGlobe from '@iconify-icons/codicon/globe';
 import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
@@ -46,7 +44,7 @@ The rotating buffer with a maximal storage length. This buffer is the extended v
 
 ## Methods
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `serve`
+### `serve` {#serve}
 
 ```python
 hbuf.serve(api)
@@ -62,7 +60,7 @@ hbuf.serve(api)
 
 Register the Flask app with this instance, the following services would be provided, where the **`bold`** arguments are required arguments.
 
-### <InlineIcon icon={vsiGlobe} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `<api_route>`
+### `<api_route>` {#api_route}
 
 The basic APIs. They are used for maintaining the storage of the message items.
 
@@ -72,7 +70,7 @@ The basic APIs. They are used for maintaining the storage of the message items.
 | POST     | <ul><li>**`type`**: The type of the message. Could be `str`, `error`, `warning`, or `close`.</li><li>`data`: A `dict` of message data from [`LineHostMirror`](/docs/apis/host/LineHostMirror).</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul> | Write the remote data into the storage. This method should not be used by users directly, because it is provided for the interaction with [`LineHostMirror`](/docs/apis/host/LineHostMirror). |
 | DELETE   | <center>-</center> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul> | Clear the storage, but the status of the buffer is not reset by this method. |
 
-### <InlineIcon icon={vsiGlobe} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `<api_route>-state`
+### `<api_route>-state` {#api_route-state}
 
 The APIs used for maintaining the buffer status.
 

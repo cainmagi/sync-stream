@@ -12,8 +12,6 @@ import MDIIcon from '@mdi/react';
 import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
 import { Icon, InlineIcon } from "@iconify/react";
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import vsiSymbolMethod from '@iconify-icons/codicon/symbol-method';
-import vsiSymbolVariable from '@iconify-icons/codicon/symbol-variable';
 import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
@@ -44,7 +42,7 @@ The rotating buffer with a maximal storage length. This buffer is the extended v
 
 ## Methods
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `clear`
+### `clear` {#clear}
 
 ```python
 pbuf.clear()
@@ -54,7 +52,7 @@ Clear the whole buffer.
 
 This method would clear the storage and the last line stream of this buffer. However, it would not clear any mirrors or copies of this object. This method is thread-safe and should always success.
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `stop_all_mirrors`
+### `stop_all_mirrors` {#stop_all_mirrors}
 
 ```python
 pbuf.stop_all_mirrors()
@@ -70,7 +68,7 @@ Since this method does not send `TERMINATE` or `KILL` signals, it does not guara
 
 :::
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `reset_states`
+### `reset_states` {#reset_states}
 
 ```python
 pbuf.stop_all_mirrors()
@@ -80,7 +78,7 @@ Reset the states of the buffer.
 
 During the interaction with the mirrors, the states of the buffer may change. If user want to reuse the buffer and start a new group of sub-processes, please use this method.
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `receive`
+### `receive` {#receive}
 
 ```python
 is_live = pbuf.receive()
@@ -96,7 +94,7 @@ This method would fetch one item from the process-safe queue, and write the resu
 | :--------: | :----: | :----------------------------- |
 | `is_live`   | `bool` | The finish flag. If this value is `True`, it means the buffer still needs to receive more messages from the mirrors. If `False`, it means that the close signals from all mirrors have been received. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `wait`
+### `wait` {#wait}
 
 ```python
 pbuf.wait()
@@ -111,7 +109,7 @@ while pbuf.receive():
 
 The method would make the current thread keeping blocked until the buffer receives all messages from the mirrors.
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `parse_lines`
+### `parse_lines` {#parse_lines}
 
 ```python
 pbuf.parse_lines(lines)
@@ -133,7 +131,7 @@ pbuf.storage.extend(lines)
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `read`
+### `read` {#read}
 
 ```python
 lines = pbuf.read(size=None)
@@ -155,7 +153,7 @@ If the current written line is not blank, the `read()` method would regard it as
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `write`
+### `write` {#write}
 
 :::caution
 
@@ -165,7 +163,7 @@ This method is prohibited for this class. Because the `write()` method should be
 
 ## Properties
 
-### <InlineIcon icon={vsiSymbolVariable} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `mirror`
+### `mirror` {#mirror}
 
 ```python
 pbuf.mirror
@@ -177,7 +175,7 @@ The buffer should not be used in sub-processes directly. Instead, the buffer/mir
 
 This property could not be modified after the initialization.
 
-### <InlineIcon icon={vsiSymbolVariable} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `n_mirrors`
+### `n_mirrors` {#n_mirrors}
 
 ```python
 pbuf.n_mirrors

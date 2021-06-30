@@ -12,8 +12,6 @@ import MDIIcon from '@mdi/react';
 import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
 import { Icon, InlineIcon } from "@iconify/react";
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import vsiSymbolMethod from '@iconify-icons/codicon/symbol-method';
-import vsiSymbolVariable from '@iconify-icons/codicon/symbol-variable';
 import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
@@ -46,7 +44,7 @@ This mirror is the client of the services from [`LineHostBuffer`](./LineHostBuff
 
 ## Methods
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `clear`
+### `clear` {#clear}
 
 ```python
 buffer.clear()
@@ -58,7 +56,7 @@ This method would clear the temporary buffer of the mirror. If the mirror works 
 
 This method is thread-safe. Mirrors in different processes would not share the temporary buffer.
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `new_line`
+### `new_line` {#new_line}
 
 ```python
 buffer.new_line()
@@ -73,7 +71,7 @@ if buffer.last_line.tell() > 0:
     write('\n')
 ```
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `flush`
+### `flush` {#flush}
 
 ```python
 buffer.flush()
@@ -81,7 +79,7 @@ buffer.flush()
 
 Flush the current written line stream (temporary buffer).
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `send_eof`
+### `send_eof` {#send_eof}
 
 ```python
 buffer.send_eof()
@@ -98,7 +96,7 @@ The signal should be used at the end of the sub-process. This method is used for
 
 :::
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `send_error`
+### `send_error` {#send_error}
 
 ```python
 buffer.send_error(error)
@@ -120,7 +118,7 @@ See [`send_eof()`](#send_eof)
 | :--------: | :----: | :----------------------------- |
 | `error`    | `Exception`  | The exception object that would be sent. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `send_warning`
+### `send_warning` {#send_warning}
 
 ```python
 buffer.send_warning(warning)
@@ -142,7 +140,7 @@ This method could only catch the warning object defined by the stdlib. Some diff
 | :--------: | :----: | :----------------------------- |
 | `warning`  | `Warning`  | The warning object that would be sent. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `send_data`
+### `send_data` {#send_data}
 
 ```python
 buffer.send_data(data)
@@ -160,7 +158,7 @@ This method is used by other methods implicitly, and should not be used by users
 | :--------: | :----: | :----------------------------- |
 | `data`     | `str`  | A str to be sent to the main buffer. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `check_states`
+### `check_states` {#check_states}
 
 ```python
 buffer.check_states()
@@ -172,7 +170,7 @@ Currently, this method in only used for checking whether the service is closed.
 
 This method is used by other methods implicitly, and should not be used by users.
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `read`
+### `read` {#read}
 
 ```python
 line = buffer.read()
@@ -186,7 +184,7 @@ This method would only read the current bufferred values in the mirror storage. 
 | :--------: | :----: | :----------------------------- |
 | `line`     | `str`  | Current storage of the mirror. The value in the storage has not been sent to the main buffer. |
 
-### <InlineIcon icon={vsiSymbolMethod} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `write`
+### `write` {#write}
 
 ```python
 n_bytes = buffer.write(data)
@@ -210,7 +208,7 @@ The method is thread-safe, but the message synchronization is host-safe.
 
 ## Properties
 
-### <InlineIcon icon={vsiSymbolVariable} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `aggressive`
+### `aggressive` {#aggressive}
 
 ```python
 buffer.aggressive
@@ -222,7 +220,7 @@ This mode could only by configured by the initialization. If set `True`, the agg
 
 In current implementation, this value is always configured as `False`.
 
-### <InlineIcon icon={vsiSymbolVariable} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `timeout`
+### `timeout` {#timeout}
 
 ```python
 buffer.timeout
@@ -230,7 +228,7 @@ buffer.timeout
 
 The timeout of the web syncholizing events. If not set, the synchronization would block the current process.
 
-### <InlineIcon icon={vsiSymbolVariable} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `headers`
+### `headers` {#headers}
 
 ```python
 buffer.headers
