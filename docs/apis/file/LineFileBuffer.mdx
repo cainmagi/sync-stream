@@ -24,8 +24,8 @@ import { SourceURL, Splitter } from '@site/src/envs/variables';
 </p>
 
 ```python
-tbuf = syncstream.file.LineFileBuffer(file_path, maxlen=20, tmp_id='tmp')
-tbuf = syncstream.LineFileBuffer(...)  # Alias
+fbuf = syncstream.file.LineFileBuffer(file_path, maxlen=20, tmp_id='tmp')
+fbuf = syncstream.LineFileBuffer(...)  # Alias
 ```
 
 The file-driven line-based buffer handle.
