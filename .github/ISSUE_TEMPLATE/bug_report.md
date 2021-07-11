@@ -1,34 +1,82 @@
----
 name: Bug report
-about: Create a report to help us improve
+description: Something is not working correctly.
 title: "[BUG]"
-labels: bug, to be solved
-assignees: ''
+labels: "bug, to be solved"
+assignees: ""
 
----
+body:
+  - type: checkboxes
+    attributes:
+      label: Get started
+      options:
+        - label: >-
+            I have read [Contributing guidelines](https://github.com/cainmagi/sync-stream/blob/main/CONTRIBUTING.md).
+          required: true
+        - label: >-
+            I agree to follow the [Code of Conduct](https://github.com/cainmagi/sync-stream/blob/main/CODE_OF_CONDUCT.md).
+          required: true
+        - label: >-
+            I have confirmed that my issue is not duplicated with an existing issue.
+          required: true
 
-**Describe the bug (required)**
-A clear and concise description of what the bug is.
+  - type: textarea
+    attributes:
+      label: Description
+      description: >-
+        A clear and concise description of what the bug is.
+    validations:
+      required: true
 
-**To Reproduce (optional)**
-Steps to reproduce the behavior:
-1. `import syncstream`
-2. Using the APIs ...
-3. See error.
+  - type: textarea
+    attributes:
+      label: To Reproduce
+      description: >-
+        Steps to reproduce the behavior. Instead of describing the steps, you could also provide your codes related to the error here.
+      value: |
+        1. Get package from '...'
+        2. Then run '...'
+        3. An error occurs.
 
-Instead of describing the steps, you could also provide your codes related to the error here.
+  - type: textarea
+    attributes:
+      label: Traceback
+      description: >-
+        The python trackback of the bug. If there is no traceback, please describe (1) The expected behaviors. (2) The actual behaviors.
+      render: sh-session
 
-**Traceback (required)**
-The `python` trackback of the bug. If there is no traceback, please describe:
-* The expected behaviors.
-* The actual behaviors.
+  - type: textarea
+    attributes:
+      label: Behaviors
+      description: >-
+        If there is no traceback, please describe (1) The expected behaviors. (2) The actual behaviors.
+      value: |
+        1. The expected behaviors:
+        2. The actual behaviors:
 
-**Screenshots (optional)**
-If applicable, add screenshots to help explain your problem.
+  - type: textarea
+    attributes:
+      label: Screenshots
+      description: >-
+        If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. Ubuntu 20.04, Debian 10, Windows 10 21H1]
- - Python version: [e.g. 3.8]
+  - type: input
+    attributes:
+      label: OS [e.g. Ubuntu 20.04, Debian 10, Windows 10 21H1]
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Python version [e.g. 3.8]
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Syncstream version
+    validations:
+      required: true
 
-**Additional context (optional)**
-Add any other context about the problem here.
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: >-
+        Add any other context about the problem here.

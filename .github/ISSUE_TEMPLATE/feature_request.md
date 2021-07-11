@@ -1,20 +1,52 @@
----
 name: Feature request
 about: Suggest an idea for this project
 title: "[Feature]"
 labels: enhancement, to be solved
-assignees: ''
+assignees: ""
 
----
+body:
+  - type: checkboxes
+    attributes:
+      label: Get started
+      options:
+        - label: >-
+            I have read [Contributing guidelines](https://github.com/cainmagi/sync-stream/blob/main/CONTRIBUTING.md).
+          required: true
+        - label: >-
+            I agree to follow the [Code of Conduct](https://github.com/cainmagi/sync-stream/blob/main/CODE_OF_CONDUCT.md).
+          required: true
+        - label: >-
+            I have confirmed that my issue is not duplicated with an existing issue.
+          required: true
 
-**Is your feature request related to a problem? Please describe. (optional)**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+  - type: textarea
+    attributes:
+      label: Problem
+      description: >-
+        If your feature request is related to a problem, please describe the problem clearly and concisely.
 
-**Describe the solution you'd like (required)**
-A clear and concise description of what you want to happen.
+  - type: textarea
+    attributes:
+      label: Required feature
+      description: >-
+        A clear and concise description of what you want to happen.
+    validations:
+      required: true
 
-**Describe alternatives you've considered (optional)**
-A clear and concise description of any alternative solutions or features you've considered.
+  - type: textarea
+    attributes:
+      label: Alternative solution
+      description: >-
+        A clear and concise description of any alternative solutions or features you've considered.
 
-**Additional context (optional)**
-Add any other context or screenshots about the feature request here.
+  - type: input
+    attributes:
+      label: Syncstream version
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional context
+      description: >-
+        Add any other context about the problem here.
