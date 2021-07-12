@@ -60,17 +60,23 @@ body:
 
   - type: input
     attributes:
-      label: OS [e.g. Ubuntu 20.04, Debian 10, Windows 10 21H1]
+      label: OS
+      description: >-
+        e.g. Ubuntu 20.04, Debian 10, Windows 10 21H1
     validations:
       required: true
   - type: input
     attributes:
-      label: Python version [e.g. 3.8]
+      label: Python version
+      description: >-
+        e.g. 3.8
     validations:
       required: true
   - type: input
     attributes:
       label: Syncstream version
+      description: >-
+        e.g. 0.3.3
     validations:
       required: true
 
