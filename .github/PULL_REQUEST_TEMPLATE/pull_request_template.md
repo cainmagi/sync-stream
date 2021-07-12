@@ -11,20 +11,20 @@
 
 Describe what you have done with this PR. List any dependencies that are required for this change.
 
-If your PR is designed for an issue, please refer the issue by the following example:
+If your PR is designed for an issue, please refer to the issue by the following example:
 
 Fixes # (issue)
 
 ## Updated report
 
-Please summarize your modifications as itemized report.
+Please summarize your modifications as an itemized report.
 
 1. Update ...
 2. Add ...
 
 ## Information
 
-Please provide the follwing information of your PR:
+Please provide the following information about your PR:
 
 - Syncstream version:
 
