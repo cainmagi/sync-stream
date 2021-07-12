@@ -1,14 +1,33 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 
 import Link from '@docusaurus/Link';
 import { Icon, InlineIcon } from "@iconify/react";
 import useThemeContext from '@theme/hooks/useThemeContext'; //docs: https://v2.docusaurus.io/docs/2.0.0-alpha.69/theme-classic#usethemecontext
 
+
+const useButtonTheme = () => {
+  const {isDarkTheme} = useThemeContext();
+  if (isDarkTheme) {
+    return "button--secondary button--outline";
+  }
+  else {
+    return "button--secondary";
+  }
+};
+
+
 function DarkButton(props) {
-  const { isDarkTheme } = useThemeContext();
-  const curStyle = isDarkTheme ? "button--secondary button--outline" : "button--secondary";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const curStyle = useButtonTheme();
+
   return (
      <Link
+      key={String(mounted)}
       className={`button ${curStyle} button--lg`}
       to={props.to}>
       {props.icon &&
@@ -17,5 +36,6 @@ function DarkButton(props) {
     </Link>
   );
 }
+
 
 export default DarkButton;
