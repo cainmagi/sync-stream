@@ -1,8 +1,4 @@
----
-name: Pull request
-description: Send a pull request (PR) for this project.
-title: "[PR]"
----
+# Pull request
 
 ## Get started
 
