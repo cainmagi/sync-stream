@@ -1,10 +1,10 @@
 import React from 'react';
 import clsx from 'clsx';
 import Layout from '@theme/Layout';
-import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './index.module.scss';
 import HomepageFeatures from '../components/HomepageFeatures';
+import DarkButton from "../components/DarkButton";
 
 import LogoSVG from '../../static/img/logo.svg';
 
@@ -16,16 +16,14 @@ function HomepageHeader() {
         <h1 className="hero__title"><span><LogoSVG className={styles['title-logo']} alt={siteConfig.title} /></span> {siteConfig.title}</h1>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
         <div className={styles.buttons}>
-          <Link
-            className="button button--secondary button--lg"
+          <DarkButton
             to="/docs/">
             Getting started
-          </Link>
-          <Link
-            className="button button--secondary button--lg"
+          </DarkButton>
+          <DarkButton
             to="https://pypi.org/project/syncstream/">
             PyPI Project
-          </Link>
+          </DarkButton>
         </div>
       </div>
     </header>

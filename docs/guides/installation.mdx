@@ -6,8 +6,8 @@ slug: /installation
 description: A tutorial about the installation of the package.
 ---
 
-import Link from '@docusaurus/Link';
-import {InfoIcon} from '@primer/octicons-react';
+import DarkButton from '@site/src/components/DarkButton';
+import octInfo16 from '@iconify-icons/octicon/info-16';
 
 To install the package, just run
 
@@ -43,8 +43,8 @@ python -m pytest tests
 
 The package is only compatible with `python>=3.6`. If you find the package fails to pass the tests, please
 
-<Link
-  className="button button--secondary button--lg"
-  to="https://github.com/cainmagi/sync-stream/issues/new">
-  <InfoIcon size={18} verticalAlign="middle" /> Fire an issue
-</Link>
+<p>
+  <DarkButton to="https://github.com/cainmagi/sync-stream/issues/new" icon={octInfo16}>
+    Fire an issue
+  </DarkButton>
+</p>

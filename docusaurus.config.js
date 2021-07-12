@@ -41,6 +41,12 @@ module.exports = {
           className: 'header-github-link',
           'aria-label': 'GitHub repository',
         },
+        {
+          href: 'https://pypi.org/project/syncstream',
+          position: 'right',
+          className: 'header-pypi-link',
+          'aria-label': 'PyPI repository',
+        },
       ],
     },
     footer: {

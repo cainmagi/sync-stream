@@ -8,20 +8,19 @@ description: A group of messages.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import MDIIcon from '@mdi/react';
-import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
 import { Icon, InlineIcon } from "@iconify/react";
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
+import mdiLockOutline from '@iconify-icons/mdi/lock-outline';
+import octFileCode16 from '@iconify-icons/octicon/file-code-16';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
 <p>
-  <InlineIcon icon={vsiSymbolClass} width='1.35rem' style={{"verticalAlign": "bottom"}} /> Class
+  <InlineIcon icon={vsiSymbolClass} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Class
   <Splitter />
-  <MDIIcon path={mdiLockOutline} size={0.9} style={{"verticalAlign": "bottom"}} /> Private
+  <InlineIcon icon={mdiLockOutline} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Private
   <Splitter />
   <SourceURL url="base.py#L37">
-    <FileCodeIcon size={18} verticalAlign="middle" /> Source
+    <InlineIcon icon={octFileCode16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Source
   </SourceURL>
 </p>
 

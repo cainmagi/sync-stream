@@ -8,20 +8,20 @@ description: The mirror for the process-safe line-based buffer.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import MDIIcon from '@mdi/react';
-import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
 import { Icon, InlineIcon } from "@iconify/react";
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
+import mdiLockOutline from '@iconify-icons/mdi/lock-outline';
+import octFileCode16 from '@iconify-icons/octicon/file-code-16';
+import octLinkExternal16 from '@iconify-icons/octicon/link-external-16';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
 <p>
-  <InlineIcon icon={vsiSymbolClass} width='1.35rem' style={{"verticalAlign": "bottom"}} /> Class
+  <InlineIcon icon={vsiSymbolClass} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Class
   <Splitter />
-  <MDIIcon path={mdiLockOutline} size={0.9} style={{"verticalAlign": "bottom"}} /> Private
+  <InlineIcon icon={mdiLockOutline} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />  Private
   <Splitter />
   <SourceURL url="mproc.py#L173">
-    <FileCodeIcon size={18} verticalAlign="middle" /> Source
+    <InlineIcon icon={octFileCode16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Source
   </SourceURL>
 </p>
 
@@ -41,9 +41,9 @@ This mirror is initialized by [`LineProcBuffer`](./LineProcBuffer), and would be
 
 |  Argument  |  Type  |  <center>Description</center>  |
 | :--------: | :----: | :----------------------------- |
-| `q_maxsize`  | `int`  | The maximal size of the queue. This value has the same meaning of [<LinkExternalIcon size={18} verticalAlign="middle" />`queue.qsize`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue.qsize) |
+| `q_maxsize`  | `int`  | The maximal size of the queue. This value has the same meaning of [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`queue.qsize`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue.qsize) |
 | `aggressive`  | `bool`  | If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written. |
-| `timeout`  | `int`  | The timeout configuration of the queue. This value has the same meaning of [<LinkExternalIcon size={18} verticalAlign="middle" />`queue.put(timeout)`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue.put). |
+| `timeout`  | `int`  | The timeout configuration of the queue. This value has the same meaning of [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`queue.put(timeout)`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue.put). |
 | `_queue`  | `Queue`  | The queue used for communicating with the buffer. This object could be an instance of `multiprocessing.Queue()` or given by `multiprocessing.Manager()`. The queue object should be created by the [`LineProcBuffer`](./LineProcBuffer) object. |
 | `_state`  | `dict`  | A shared state dictionary given by `multiprocessing.Manager()`. The dict object should be created by the [`LineProcBuffer`](./LineProcBuffer) object. |
 | `_state_lock`  | `Lock`  | The reading / writing lock of the state dictionary given by `multiprocessing.Manager()`. The lock object should be created by the [`LineProcBuffer`](./LineProcBuffer) object. |
@@ -137,7 +137,7 @@ Send the catched error object. This method should always be used in the try / ex
 
 :::caution
 
-This method could only catch the warning object defined by the stdlib. Some different warning objects, like [<LinkExternalIcon size={18} verticalAlign="middle" />`logging.warning`](https://docs.python.org/3/library/logging.html#logging.Logger.warning) messages would not be collected with correct configurations.
+This method could only catch the warning object defined by the stdlib. Some different warning objects, like [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`logging.warning`](https://docs.python.org/3/library/logging.html#logging.Logger.warning) messages would not be collected with correct configurations.
 
 :::
 
@@ -223,7 +223,7 @@ In current implementation, this value is always configured as `False`.
 buffer.timeout
 ```
 
-The timeout configuration of the queue. This value has the same meaning of [<LinkExternalIcon size={18} verticalAlign="middle" />`queue.put(timeout)`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue.put).
+The timeout configuration of the queue. This value has the same meaning of [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`queue.put(timeout)`](https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue.put).
 
 In current implementation, this value is always configured as `None`. However, users could change this value when using the mirror.
 

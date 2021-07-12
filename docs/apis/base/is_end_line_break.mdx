@@ -9,18 +9,21 @@ description: Check whether the str ends with a line break.
 import Link from '@docusaurus/Link';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import MDIIcon from '@mdi/react';
-import { mdiFunctionVariant, mdiLockOutline } from '@mdi/js';
-import { FileCodeIcon, LinkExternalIcon } from '@primer/octicons-react';
+import { Icon, InlineIcon } from "@iconify/react";
+import mdiFunctionVariant from '@iconify-icons/mdi/function-variant';
+import mdiLockOutline from '@iconify-icons/mdi/lock-outline';
+import octFileCode16 from '@iconify-icons/octicon/file-code-16';
+import octLinkExternal16 from '@iconify-icons/octicon/link-external-16';
+
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
 <p>
-  <MDIIcon path={mdiFunctionVariant} size={0.9} style={{"verticalAlign": "bottom"}} /> Function
+  <InlineIcon icon={mdiFunctionVariant} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Function
   <Splitter />
-  <MDIIcon path={mdiLockOutline} size={0.9} style={{"verticalAlign": "bottom"}} /> Private
+  <InlineIcon icon={mdiLockOutline} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Private
   <Splitter />
   <SourceURL url="base.py#L25">
-    <FileCodeIcon size={18} verticalAlign="middle" /> Source
+    <InlineIcon icon={octFileCode16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Source
   </SourceURL>
 </p>
 
@@ -33,7 +36,7 @@ A function used for checking whether the str ends with a line break.
 The checking is implemented by
 
 <p><Link to="https://docs.python.org/3/library/stdtypes.html#str.splitlines">
-  <LinkExternalIcon size={18} verticalAlign="middle" /> https://docs.python.org/3/library/stdtypes.html#str.splitlines
+  <InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> https://docs.python.org/3/library/stdtypes.html#str.splitlines
 </Link></p>
 
 We use this function to fix the missing final line break problem of `str.splitlines`.

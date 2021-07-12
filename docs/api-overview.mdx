@@ -9,7 +9,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import ThemedImage from '@theme/ThemedImage';
 import { Icon, InlineIcon } from "@iconify/react";
 import vsiSymbolNamespace from '@iconify-icons/codicon/symbol-namespace';
-import { LinkExternalIcon } from '@primer/octicons-react';
+import octLinkExternal16 from '@iconify-icons/octicon/link-external-16';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
 The APIs are shown in the following figure:
@@ -31,6 +31,6 @@ The follolowing modules are optional. To install them, please add the arguments 
 
 |  Module  |  Description  |
 | :------: | :-----------: |
-| <SourceURL url="mproc.py"><InlineIcon icon={vsiSymbolNamespace} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `mproc`</SourceURL> | The thread-safe and process-safe message synchronization, implemented based on the python stdlib. |
-| <SourceURL url="file.py"><InlineIcon icon={vsiSymbolNamespace} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `file`</SourceURL> | The file-lock-based message synchronization, implemented based on [<LinkExternalIcon size={18} verticalAlign="middle" />`fasteners`](https://fasteners.readthedocs.io/en/latest/). |
-| <SourceURL url="host.py"><InlineIcon icon={vsiSymbolNamespace} width='1.35rem' style={{"verticalAlign": "bottom"}} /> `host`</SourceURL> | The web-service-based message synchronization, implemented based on [<LinkExternalIcon size={18} verticalAlign="middle" />`Flask-RESTful`](https://flask-restful.readthedocs.io/en/latest/) and [<LinkExternalIcon size={18} verticalAlign="middle" />`urllib3`](https://urllib3.readthedocs.io/en/latest/index.html). |
+| <SourceURL url="mproc.py"><InlineIcon icon={vsiSymbolNamespace} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> `mproc`</SourceURL> | The thread-safe and process-safe message synchronization, implemented based on the python stdlib. |
+| <SourceURL url="file.py"><InlineIcon icon={vsiSymbolNamespace} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> `file`</SourceURL> | The file-lock-based message synchronization, implemented based on [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`fasteners`](https://fasteners.readthedocs.io/en/latest/). |
+| <SourceURL url="host.py"><InlineIcon icon={vsiSymbolNamespace} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> `host`</SourceURL> | The web-service-based message synchronization, implemented based on [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`Flask-RESTful`](https://flask-restful.readthedocs.io/en/latest/) and [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`urllib3`](https://urllib3.readthedocs.io/en/latest/index.html). |
