@@ -9,7 +9,18 @@ module.exports = {
   favicon: 'img/favicon.ico',
   organizationName: 'cainmagi', // Usually your GitHub org/user name.
   projectName: 'sync-stream', // Usually your repo name.
-  plugins: ['docusaurus-plugin-sass'],
+  plugins: [
+    'docusaurus-plugin-sass',
+    '@docusaurus/plugin-google-gtag',
+    [
+      '@docusaurus/plugin-sitemap',
+      {
+        changefreq: 'weekly',
+        priority: 0.5,
+        trailingSlash: false,
+      },
+    ],
+  ],
   themeConfig: {
     prism: {
       theme: require('prism-react-renderer/themes/github'),
@@ -87,7 +98,7 @@ module.exports = {
           items: [
             {
               label: 'UH MODAL Lib',
-              to: 'https://modal.ece.uh.edu/',
+              href: 'https://modal.ece.uh.edu/',
             },
             {
               label: 'University of Houston',
@@ -97,6 +108,10 @@ module.exports = {
         },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Sync-Stream, Yuchen Jin. Built with Docusaurus.`,
+    },
+    gtag: {
+      trackingID: 'G-T579MTMC79',
+      anonymizeIP: true,
     },
   },
   presets: [
