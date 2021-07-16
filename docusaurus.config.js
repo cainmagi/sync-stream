@@ -11,7 +11,6 @@ module.exports = {
   projectName: 'sync-stream', // Usually your repo name.
   plugins: [
     'docusaurus-plugin-sass',
-    '@docusaurus/plugin-google-gtag',
     [
       '@docusaurus/plugin-sitemap',
       {
