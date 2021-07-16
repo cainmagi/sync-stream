@@ -11,14 +11,6 @@ module.exports = {
   projectName: 'sync-stream', // Usually your repo name.
   plugins: [
     'docusaurus-plugin-sass',
-    [
-      '@docusaurus/plugin-sitemap',
-      {
-        changefreq: 'weekly',
-        priority: 0.5,
-        trailingSlash: false,
-      },
-    ],
   ],
   themeConfig: {
     prism: {
