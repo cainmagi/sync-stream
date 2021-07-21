@@ -104,6 +104,15 @@ module.exports = {
       trackingID: 'G-T579MTMC79',
       anonymizeIP: true,
     },
+    algolia: {
+      apiKey: '5ace7b8ade4114b9411c58d6301a1c98',
+      indexName: 'sync-stream',
+      // Optional: make the search sensitive to sub-routing.
+      contextualSearch: true,
+      // Optional: Algolia search parameters
+      algoliaOptions: { 'facetFilters': ["type:content"] },
+      debug: false
+    },
   },
   presets: [
     [
