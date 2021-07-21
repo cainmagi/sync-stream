@@ -2,7 +2,7 @@
 module.exports = {
   title: 'SyncStream',
   tagline: 'A python tool for synchronizing the messages from different threads, processes, or hosts.',
-  url: 'https://cainmagi.github.io/sync-stream',
+  url: 'https://cainmagi.github.io/',
   baseUrl: '/sync-stream/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -107,6 +107,8 @@ module.exports = {
     algolia: {
       apiKey: '5ace7b8ade4114b9411c58d6301a1c98',
       indexName: 'sync-stream',
+      // APP id
+      appId: 'BH4D9OD16A',
       // Optional: make the search sensitive to sub-routing.
       contextualSearch: true,
       // Optional: Algolia search parameters
