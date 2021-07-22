@@ -110,9 +110,9 @@ module.exports = {
       // APP id
       appId: 'BH4D9OD16A',
       // Optional: make the search sensitive to sub-routing.
-      contextualSearch: true,
+      // contextualSearch: true,
       // Optional: Algolia search parameters
-      algoliaOptions: { 'facetFilters': ["type:content"] },
+      searchParameters: { 'facetFilters': ["type:content"] },
       debug: false
     },
   },
