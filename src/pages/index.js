@@ -17,10 +17,12 @@ function HomepageHeader() {
         <p className="hero__subtitle">{siteConfig.tagline}</p>
         <div className={styles.buttons}>
           <DarkButton
+            index={true}
             to="/docs/">
             Getting started
           </DarkButton>
           <DarkButton
+            index={true}
             to="https://pypi.org/project/syncstream/">
             PyPI Project
           </DarkButton>

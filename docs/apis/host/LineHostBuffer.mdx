@@ -8,17 +8,17 @@ description: The web service driven line-based buffer.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import { Icon, InlineIcon } from "@iconify/react";
+import InlineIcon from '@site/src/components/InlineIcon';
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
 import octFileCode16 from '@iconify-icons/octicon/file-code-16';
 import octLinkExternal16 from '@iconify-icons/octicon/link-external-16';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
 <p>
-  <InlineIcon icon={vsiSymbolClass} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Class
+  <InlineIcon icon={vsiSymbolClass}/> Class
   <Splitter />
   <SourceURL url="host.py#L254">
-    <InlineIcon icon={octFileCode16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Source
+    <InlineIcon icon={octFileCode16}/> Source
   </SourceURL>
 </p>
 
@@ -37,9 +37,9 @@ The rotating buffer with a maximal storage length. This buffer is the extended v
 
 |  Argument  |  Type  |  <center>Description</center>  |
 | :--------: | :----: | :----------------------------- |
-| `api_route` | `str`  | The route path of the api. It has the same meaning of the parameter [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`Api.add_resource(url)`](https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource). |
-| `endpoint`  | `str`  | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`Api.add_resource(endpoint)`](https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource). |
-| `maxlen`   | `int`  | The maximal number of stored lines. This value has the same meaning of [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`deque.maxlen`](https://docs.python.org/3/library/collections.html#collections.deque.maxlen). |
+| `api_route` | `str`  | The route path of the api. It has the same meaning of the parameter [<InlineIcon icon={octLinkExternal16}/>`Api.add_resource(url)`](https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource). |
+| `endpoint`  | `str`  | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [<InlineIcon icon={octLinkExternal16}/>`Api.add_resource(endpoint)`](https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource). |
+| `maxlen`   | `int`  | The maximal number of stored lines. This value has the same meaning of [<InlineIcon icon={octLinkExternal16}/>`deque.maxlen`](https://docs.python.org/3/library/collections.html#collections.deque.maxlen). |
 
 ## Methods
 
@@ -53,7 +53,7 @@ hbuf.serve(api)
 
 |  Argument  |  Type  |  <center>Description</center>  |
 | :--------: | :----: | :----------------------------- |
-| `api`     | [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`flask_restful.Api`](https://flask-restful.readthedocs.io/en/latest/api.html?highlight=api#id1)  | The Flask `Api` object. All web services related to this `LineHostBuffer` would be registered to the `Api` object. |
+| `api`     | [<InlineIcon icon={octLinkExternal16}/>`flask_restful.Api`](https://flask-restful.readthedocs.io/en/latest/api.html?highlight=api#id1)  | The Flask `Api` object. All web services related to this `LineHostBuffer` would be registered to the `Api` object. |
 
 ## Services
 

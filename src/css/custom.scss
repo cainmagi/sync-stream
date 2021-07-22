@@ -73,3 +73,11 @@ a.noline:hover {
     filter: brightness(125%);
   }
 }
+
+// Index related
+.buttons_src-pages-index-module {
+  a.button.button--secondary.button--outline:not(.button--active):not(:hover) {
+    color: var(--ifm-color-gray-900);
+    border-color: var(--ifm-color-gray-900);
+  }
+}

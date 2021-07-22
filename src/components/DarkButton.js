@@ -25,10 +25,17 @@ function DarkButton(props) {
 
   const curStyle = useButtonTheme();
 
+  let className;
+  if (props.index) {
+    className = `button ${curStyle} button--lg button--index`;
+  } else {
+    className = `button ${curStyle} button--lg`;
+  }
+
   return (
      <Link
       key={String(mounted)}
-      className={`button ${curStyle} button--lg`}
+      className={className}
       to={props.to}>
       {props.icon &&
         <InlineIcon icon={props.icon} width='1.35rem' style={{"verticalAlign": "-0.3rem", "marginRight": "1ex"}} />

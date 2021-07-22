@@ -8,17 +8,17 @@ description: The mirror for the web service driven line-based buffer.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import { Icon, InlineIcon } from "@iconify/react";
+import InlineIcon from '@site/src/components/InlineIcon';
 import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
 import octFileCode16 from '@iconify-icons/octicon/file-code-16';
 import octLinkExternal16 from '@iconify-icons/octicon/link-external-16';
 import { SourceURL, Splitter } from '@site/src/envs/variables';
 
 <p>
-  <InlineIcon icon={vsiSymbolClass} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Class
+  <InlineIcon icon={vsiSymbolClass}/> Class
   <Splitter />
   <SourceURL url="host.py#L37">
-    <InlineIcon icon={octFileCode16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} /> Source
+    <InlineIcon icon={octFileCode16}/> Source
   </SourceURL>
 </p>
 
@@ -129,7 +129,7 @@ Send the catched error object. This method should always be used in the try / ex
 
 :::caution
 
-This method could only catch the warning object defined by the stdlib. Some different warning objects, like [<InlineIcon icon={octLinkExternal16} width='1.35rem' style={{"verticalAlign": "-0.3rem"}} />`logging.warning`](https://docs.python.org/3/library/logging.html#logging.Logger.warning) messages would not be collected with correct configurations.
+This method could only catch the warning object defined by the stdlib. Some different warning objects, like [<InlineIcon icon={octLinkExternal16}/>`logging.warning`](https://docs.python.org/3/library/logging.html#logging.Logger.warning) messages would not be collected with correct configurations.
 
 :::
 
