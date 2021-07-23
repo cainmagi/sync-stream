@@ -2,7 +2,7 @@
 module.exports = {
   title: 'SyncStream',
   tagline: 'A python tool for synchronizing the messages from different threads, processes, or hosts.',
-  url: 'https://cainmagi.github.io/',
+  url: 'https://cainmagi.github.io',
   baseUrl: '/sync-stream/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
