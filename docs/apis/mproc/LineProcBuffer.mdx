@@ -51,6 +51,8 @@ Clear the whole buffer.
 
 This method would clear the storage and the last line stream of this buffer. However, it would not clear any mirrors or copies of this object. This method is thread-safe and should always success.
 
+----------
+
 ### `stop_all_mirrors` {#stop_all_mirrors}
 
 ```python
@@ -67,6 +69,8 @@ Since this method does not send `TERMINATE` or `KILL` signals, it does not guara
 
 :::
 
+----------
+
 ### `reset_states` {#reset_states}
 
 ```python
@@ -76,6 +80,8 @@ pbuf.stop_all_mirrors()
 Reset the states of the buffer.
 
 During the interaction with the mirrors, the states of the buffer may change. If user want to reuse the buffer and start a new group of sub-processes, please use this method.
+
+----------
 
 ### `receive` {#receive}
 
@@ -93,6 +99,8 @@ This method would fetch one item from the process-safe queue, and write the resu
 | :--------: | :----: | :----------------------------- |
 | `is_live`   | `bool` | The finish flag. If this value is `True`, it means the buffer still needs to receive more messages from the mirrors. If `False`, it means that the close signals from all mirrors have been received. |
 
+----------
+
 ### `wait` {#wait}
 
 ```python
@@ -107,6 +115,8 @@ while pbuf.receive():
 ```
 
 The method would make the current thread keeping blocked until the buffer receives all messages from the mirrors.
+
+----------
 
 ### `parse_lines` {#parse_lines}
 
@@ -130,6 +140,8 @@ pbuf.storage.extend(lines)
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
 
+----------
+
 ### `read` {#read}
 
 ```python
@@ -152,6 +164,8 @@ If the current written line is not blank, the `read()` method would regard it as
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
 
+----------
+
 ### `write` {#write}
 
 :::caution
@@ -173,6 +187,8 @@ Get the mirror of this buffer.
 The buffer should not be used in sub-processes directly. Instead, the buffer/mirror work in master/slave mode. The property `pbuf.mirror` is an instance of [`LineProcMirror`](./LineProcMirror). It is used for providing the process-safe mirror of the buffer in the sub-process.
 
 This property could not be modified after the initialization.
+
+----------
 
 ### `n_mirrors` {#n_mirrors}
 

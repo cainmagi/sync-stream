@@ -60,6 +60,8 @@ Clear the whole buffer.
 
 This method would search and remove all log files, including the temporary file. However, the lock files would not be removed. A typical usage of this method is to clear files only in the main process.
 
+----------
+
 ### `new_line` {#new_line}
 
 ```python
@@ -75,6 +77,8 @@ if (last line is not empty):
     write('\n')
 ```
 
+----------
+
 ### `flush` {#flush}
 
 ```python
@@ -88,6 +92,8 @@ Flush the current written line stream (temporary buffer).
 This method does nothing, because the file-based buffer does not need to flush the temporary buffer.
 
 :::
+
+----------
 
 ### `parse_lines` {#parse_lines}
 
@@ -111,6 +117,8 @@ fbuf.__update_records(lines)
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | A sequence of strs to be written in the log files. Users could catch any line item, and extract any specific information from it. |
 
+----------
+
 ### `read` {#read}
 
 ```python
@@ -132,6 +140,8 @@ If the current written line is not blank, the `read()` method would regard it as
 |  Argument  |  Type  |  <center>Description</center>  |
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
+
+----------
 
 ### `write` {#write}
 

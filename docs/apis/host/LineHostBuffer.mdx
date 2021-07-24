@@ -49,6 +49,8 @@ The rotating buffer with a maximal storage length. This buffer is the extended v
 hbuf.serve(api)
 ```
 
+Load the services to the flask app.
+
 #### Requires
 
 |  Argument  |  Type  |  <center>Description</center>  |
@@ -68,6 +70,8 @@ The basic APIs. They are used for maintaining the storage of the message items.
 | GET      | <ul><li>`n`: The number of messages that is required. If not set, would return the whole storage.</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: A list of returned messages.</li></ul> | Get the message items. Similar to [`LineBuffer.read()`](/docs/apis/mproc/LineBuffer#read). |
 | POST     | <ul><li>**`type`**: The type of the message. Could be `str`, `error`, `warning`, or `close`.</li><li>`data`: A `dict` of message data from [`LineHostMirror`](/docs/apis/host/LineHostMirror).</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul> | Write the remote data into the storage. This method should not be used by users directly, because it is provided for the interaction with [`LineHostMirror`](/docs/apis/host/LineHostMirror). |
 | DELETE   | <center>-</center> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul> | Clear the storage, but the status of the buffer is not reset by this method. |
+
+----------
 
 ### `<api_route>-state` {#api_route-state}
 

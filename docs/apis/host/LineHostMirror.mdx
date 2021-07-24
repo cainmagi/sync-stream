@@ -55,6 +55,8 @@ This method would clear the temporary buffer of the mirror. If the mirror works 
 
 This method is thread-safe. Mirrors in different processes would not share the temporary buffer.
 
+----------
+
 ### `new_line` {#new_line}
 
 ```python
@@ -70,6 +72,8 @@ if buffer.last_line.tell() > 0:
     write('\n')
 ```
 
+----------
+
 ### `flush` {#flush}
 
 ```python
@@ -77,6 +81,8 @@ buffer.flush()
 ```
 
 Flush the current written line stream (temporary buffer).
+
+----------
 
 ### `send_eof` {#send_eof}
 
@@ -94,6 +100,8 @@ The signal should be used at the end of the sub-process. This method is used for
 * Users should only invoke `send_eof()` or `send_error()` once for each sub-process. For example, if `send_error()` has been invoked, `send_eof()` should not be used. Sending more than one close signal from the same sub-process may cause fatal bugs.
 
 :::
+
+----------
 
 ### `send_error` {#send_error}
 
@@ -117,6 +125,8 @@ See [`send_eof()`](#send_eof)
 | :--------: | :----: | :----------------------------- |
 | `error`    | `Exception`  | The exception object that would be sent. |
 
+----------
+
 ### `send_warning` {#send_warning}
 
 ```python
@@ -139,6 +149,8 @@ This method could only catch the warning object defined by the stdlib. Some diff
 | :--------: | :----: | :----------------------------- |
 | `warning`  | `Warning`  | The warning object that would be sent. |
 
+----------
+
 ### `send_data` {#send_data}
 
 ```python
@@ -157,6 +169,8 @@ This method is used by other methods implicitly, and should not be used by users
 | :--------: | :----: | :----------------------------- |
 | `data`     | `str`  | A str to be sent to the main buffer. |
 
+----------
+
 ### `check_states` {#check_states}
 
 ```python
@@ -168,6 +182,8 @@ Check the current buffer states.
 Currently, this method in only used for checking whether the service is closed.
 
 This method is used by other methods implicitly, and should not be used by users.
+
+----------
 
 ### `read` {#read}
 
@@ -182,6 +198,8 @@ This method would only read the current bufferred values in the mirror storage. 
 |  Argument  |  Type  |  <center>Description</center>  |
 | :--------: | :----: | :----------------------------- |
 | `line`     | `str`  | Current storage of the mirror. The value in the storage has not been sent to the main buffer. |
+
+----------
 
 ### `write` {#write}
 
@@ -219,6 +237,8 @@ This mode could only by configured by the initialization. If set `True`, the agg
 
 In current implementation, this value is always configured as `False`.
 
+----------
+
 ### `timeout` {#timeout}
 
 ```python
@@ -226,6 +246,8 @@ buffer.timeout
 ```
 
 The timeout of the web syncholizing events. If not set, the synchronization would block the current process.
+
+----------
 
 ### `headers` {#headers}
 

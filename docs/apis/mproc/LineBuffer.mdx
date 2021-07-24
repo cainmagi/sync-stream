@@ -51,6 +51,8 @@ Clear the whole buffer.
 
 This method would clear the storage and the last line stream of this buffer. However, it would not clear any mirrors or copies of this object. This method is thread-safe and should always success.
 
+----------
+
 ### `new_line` {#new_line}
 
 ```python
@@ -66,6 +68,8 @@ if tbuf.last_line.tell() > 0:
     write('\n')
 ```
 
+----------
+
 ### `flush` {#flush}
 
 ```python
@@ -73,6 +77,8 @@ tbuf.flush()
 ```
 
 Flush the current written line stream (temporary buffer).
+
+----------
 
 ### `parse_lines` {#parse_lines}
 
@@ -96,6 +102,8 @@ tbuf.storage.extend(lines)
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
 
+----------
+
 ### `read` {#read}
 
 ```python
@@ -117,6 +125,8 @@ If the current written line is not blank, the `read()` method would regard it as
 |  Argument  |  Type  |  <center>Description</center>  |
 | :--------: | :----: | :----------------------------- |
 | `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
+
+----------
 
 ### `write` {#write}
 

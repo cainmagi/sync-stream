@@ -63,6 +63,8 @@ this method would not exert any influences to the mirror.
 
 This method is thread-safe. Mirrors in different processes would not share the temporary buffer. Note that the shared queue would not be cleared by this method.
 
+----------
+
 ### `new_line` {#new_line}
 
 ```python
@@ -78,6 +80,8 @@ if buffer.last_line.tell() > 0:
     write('\n')
 ```
 
+----------
+
 ### `flush` {#flush}
 
 ```python
@@ -85,6 +89,8 @@ buffer.flush()
 ```
 
 Flush the current written line stream (temporary buffer).
+
+----------
 
 ### `send_eof` {#send_eof}
 
@@ -102,6 +108,8 @@ The signal should be used at the end of the sub-process. This method is used for
 * Users should only invoke `send_eof()` or `send_error()` once for each sub-process. For example, if `send_error()` has been invoked, `send_eof()` should not be used. Sending more than one close signal from the same sub-process may cause fatal bugs.
 
 :::
+
+----------
 
 ### `send_error` {#send_error}
 
@@ -125,6 +133,8 @@ See [`send_eof()`](#send_eof)
 | :--------: | :----: | :----------------------------- |
 | `error`    | `Exception`  | The exception object that would be sent. |
 
+----------
+
 ### `send_warning` {#send_warning}
 
 ```python
@@ -146,6 +156,8 @@ This method could only catch the warning object defined by the stdlib. Some diff
 |  Argument  |  Type  |  <center>Description</center>  |
 | :--------: | :----: | :----------------------------- |
 | `warning`  | `Warning`  | The warning object that would be sent. |
+
+----------
 
 ### `send_data` {#send_data}
 
@@ -169,6 +181,8 @@ This method is used by other methods implicitly, and should not be used by users
 | :--------: | :----: | :----------------------------- |
 | `data`     | `str`  | A str to be sent to the main buffer. |
 
+----------
+
 ### `read` {#read}
 
 ```python
@@ -182,6 +196,8 @@ This method would only read the current bufferred values in the mirror storage. 
 |  Argument  |  Type  |  <center>Description</center>  |
 | :--------: | :----: | :----------------------------- |
 | `line`     | `str`  | Current storage of the mirror. The value in the storage has not been sent to the main buffer. |
+
+----------
 
 ### `write` {#write}
 
@@ -216,6 +232,8 @@ The aggressive mode.
 This mode could only by configured by the initialization. If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written.
 
 In current implementation, this value is always configured as `False`.
+
+----------
 
 ### `timeout` {#timeout}
 
