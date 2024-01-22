@@ -1,6 +1,6 @@
 #!python
 # -*- coding: UTF-8 -*-
-'''
+"""
 ################################################################
 # Installation
 # @ Sync-stream
@@ -17,59 +17,66 @@
 # This module is used for maintaining the installation of the
 # package.
 ################################################################
-'''
+"""
 
 import setuptools
+import version
 
-with open('README.md', 'r') as fh:
+
+with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
 
 INSTALL_REQUIRES_FILE = [
-    'fasteners>=0.16.3',
+    "fasteners>=0.16.3",
 ]
 
 INSTALL_REQUIRES_HOST = [
-    'flask>=2.0.1',
-    'flask-restful>=0.3.9',
-    'jinja2>=3.0.1',
-    'werkzeug>=2.0.1',
-    'urllib3>=1.26.6'
+    "flask>=2.0.1",
+    "jinja2>=3.0.1",
+    "werkzeug>=2.0.1",
+    "urllib3>=1.26.17",
 ]
 
 setuptools.setup(
-    name='syncstream',
-    version='0.3.3',
-    author='Yuchen Jin',
-    author_email='cainmagi@gmail.com',
-    description='A python tool for synchronize the messages from different threads, processes or hosts.',
+    name="syncstream",
+    version=version.__version__,
+    author="Yuchen Jin",
+    author_email="cainmagi@gmail.com",
+    description="A python tool for synchronize the messages from different threads, processes or hosts.",
     long_description=LONG_DESCRIPTION,
-    long_description_content_type='text/markdown',
-    url='https://github.com/cainmagi/sync-stream',
+    long_description_content_type="text/markdown",
+    url="https://github.com/cainmagi/sync-stream",
     project_urls={
-        'Tracker': 'https://github.com/cainmagi/sync-stream/issues',
-        'Documentation': 'https://cainmagi.github.io/sync-stream/',
+        "Tracker": "https://github.com/cainmagi/sync-stream/issues",
+        "Documentation": "https://cainmagi.github.io/sync-stream/",
     },
     classifiers=[
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Topic :: Software Development :: Libraries :: Python Modules'
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    license='MIT',
+    license="MIT",
     keywords=[
-        'stdout', 'stdout-redirection', 'multiprocessing', 'synchronization', 'stream',
-        'python', 'python3', 'python-library'
+        "stdout",
+        "stdout-redirection",
+        "multiprocessing",
+        "synchronization",
+        "stream",
+        "python",
+        "python3",
+        "python-library",
     ],
     packages=setuptools.find_packages(),
     install_requires=[],
     extras_require={
-        'file': INSTALL_REQUIRES_FILE,
-        'host': INSTALL_REQUIRES_HOST,
+        "file": INSTALL_REQUIRES_FILE,
+        "host": INSTALL_REQUIRES_HOST,
     },
-    python_requires='>=3.6',
+    python_requires=">=3.6",
 )
