@@ -44,7 +44,6 @@ try:
     from werkzeug.serving import make_server
     import requests
     import flask
-    from flask_restful import Api
 except ImportError:
     pytest.skip(
         (
@@ -64,8 +63,7 @@ def worker_writter(address: str) -> None:
         thd_id = threading.get_ident()  # Fall back to py37
     for i in range(10):
         time.sleep(0.1)
-        sys.stdout = hbuf
-        print('Thd: "{0}";'.format(thd_id), "Line:", "buffer", "new", i)
+        print('Thd: "{0}";'.format(thd_id), "Line:", "buffer", "new", i, file=hbuf)
     hbuf.send_eof()
 
 
@@ -81,8 +79,7 @@ def worker_writter_lite(address: str) -> None:
         thd_id = threading.get_ident()  # Fall back to py37
     for i in range(2):
         time.sleep(0.1)
-        sys.stdout = hbuf
-        print('Thd: "{0}";'.format(thd_id), "Line:", "buffer", "new", i)
+        print('Thd: "{0}";'.format(thd_id), "Line:", "buffer", "new", i, file=hbuf)
     hbuf.send_eof()
 
 
@@ -110,12 +107,12 @@ def worker_process(address: str) -> None:
     buffer = LineHostMirror(address=address)
     for i in range(10):
         time.sleep(0.01)
-        sys.stdout = buffer
-        print("Line:", "buffer", "new", i, end="\n")
-    sys.stderr = buffer
-    create_warn()
+        print("Line:", "buffer", "new", i, end="\n", file=buffer)
+    with buffer:
+        create_warn()
     try:
-        create_warn(catch=True)
+        with buffer:
+            create_warn(catch=True)
     except Warning as warn:
         buffer.send_warning(warn)
     try:
@@ -138,8 +135,7 @@ def worker_process_lite(address: str) -> None:
     buffer = LineHostMirror(address=address)
     for i in range(2):
         time.sleep(0.01)
-        sys.stdout = buffer
-        print("Line:", "buffer", "new", i, end="\n")
+        print("Line:", "buffer", "new", i, end="\n", file=buffer)
     buffer.send_eof()
 
 
@@ -156,8 +152,7 @@ def worker_process_stop(address: str) -> None:
     try:
         for i in range(10):
             time.sleep(0.1)
-            sys.stdout = buffer
-            print("Line:", "buffer", "new", i, end="\n")
+            print("Line:", "buffer", "new", i, end="\n", file=buffer)
             if i > 0:
                 time.sleep(10.0)
     except Exception as error:  # pylint: disable=broad-except
@@ -166,19 +161,18 @@ def worker_process_stop(address: str) -> None:
         buffer.send_eof()
 
 
-def create_test_api(name: str = "api_name") -> Tuple[flask.Flask, Api]:
+def create_test_api(name: str = "api_name") -> flask.Flask:
     app_ = flask.Flask(name)
-    api = Api(app_)
 
     # Configure APIs.
-    LineHostBuffer(api_route="/sync-stream", maxlen=10).serve(api)
+    LineHostBuffer(api_route="/sync-stream", maxlen=10).serve(app_)
 
-    return app_, api
+    return app_
 
 
 @pytest.fixture(scope="module")
 def app() -> flask.Flask:
-    app_, _ = create_test_api()
+    app_ = create_test_api()
 
     return app_
 
@@ -252,33 +246,28 @@ class TestHost:
         log.info("Successfully connect to the remote server.")
 
         # Write buffer.
-        sys.stdout = hbuf
-        print("Hello!")
-        sys.stdout = hbuf
-        print("Multiple", "sep", "example")
-        sys.stdout = hbuf
-        print("An example of \n splitted message.\n")
-        sys.stdout = hbuf
-        print("An extra message.")
-        sys.stdout = hbuf
+        print("Hello!", file=hbuf)
+        print("Multiple", "sep", "example", file=hbuf)
+        print("An example of \n splitted message.\n", file=hbuf)
+        print("An extra message.", file=hbuf)
         print(
-            "An example of long and unicode message: I/O层次结构的顶部是抽象基类 IOBase"
-            " 。它定义了流的基本接口。但是请注意，对流的读取和写入之间没有分离。如果实现不支"
-            "持指定的操作，则会引发 UnsupportedOperation 。\n抽象基类 RawIOBase 是 IOBase"
-            " 的子类。它负责将字节读取和写入流中。 RawIOBase 的子类 FileIO 提供计算机文件系"
-            "统中文件的接口。\n抽象基类 BufferedIOBase 继承了 IOBase ，处理原始二进制流（"
-            " RawIOBase ）上的缓冲。其子类 BufferedWriter 、 BufferedReader 和 "
-            "BufferedRWPair 分别缓冲可读、可写以及可读写的原始二进制流。 BufferedRandom 提"
-            "供了带缓冲的可随机访问流接口。 BufferedIOBase 的另一个子类 BytesIO 是内存中字"
-            "节流。\n抽象基类 TextIOBase 继承了 IOBase 。它处理可表示文本的流，并处理字符串"
-            "的编码和解码。类 TextIOWrapper 继承了 TextIOBase ，是原始缓冲流（ "
-            "BufferedIOBase ）的缓冲文本接口。最后， StringIO 是文本的内存流。\n参数名不是"
-            "规范的一部分，只有 open() 的参数才用作关键字参数。"
+            "An example of long and unicode message: I/O层次结构的顶部是抽象基类 "
+            "IOBase 。它定义了流的基本接口。但是请注意，对流的读取和写入之间没有分离。如"
+            "果实现不支持指定的操作，则会引发 UnsupportedOperation 。\n抽象基类 "
+            "RawIOBase 是 IOBase 的子类。它负责将字节读取和写入流中。 RawIOBase 的子类 "
+            "FileIO 提供计算机文件系统中文件的接口。\n抽象基类 BufferedIOBase 继承了 "
+            "IOBase ，处理原始二进制流（ RawIOBase ）上的缓冲。其子类 BufferedWriter "
+            "、 BufferedReader 和 BufferedRWPair 分别缓冲可读、可写以及可读写的原始二"
+            "进制流。 BufferedRandom 提供了带缓冲的可随机访问流接口。 BufferedIOBase "
+            "的另一个子类 BytesIO 是内存中字节流。\n抽象基类 TextIOBase 继承了 IOBase "
+            "。它处理可表示文本的流，并处理字符串的编码和解码。类 TextIOWrapper 继承了 "
+            "TextIOBase ，是原始缓冲流（ BufferedIOBase ）的缓冲文本接口。最后， "
+            "StringIO 是文本的内存流。\n参数名不是规范的一部分，只有 open() 的参数才用"
+            "作关键字参数。",
+            file=hbuf,
         )
-        sys.stdout = hbuf
-        print("Multiple", "sep", "example", end="")
+        print("Multiple", "sep", "example", end="", file=hbuf)
         hbuf.send_eof()
-        sys.stdout = sys.__stdout__
 
         # Check the validity of the buffer results.
         res = requests.get(url=address, params={"n": 4})

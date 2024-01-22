@@ -66,7 +66,7 @@ else:
     host = utils.lazy_import(
         "host",
         package=__name__,
-        dependencies=("urllib3", "flask", "flask_restful"),
+        dependencies=("urllib3", "flask"),
         rel_dependencies=(webtools,),
         required=False,
     )

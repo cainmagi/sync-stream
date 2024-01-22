@@ -16,7 +16,6 @@ Test scripts of the module `file`.
 """
 
 import os
-import sys
 import time
 import warnings
 import multiprocessing
@@ -69,13 +68,12 @@ def worker_process(log_info: Tuple[str, int]) -> None:
         - log_len: `str`m the maximal number of log files.
     """
     buffer = LineFileBuffer(log_info[0], maxlen=log_info[1], tmp_id=str(os.getpid()))
-    sys.stdout = buffer
-    sys.stderr = buffer
-    for i in range(10):
-        time.sleep(0.01)
-        print("Line", "buffer", "new", i, end="\n")
-    create_warn()
-    buffer.new_line()  # A final signal
+    with buffer:
+        for i in range(10):
+            time.sleep(0.01)
+            print("Line", "buffer", "new", i, end="\n")
+        create_warn()
+        buffer.new_line()  # A final signal
 
 
 def worker_process_lite(log_info: Tuple[str, int]) -> None:
@@ -90,12 +88,11 @@ def worker_process_lite(log_info: Tuple[str, int]) -> None:
         - log_len: `str`m the maximal number of log files.
     """
     buffer = LineFileBuffer(log_info[0], maxlen=log_info[1], tmp_id=str(os.getpid()))
-    sys.stdout = buffer
-    sys.stderr = buffer
-    for i in range(2):
-        time.sleep(0.01)
-        print("Line", "buffer", "new", i, end="\n")
-    buffer.new_line()  # A final signal
+    with buffer:
+        for i in range(2):
+            time.sleep(0.01)
+            print("Line", "buffer", "new", i, end="\n")
+        buffer.new_line()  # A final signal
 
 
 class TestFile:
@@ -121,27 +118,27 @@ class TestFile:
         buffer = LineFileBuffer(self.log_path, maxlen=10)
 
         # Write buffer.
-        sys.stdout = buffer
-        print("Hello!")
-        print("Multiple", "sep", "example")
-        print("An example of \n splitted message.\n")
-        print("An extra message.")
-        print(
-            "An example of long and unicode message: I/O层次结构的顶部是抽象基类 IOBase"
-            " 。它定义了流的基本接口。但是请注意，对流的读取和写入之间没有分离。如果实现不支"
-            "持指定的操作，则会引发 UnsupportedOperation 。\n抽象基类 RawIOBase 是 IOBase"
-            " 的子类。它负责将字节读取和写入流中。 RawIOBase 的子类 FileIO 提供计算机文件系"
-            "统中文件的接口。\n抽象基类 BufferedIOBase 继承了 IOBase ，处理原始二进制流（"
-            " RawIOBase ）上的缓冲。其子类 BufferedWriter 、 BufferedReader 和 "
-            "BufferedRWPair 分别缓冲可读、可写以及可读写的原始二进制流。 BufferedRandom 提"
-            "供了带缓冲的可随机访问流接口。 BufferedIOBase 的另一个子类 BytesIO 是内存中字"
-            "节流。\n抽象基类 TextIOBase 继承了 IOBase 。它处理可表示文本的流，并处理字符串"
-            "的编码和解码。类 TextIOWrapper 继承了 TextIOBase ，是原始缓冲流（ "
-            "BufferedIOBase ）的缓冲文本接口。最后， StringIO 是文本的内存流。\n参数名不是"
-            "规范的一部分，只有 open() 的参数才用作关键字参数。"
-        )
-        print("Multiple", "sep", "example", end="")
-        sys.stdout = sys.__stdout__
+        with buffer:
+            print("Hello!")
+            print("Multiple", "sep", "example")
+            print("An example of \n splitted message.\n")
+            print("An extra message.")
+            print(
+                "An example of long and unicode message: I/O层次结构的顶部是抽象基类 "
+                "IOBase 。它定义了流的基本接口。但是请注意，对流的读取和写入之间没有分离。如"
+                "果实现不支持指定的操作，则会引发 UnsupportedOperation 。\n抽象基类 "
+                "RawIOBase 是 IOBase 的子类。它负责将字节读取和写入流中。 RawIOBase 的子类 "
+                "FileIO 提供计算机文件系统中文件的接口。\n抽象基类 BufferedIOBase 继承了 "
+                "IOBase ，处理原始二进制流（ RawIOBase ）上的缓冲。其子类 BufferedWriter "
+                "、 BufferedReader 和 BufferedRWPair 分别缓冲可读、可写以及可读写的原始二"
+                "进制流。 BufferedRandom 提供了带缓冲的可随机访问流接口。 BufferedIOBase "
+                "的另一个子类 BytesIO 是内存中字节流。\n抽象基类 TextIOBase 继承了 IOBase "
+                "。它处理可表示文本的流，并处理字符串的编码和解码。类 TextIOWrapper 继承了 "
+                "TextIOBase ，是原始缓冲流（ BufferedIOBase ）的缓冲文本接口。最后， "
+                "StringIO 是文本的内存流。\n参数名不是规范的一部分，只有 open() 的参数才用"
+                "作关键字参数。"
+            )
+            print("Multiple", "sep", "example", end="")
 
         # Check the validity of the buffer results.
         messages = buffer.read(4)

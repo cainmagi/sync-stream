@@ -121,7 +121,7 @@ class _LineBuffer(Generic[T]):
 
         Arguments
         ---------
-        lines: `[str]`
+        lines: `[str | T]`
             The new lines to be added into the stroage.
         """
         self.storage.extend(lines)
@@ -144,7 +144,7 @@ class _LineBuffer(Generic[T]):
 
         Returns
         -------
-        #1: `[str]`
+        #1: `[str | T]`
             A sequence of fetched record items. Results are sorted in the FIFO order.
         """
         with self.__last_line_lock:

@@ -25,6 +25,7 @@
 1. Change the coding style to the Microsoft standards.
 2. Make the whole package blackified.
 3. Split the standard requirements and developer's requirements.
+4. Drop the dependency `flask-restful` for the optional `host` module. Since the service provider falls back to `flask`, there will be no error handler.
 
 ### 0.3.3 @ 6/29/2021
 

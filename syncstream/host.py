@@ -24,22 +24,28 @@ import json
 import threading
 import contextlib
 import types
+import collections
+import collections.abc
+from urllib.parse import urlencode
 
-from typing import Optional, NoReturn
+from typing import Union, Optional, NoReturn
 from typing import TextIO
 
 try:
-    from typing import Dict, Type
+    from typing import Tuple, Dict, Type
+    from typing import ChainMap
 except ImportError:
-    from builtins import dict as Dict, type as Type
+    from builtins import tuple as Tuple, dict as Dict, type as Type
+    from collections import ChainMap
 
 import urllib3
 import urllib3.util
 
-from flask_restful import Api, Resource
-from flask_restful.reqparse import RequestParser
+import flask
+from flask import request
+from flask.views import MethodView
 
-from .base import is_end_line_break, GroupedMessage
+from .base import is_end_line_break, GroupedMessage, SerializedMessage
 from .webtools import SafePoolManager, clean_http_manager
 from .mproc import _LineBuffer
 
@@ -83,11 +89,16 @@ class LineHostMirror(contextlib.AbstractContextManager):
         self.__timeout: Optional[int] = timeout
 
         # Default headers
-        self.__headers: Dict[str, str] = {
+        self.__headers_get: Dict[str, str] = {  # get
             "Accept": "application/json",
-            "Content-Type": "application/json",
             "User-Agent": "cainmagi/syncstream",
         }
+        self.__headers = collections.ChainMap(  # post
+            {
+                "Content-Type": "application/json",
+            },
+            self.__headers_get,
+        )
 
         # To be created when the first connection is established.
         self.__buffer_lock_: Optional[threading.Lock] = None
@@ -120,9 +131,14 @@ class LineHostMirror(contextlib.AbstractContextManager):
         return None
 
     @property
-    def headers(self) -> Dict[str, str]:
-        """Get the default headers of the mirror."""
-        return self.__headers.copy()
+    def headers(self) -> ChainMap[str, str]:
+        """Get the default headers (post) of the mirror."""
+        return collections.ChainMap(dict(), self.__headers)
+
+    @property
+    def headers_get(self) -> ChainMap[str, str]:
+        """Get the default headers (get) of the mirror."""
+        return collections.ChainMap(dict(), self.__headers_get)
 
     @property
     def __http(self) -> SafePoolManager:
@@ -287,11 +303,12 @@ class LineHostMirror(contextlib.AbstractContextManager):
         """
         is_closed = False
         with self.__http.request(
-            url=self.address + "-state",
-            headers=self.headers,
+            url="{0}-state?{1}".format(
+                self.address, urlencode({"state": "closed"}, encoding="utf-8")
+            ),
+            headers=self.headers_get,
             method="get",
             preload_content=False,
-            body=json.dumps({"state": "closed"}).encode(),
         ) as req:
             if req.status < 400:
                 res = json.load(req)
@@ -437,44 +454,38 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
         if endpoint is None:
             endpoint = api_route.lstrip("/").replace("/", ".")
         self.endpoint = endpoint
-        self.p_post = RequestParser()
-        self.p_post.add_argument(
-            "type",
-            type=str,
-            required=True,
-            help="The type of the message item should be a str.",
-        )
-        self.p_post.add_argument(
-            "data",
-            type=dict,
-            default=dict(),
-            help="The data of the message item should be a dict.",
-        )
-        self.p_get = RequestParser()
-        self.p_get.add_argument(
-            "n",
-            type=int,
-            default=None,
-            help="The number of message item should be a int.",
-        )
-        self.p_state = RequestParser()
-        self.p_state.add_argument(
-            "state",
-            type=str,
-            required=True,
-            help="Need to specify the requested state item.",
-        )
-        self.p_state.add_argument(
-            "value",
-            type=str,
-            default=None,
-            help="The configured value of the state needs to be a string.",
-        )
         self.__config_lock = threading.Lock()
         self.__state_lock = threading.Lock()
         self.__state = dict(closed=False)
 
-    def serve(self, api: Api) -> None:
+    def read_serialized(
+        self, size: Optional[int] = None
+    ) -> Tuple[Union[str, SerializedMessage], ...]:
+        """Read the records (serialized).
+
+        It has the same functionalities of `read(...)`. However, all the data returned
+        by this method has been serialized and compatible with jsonifying.
+
+        This method should be used for providing query services.
+
+        Arguments
+        ---------
+        size: `int | None`
+            If set None, would return the whole storage.
+
+            If set a int value, would return the last `size` items.
+
+        Returns
+        -------
+        #1: `[str | SerializedMessage]`
+            A sequence of fetched record items. Results are sorted in the FIFO order.
+        """
+        return tuple(
+            (val if isinstance(val, str) else GroupedMessage.serialize(val))
+            for val in self.read(size=size)
+        )
+
+    def serve(self, app: flask.Flask) -> None:
         """Provide the service of the host buffer.
 
         The service would be equipped as an independent thread. Each time the request
@@ -490,25 +501,35 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
         state_lock = self.__state_lock
         state = self.__state
 
-        class BufferPost(Resource):
+        class BufferPost(MethodView):
             """The buffer service."""
 
             def post(self):
                 """Accept the remote message item, and parse the results in the file."""
-                args = rself.p_post.parse_args()
-                dtype = args.get("type")
+                if not request.is_json:
+                    raise TypeError(
+                        "syncstream: The request type of BufferPost.post needs to be "
+                        "json."
+                    )
+                args = request.get_json()
+                if not isinstance(args, collections.abc.Mapping):
+                    raise TypeError(
+                        "syncstream: The request data of BufferPost.post needs to be "
+                        "mapping-like."
+                    )
+                dtype = str(args.get("type", "")).strip()
                 with config_lock:
                     if dtype == "str":
                         data = args.get("data", None)
-                        if data is not None:
+                        if isinstance(data, collections.abc.Mapping):
                             data = data.get("value", None)
                             if data is not None:
-                                super_rself.write(data)
+                                super_rself.write(str(data))
                     elif dtype in ("error", "warning"):
                         data = args.get("data", None)
-                        if data is not None:
+                        if isinstance(data, collections.abc.Mapping):
                             rself.new_line()
-                            rself.storage.append(GroupedMessage.deserialize(data))
+                            data = GroupedMessage.deserialize(dict(data))
                     elif dtype == "close":
                         rself.new_line()
                     else:
@@ -519,10 +540,20 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
 
             def get(self):
                 """Get all message items from the storage."""
-                args = rself.p_get.parse_args()
-                number = args.get("n")
+                args = request.args
+                _number = args.get("n", None)
+                if _number is None:
+                    number = _number
+                else:
+                    try:
+                        number = int(_number)
+                    except ValueError as err:
+                        raise ValueError(
+                            "syncstream: The request data of BufferPost.get is not a "
+                            "valid number. Given: {0}".format(_number)
+                        ) from err
                 with config_lock:
-                    data = rself.read(size=number)
+                    data = rself.read_serialized(size=number)
                 return {"message": "success", "data": data}, 200
 
             def delete(self):
@@ -531,13 +562,18 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
                     rself.clear()
                 return {"message": "success"}, 200
 
-        class BufferStatePost(Resource):
+        class BufferStatePost(MethodView):
             """The service used for checking the buffer state."""
 
             def get(self):
                 """Get the states of the buffer."""
-                args = rself.p_state.parse_args()
-                name = args.get("state")
+                args = request.args
+                name = str(args.get("state", "")).strip()
+                if not name:
+                    raise TypeError(
+                        "syncstream: The request data of BufferStatePost.get does "
+                        "not exist."
+                    )
                 with config_lock:
                     with state_lock:
                         res = state.get(name, None)
@@ -545,13 +581,27 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
 
             def post(self):
                 """Change the state of the buffer."""
-                args = rself.p_state.parse_args()
-                name = args.get("state")
-                value = args.get("value")
+                if not request.is_json:
+                    raise TypeError(
+                        "syncstream: The request type of BufferStatePost.post needs "
+                        "to be json."
+                    )
+                args = request.get_json()
+                if not isinstance(args, collections.abc.Mapping):
+                    raise TypeError(
+                        "syncstream: The request data of BufferStatePost.post needs "
+                        "to be mapping-like."
+                    )
+                name = str(args.get("state", "")).strip()
+                if not name:
+                    raise TypeError(
+                        "syncstream: The request data of BufferStatePost.get does "
+                        "not exist."
+                    )
                 with config_lock:
                     with state_lock:
                         if name == "closed":
-                            value = value.casefold()
+                            value = str(args.get("value")).casefold().strip()
                             state[name] = True if value == "true" else False
                 return {"message": "success"}, 201
 
@@ -560,11 +610,15 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
                 rself.reset_states()
                 return {"message": "success"}, 200
 
-        api.add_resource(BufferPost, self.api_route, endpoint=self.endpoint)
-        api.add_resource(
-            BufferStatePost,
+        app.add_url_rule(
+            self.api_route,
+            endpoint=self.endpoint,
+            view_func=BufferPost.as_view("buffer_post"),
+        )
+        app.add_url_rule(
             self.api_route + "-state",
             endpoint=self.endpoint + "-state",
+            view_func=BufferStatePost.as_view("buffer_post"),
         )
 
     def write(self, data: str) -> NoReturn:
