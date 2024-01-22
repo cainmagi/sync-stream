@@ -1,6 +1,6 @@
-fasteners>=0.16.3
 typing_extensions>=4.0.0
+fasteners>=0.16.3
 packaging
-flask>=2.0.1
-werkzeug==2.0.1
 urllib3>=1.26.17
+flask>=2.0.1
+werkzeug>=2.0.1

@@ -1,5 +1,5 @@
 # Tier 1 only needs typing extensions.
-typing_extensions
+typing_extensions>=4.0.0
 
 # Tier 2: file
 #
@@ -8,9 +8,9 @@ fasteners>=0.16.3
 # Tier 3: host
 #
 packaging
+urllib3>=1.26.17
 flask>=2.0.1
 werkzeug>=2.0.1
-urllib3>=1.26.17
 
 # Tier 4: test and devs
 # For developers, recommend to run these commands:

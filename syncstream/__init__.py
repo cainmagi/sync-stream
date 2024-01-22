@@ -60,13 +60,13 @@ else:
     webtools = utils.lazy_import(
         "webtools",
         package=__name__,
-        dependencies=("urllib3",),
+        dependencies=("urllib3", "packaging"),
         required=False,
     )
     host = utils.lazy_import(
         "host",
         package=__name__,
-        dependencies=("urllib3", "flask"),
+        dependencies=("urllib3", "packaging", "flask"),
         rel_dependencies=(webtools,),
         required=False,
     )
