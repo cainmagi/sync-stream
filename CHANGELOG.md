@@ -20,6 +20,7 @@
 2. Fix: Previously, `LineBuffer.write()` may return `None` in some cases. Now, such methods will always return `int`.
 3. Fix: `LineBuffer` and `Line*Mirror` may not fit the type of `contextlib.redirect_stdout/stderr`. Now, we provide `syncstream.redirect_stdout/stderr` to solve this issue.
 4. Fix: PyTest will raises errors if optional dependencies are absent. Now, this issue has been fixed. If any optional dependencies are missing, the corresponding tests will be skipped.
+5. Fix: Move `version` as a pacakge because the module version is not compatible with Linux.
 
 #### :floppy_disk: Change
 

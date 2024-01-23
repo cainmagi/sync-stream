@@ -25,7 +25,7 @@ import types
 from typing import Union, Optional
 
 
-__all__ = ("import_dummy", "version", "__version__")
+__all__ = ("import_dummy", "__version__")
 
 
 def import_dummy(
