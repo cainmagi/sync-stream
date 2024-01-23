@@ -1,4 +1,4 @@
-# RESTful Dash (R-dash)
+# Sync-stream
 
 {:toc}
 
