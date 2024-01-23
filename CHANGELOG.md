@@ -12,6 +12,7 @@
 2. Make the optional packages `file` and `host` lazy-loaded. If their dependencies are missing, these modules will be marked as placeholder and their corresponding members will be replaced by `None`.
 3. Provide context features to `LineBuffer` and `Line*Mirror`. Entering such contexts will redirect `stdout` and `stderr` to the correspnding buffer/mirror. Note that `Line*Buffer` does not support this feature.
 4. Make the version lazy-loaded when buliding the pacakge.
+5. Provide the docker scripts for fast-deployment of the testing environment.
 
 #### :wrench: Fix
 
@@ -27,6 +28,8 @@
 3. Split the standard requirements, locked requirements, and developer's requirements.
 4. Drop the dependency `flask-restful` for the optional `host` module. Since the service provider falls back to `flask`, there will be no error handler.
 5. Refactor `conftest.py` and `setup` scripts to the modern style.
+6. Refactor the GitHub templates for fixing some typos.
+7. Update the GitHub Actions scripts to the newest versions.
 
 ### 0.3.3 @ 6/29/2021
 

@@ -1,7 +1,9 @@
 name: Docs request
 description: Report a problem or a request for the docs.
 title: "[Docs]"
-labels: documentation, to be solved
+labels:
+  - documentation
+  - to be solved
 
 body:
   - type: checkboxes

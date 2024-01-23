@@ -1,7 +1,9 @@
 name: Bug report
 description: Something is not working correctly.
 title: "[BUG]"
-labels: "bug, to be solved"
+labels:
+  - bug
+  - to be solved
 
 body:
   - type: checkboxes
@@ -41,7 +43,7 @@ body:
       label: Traceback
       description: >-
         The python trackback of the bug. If there is no traceback, please describe (1) The expected behaviors. (2) The actual behaviors.
-      render: sh-session
+      render: bash
 
   - type: textarea
     attributes:

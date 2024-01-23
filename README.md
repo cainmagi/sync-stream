@@ -17,6 +17,8 @@ pip install syncstream[option1,option2...]
 | :-----: | :------- |
 | `file` | Install dependencies for the `file` module. The module provides `syncstream.LineFileBuffer`. |
 | `host` | Install dependencies for the `host` module. The module provides `syncstream.LineHostBuffer`, and `syncstream.LineHostMirror`. |
+| `test` | Install dependencies for running tests. |
+| `dev`  | Install dependencies for developers. |
 
 ## Documentation
 
@@ -24,40 +26,4 @@ View the documentation here: [:blue_book: https://cainmagi.github.io/sync-stream
 
 ## Update reports
 
-### 0.3.3 @ 6/29/2021
-
-1. Fix small typos.
-2. Bump the dependencies to the newest versions.
-
-### 0.3.2 @ 6/14/2021
-
-1. Fix a bug caused by stopping the mirrors.
-2. Format the meta-data defined in `setup.py`.
-3. Add the documentation. Currently only the tutorial is finished.
-
-### 0.3.0 @ 6/4/2021
-
-1. Support the stop signal for `mproc` and `host` modules.
-2. Fix some bugs in the testing script.
-3. Fix typos.
-
-### 0.2.2 @ 5/25/2021
-
-1. Add `clear()` methods for all buffers and mirrors.
-2. Fix typos in the package setup and info file.
-3. Fix a bug caused by writing data to the host in the testing scripts for Linux.
-
-### 0.2.1 @ 5/24/2021
-
-1. Add the PyPI publish workflow.
-
-### 0.2.0 @ 5/24/2021
-
-1. Finish the synchronization based on the file lock package `fasteners`.
-2. Finish the synchronization based on the web service packages `flask`, `flask-restful` and `urllib3`.
-3. Fix the compatibility of the testing scripts for `py36`, `py37`.
-
-### 0.1.0 @ 5/22/2021
-
-1. Finish the synchronization based on the stdlib.
-2. Create this project.
+See the versions in the [CHANGELOG :spiral_notepad:](./CHANGELOG.md) file.
