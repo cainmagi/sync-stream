@@ -17,6 +17,7 @@ Test scripts of the module `host`.
 
 import sys
 import time
+import json
 import warnings
 import threading
 import multiprocessing
@@ -227,9 +228,11 @@ def verify_online(address: str, retries: int = 5) -> None:
         with _http.request(
             method="get",
             url="{addr}/is-online".format(addr=address),
+            preload_content=False,
         ) as req:
             if req.status < 400:
-                if req.json()["message"] == "success":
+                res = json.load(req)
+                if res["message"] == "success":
                     return
     raise ConnectionError("test.connect: Fail to connect to the server.")
 
