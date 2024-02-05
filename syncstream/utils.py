@@ -225,7 +225,10 @@ class _LazyAttribute:
         """Proxy of __call__ method. After running this method, the attribute will
         be loaded."""
         obj = object.__getattribute__(self, "_LazyAttribute__load_module")()
-        return obj.__call__(*args, **kwargs)
+        if isinstance(obj, type):
+            return obj(*args, **kwargs)
+        else:
+            return obj.__call__(*args, **kwargs)
 
     def __getattribute__(self, attr: str):
         """Get the attribute of the object.

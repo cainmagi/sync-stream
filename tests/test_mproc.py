@@ -153,6 +153,37 @@ class TestMProc:
             else:
                 log.info("%s", "{0:02d}: {1}".format(i, item))
 
+    def test_mproc_read_buffer(self) -> None:
+        """Test the `read()` functionalities of mproc.LineBuffer."""
+        log = logging.getLogger("test_mproc")
+        tbuf = LineBuffer(3)
+
+        tbuf.write("line1\n")
+        tbuf.write("line2\nline3")
+
+        # Read all.
+        lines = tbuf.read()
+        assert lines[0] == "line1" and lines[1] == "line2" and lines[2] == "line3"
+
+        # Read one line.
+        lines = tbuf.read(1)
+        assert len(lines) == 1 and lines[0] == "line3"
+
+        # Read two lines.
+        lines = tbuf.read(2)
+        assert len(lines) == 2 and lines[0] == "line2" and lines[1] == "line3"
+
+        # Read three lines.
+        lines = tbuf.read(3)
+        assert (
+            len(lines) == 3
+            and lines[0] == "line1"
+            and lines[1] == "line2"
+            and lines[2] == "line3"
+        )
+
+        self.show_messages(log, lines)
+
     def test_mproc_buffer(self) -> None:
         """Test the mproc.LineBuffer in the single thread mode."""
         log = logging.getLogger("test_mproc")
@@ -194,7 +225,9 @@ class TestMProc:
             "解码。类 TextIOWrapper 继承了 TextIOBase ，是原始缓冲流（ BufferedIOBase ）"
             "的缓冲文本接口。最后， StringIO 是文本的内存流。"
         )
-        assert messages[2] == "参数名不是规范的一部分，只有 open() 的参数才用作关键字参数。"
+        assert messages[2] == (
+            "参数名不是规范的一部分，只有 open() 的参数才用作关键字参数。"
+        )
         assert messages[3] == "Multiple sep example"
 
         # Show the buffer results.
@@ -355,6 +388,27 @@ class TestMProc:
             time.sleep(1.0)
             log.debug("Send the close signal to the sub-processes.")
             pbuf.stop_all_mirrors()
+            pbuf.wait()
+            pbuf.reset_states()
+
+        # Check message items, should be 16 now.
+        messages = pbuf.read()
+        assert len(messages) >= 4
+        # Show the buffer results.
+        self.show_messages(log, messages)
+
+    def test_mproc_process_force_stop(self) -> None:
+        """Test the mproc.LineBuffer.force_stop() in the multi-process mode."""
+        log = logging.getLogger("test_mproc")
+        pbuf = LineProcBuffer(maxlen=20)
+
+        # Write buffer.
+        log.debug("Start to write the buffer.")
+        with multiprocessing.Pool(4) as pool:
+            pool.map_async(worker_process_stop, tuple(pbuf.mirror for _ in range(4)))
+            time.sleep(1.0)
+            log.debug("Send the close signal to the sub-processes.")
+            pbuf.force_stop()
             pbuf.wait()
             pbuf.reset_states()
 

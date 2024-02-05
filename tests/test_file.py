@@ -112,6 +112,38 @@ class TestFile:
         """The teardown stage for each test."""
         shutil.rmtree(self.log_folder)
 
+    def test_file_read_buffer(self) -> None:
+        """Test the `read()` functionalities of mproc.LineBuffer."""
+        log = logging.getLogger("test_file")
+        fbuf = LineFileBuffer(self.log_path, maxlen=3)
+
+        fbuf.write("line1\n")
+        fbuf.write("line2\nline3")
+
+        # Read all.
+        lines = fbuf.read()
+        assert lines[0] == "line1" and lines[1] == "line2" and lines[2] == "line3"
+
+        # Read one line.
+        lines = fbuf.read(1)
+        assert len(lines) == 1 and lines[0] == "line3"
+
+        # Read two lines.
+        lines = fbuf.read(2)
+        assert len(lines) == 2 and lines[0] == "line2" and lines[1] == "line3"
+
+        # Read three lines.
+        lines = fbuf.read(3)
+        assert (
+            len(lines) == 3
+            and lines[0] == "line1"
+            and lines[1] == "line2"
+            and lines[2] == "line3"
+        )
+
+        for i, item in enumerate(lines):
+            log.info("%s", "{0:02d}: {1}".format(i, item))
+
     def test_file_buffer(self) -> None:
         """Test the file.LineFileBuffer in the single thread mode."""
         log = logging.getLogger("test_file")
@@ -153,7 +185,9 @@ class TestFile:
             "解码。类 TextIOWrapper 继承了 TextIOBase ，是原始缓冲流（ BufferedIOBase ）"
             "的缓冲文本接口。最后， StringIO 是文本的内存流。"
         )
-        assert messages[2] == "参数名不是规范的一部分，只有 open() 的参数才用作关键字参数。"
+        assert messages[2] == (
+            "参数名不是规范的一部分，只有 open() 的参数才用作关键字参数。"
+        )
         assert messages[3] == "Multiple sep example"
 
         # Show the buffer results.

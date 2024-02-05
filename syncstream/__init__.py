@@ -55,7 +55,7 @@ else:
 if TYPE_CHECKING:
     from . import webtools
     from . import host  # file-based mode
-    from .host import LineHostBuffer, LineHostMirror
+    from .host import LineHostBuffer, LineHostMirror, LineHostReader
 else:
     webtools = utils.lazy_import(
         "webtools",
@@ -72,6 +72,7 @@ else:
     )
     LineHostBuffer = utils.get_lazy_attribute(host, "LineHostBuffer", __name__)
     LineHostMirror = utils.get_lazy_attribute(host, "LineHostMirror", __name__)
+    LineHostReader = utils.get_lazy_attribute(host, "LineHostReader", __name__)
 
 
 __all__ = (
@@ -90,6 +91,7 @@ __all__ = (
     "host",
     "LineHostBuffer",
     "LineHostMirror",
+    "LineHostReader",
 )
 
 # Set this local module as the prefered one

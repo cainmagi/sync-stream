@@ -69,7 +69,7 @@ fi
 if [ "x${INSTALL_MODE}" = "xdev" ]; then
 	apt-get -y upgrade || fail
 	apt-get -y update -qq || fail && apt-get -y install git-core || fail
-	msg "Skip the optional apt dependencies."
+	msg "Successfully install developer's dependencies."
 fi
 
 apt-get -y update || fail && apt-get -y upgrade || fail && apt-get -y dist-upgrade || fail && apt-get -y autoremove || fail && apt-get -y autoclean || fail

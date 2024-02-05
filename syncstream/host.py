@@ -28,7 +28,7 @@ import collections
 import collections.abc
 from urllib.parse import urlencode
 
-from typing import Union, Optional, NoReturn
+from typing import Union, Optional, Any
 from typing import TextIO
 
 try:
@@ -37,6 +37,8 @@ try:
 except ImportError:
     from builtins import tuple as Tuple, dict as Dict, type as Type
     from collections import ChainMap
+
+from typing_extensions import Never, Literal, overload
 
 import urllib3
 import urllib3.util
@@ -48,6 +50,9 @@ from flask.views import MethodView
 from .base import is_end_line_break, GroupedMessage, SerializedMessage
 from .webtools import SafePoolManager, clean_http_manager
 from .mproc import _LineBuffer
+
+
+__all__ = ("LineHostMirror", "LineHostBuffer", "LineHostReader")
 
 
 class LineHostMirror(contextlib.AbstractContextManager):
@@ -405,15 +410,15 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
             print('example')
         buffer.send_eof()
 
-    pbuf = LineHostBuffer('/sync-stream', maxlen=10)
-    pbuf.serve(api)
+    hbuf = LineHostBuffer('/sync-stream', maxlen=10)
+    hbuf.serve(app)
 
     @app.route(...)
     def another_service() -> None:
         address = 'http://localhost:5000/sync-stream'
         with multiprocessing.Pool(4) as p:
             p.map(f, tuple(address for _ in range(4)))
-        print(pbuf.read())
+        print(hbuf.read())
 
     if __name__ == '__main__':
         app.run(...)  # Run the Flask service.
@@ -456,7 +461,7 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
         self.endpoint = endpoint
         self.__config_lock = threading.Lock()
         self.__state_lock = threading.Lock()
-        self.__state = dict(closed=False)
+        self.__state = dict(closed=False, maxlen=maxlen)
 
     def read_serialized(
         self, size: Optional[int] = None
@@ -621,7 +626,7 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
             view_func=BufferStatePost.as_view("buffer_post"),
         )
 
-    def write(self, data: str) -> NoReturn:
+    def write(self, data: str) -> Never:
         """Write the records.
 
         This method should not be used. For instead, please use `self.mirror.write()`.
@@ -657,3 +662,430 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
         with self.__state_lock:
             self.__state.clear()
             self.__state["closed"] = False
+
+
+class LineHostReader(contextlib.ContextDecorator):
+    R"""The reader for the host-service line-based buffer `(host.LineHostBuffer)`.
+
+    This class is merely used as a convenient API for reading the data from a specified
+    host. It provides functionalities for reading the buffer and the service states,
+    but does not provide any functionalities for writting the buffer or the states.
+
+    We recommend that this reader should be used as a context for explicitly specifying
+    the scope of the HTTP connection.
+
+    ```python
+    with LineHostReader('http://localhost:5000/sync-stream') as hreader:
+        n_maxlen = hreader.maxlen
+        is_closed = hreader.closed
+        print("States: maxlen={0}, closed={1}.".format(n_maxlen, is_closed))
+        if not is_closed:
+            print(hreader.read())
+    ```
+
+    Certainly, this reader can be also used outside the context. In that case, a
+    temporary HTTP pool will be established and destroyed everytime the service is
+    used.
+
+    ```python
+    hreader = LineHostReader('http://localhost:5000/sync-stream'):
+    n_maxlen = hreader.maxlen
+    is_closed = hreader.closed
+    print("States: maxlen={0}, closed={1}.".format(n_maxlen, is_closed))
+    if not is_closed:
+        print(hreader.read())
+    ```
+    """
+
+    def __init__(self, address: str, timeout: Optional[int] = None) -> None:
+        """Initialization
+
+        Arguments
+        ---------
+        address: `str`
+            The address of the LineHostBuffer. The data will be read from this
+            specified service.
+
+        timeout: `int | None`
+            The timeout of the web syncholizing events. If not set, the synchronization
+            would block the current process.
+        """
+        if not isinstance(address, str) or address == "":
+            raise TypeError(
+                'syncstream: The argument "address" should be a non-empty str.'
+            )
+        self.address: str = address
+        self.__timeout: Optional[int] = timeout
+        self.__enter_stack: int = 0
+
+        # Default headers
+        self.__headers: Dict[str, str] = {  # get
+            "Accept": "application/json",
+            "User-Agent": "cainmagi/syncstream",
+        }
+        self.__headers_post = collections.ChainMap(  # post
+            {
+                "Content-Type": "application/json",
+            },
+            self.__headers,
+        )
+
+        self.__http_: Optional[SafePoolManager] = None
+
+    def __enter__(self):
+        """Enter the context. A connection pool will be established.
+
+        Re-enter this context will not take any effects. But it is not recommended to
+        re-enter the context.
+        """
+        if self.__http_ is None:
+            self.__http_ = SafePoolManager(
+                retries=urllib3.util.Retry(connect=5, read=2, redirect=5),
+                timeout=urllib3.util.Timeout(total=self.__timeout),
+            )
+            self.__http_.__enter__()
+            self.__enter_stack += 1
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_value: Optional[BaseException],
+        exc_traceback: types.TracebackType,
+    ) -> None:
+        """Exit the context, where the connection pool will be closed."""
+        if self.__enter_stack > 0:
+            self.__enter_stack -= 1
+        if self.__enter_stack <= 0 and self.__http_ is not None:
+            self.__http_.__exit__(exc_type, exc_value, exc_traceback)
+        return None
+
+    @property
+    def headers(self) -> ChainMap[str, str]:
+        """Get the default headers (get) of the reader."""
+        return collections.ChainMap(dict(), self.__headers)
+
+    @property
+    def headers_post(self) -> ChainMap[str, str]:
+        """Get the default headers (post) of the reader."""
+        return collections.ChainMap(dict(), self.__headers_post)
+
+    @property
+    def maxlen(self) -> int:
+        """Property: Get the maximal length of the buffer."""
+        if self.__http_:
+            return self.__get_states("maxlen", self.__http_)
+        with SafePoolManager(
+            retries=urllib3.util.Retry(connect=5, read=2, redirect=5),
+            timeout=urllib3.util.Timeout(total=self.__timeout),
+        ) as _http:
+            return self.__get_states("maxlen", _http)
+
+    @property
+    def closed(self) -> bool:
+        """Property: Check whether the service has been closed."""
+        if self.__http_:
+            return self.__get_states("closed", self.__http_)
+        with SafePoolManager(
+            retries=urllib3.util.Retry(connect=5, read=2, redirect=5),
+            timeout=urllib3.util.Timeout(total=self.__timeout),
+        ) as _http:
+            return self.__get_states("closed", _http)
+
+    def clear(self) -> bool:
+        """Clear the whole buffer.
+
+        This method would clear the storage and the last line stream of this buffer.
+        However, it would not clear any mirrors or copies of this object. This method
+        is thread-safe and should always success.
+
+        Returns
+        -------
+        #1: `bool`
+            Return `True` if the deleting is successful. Return `False` if the deleting
+            is rejected. Raise Error if there is anything wrong on the server.
+        """
+        if self.__http_:
+            return self.__clear(self.__http_)
+        with SafePoolManager(
+            retries=urllib3.util.Retry(connect=5, read=2, redirect=5),
+            timeout=urllib3.util.Timeout(total=self.__timeout),
+        ) as _http:
+            return self.__clear(_http)
+
+    def reset_states(self) -> bool:
+        """Reset the states of the buffer.
+
+        This method should be used if the buffer needs to be reused.
+
+        Returns
+        -------
+        #1: `bool`
+            Return `True` if the deleting is successful. Return `False` if the deleting
+            is rejected. Raise Error if there is anything wrong on the server.
+        """
+        if self.__http_:
+            return self.__reset_states(self.__http_)
+        with SafePoolManager(
+            retries=urllib3.util.Retry(connect=5, read=2, redirect=5),
+            timeout=urllib3.util.Timeout(total=self.__timeout),
+        ) as _http:
+            return self.__reset_states(_http)
+
+    def stop_all_mirrors(self) -> bool:
+        """Send stop signals to all mirrors.
+
+        This operation is used for terminating the mirrors safely. It does not
+        guarantee that the processes would be closed instantly. Each time when the new
+        message is written by the mirrors, a check would be triggered.
+
+        If users want to use this method, please ensure that the `StopIteration` error
+        is catched by the process. The error would not be sent back to the buffer.
+
+        Returns
+        -------
+        #1: `bool`
+            Return `True` if the deleting is successful. Return `False` if the deleting
+            is rejected. Raise Error if there is anything wrong on the server.
+        """
+        if self.__http_:
+            return self.__post_states("closed", "true", self.__http_)
+        with SafePoolManager(
+            retries=urllib3.util.Retry(connect=5, read=2, redirect=5),
+            timeout=urllib3.util.Timeout(total=self.__timeout),
+        ) as _http:
+            return self.__post_states("closed", "true", _http)
+
+    def read(
+        self, size: Optional[int] = None
+    ) -> Tuple[Union[GroupedMessage, str], ...]:
+        """Read the records.
+
+        Fetch the stored record items from the buffer. Using the `read()` method is
+        thread-safe and would not influence the cursor of `write()` method.
+
+        If the current written line is not blank, the `read()` method would regard
+        it as the last record item.
+
+        Arguments
+        ---------
+        size: `int | None`
+            If set None, would return the whole storage.
+
+            If set a int value, would return the last `size` items.
+
+        Returns
+        -------
+        #1: `[str | GroupedMessage]`
+            A sequence of fetched record items. Results are sorted in the FIFO order.
+        """
+        if self.__http_:
+            return self.__read(size, self.__http_)
+        with SafePoolManager(
+            retries=urllib3.util.Retry(connect=5, read=2, redirect=5),
+            timeout=urllib3.util.Timeout(total=self.__timeout),
+        ) as _http:
+            return self.__read(size, _http)
+
+    def __clear(self, http_pool: SafePoolManager) -> bool:
+        """Clear the buffer.
+
+        Arguments
+        ---------
+        http_pool: `SafePoolManager`
+            Need to be provided by the instance.
+        """
+        with http_pool.request(
+            url=self.address,
+            headers=self.headers,
+            method="delete",
+            preload_content=False,
+        ) as req:
+            if req.status < 400:
+                res = json.load(req)
+                message = res.get("message", "")
+                return isinstance(message, str) and message == "success"
+            else:
+                info = json.load(req)
+                raise ConnectionError(
+                    info.get(
+                        "message",
+                        "syncstream: Meet an unknown error on the service side.",
+                    )
+                )
+
+    def __reset_states(self, http_pool: SafePoolManager) -> bool:
+        """Reset the states.
+
+        Arguments
+        ---------
+        http_pool: `SafePoolManager`
+            Need to be provided by the instance.
+        """
+        with http_pool.request(
+            url=self.address + "-state",
+            headers=self.headers,
+            method="delete",
+            preload_content=False,
+        ) as req:
+            if req.status < 400:
+                res = json.load(req)
+                message = res.get("message", "")
+                return isinstance(message, str) and message == "success"
+            else:
+                info = json.load(req)
+                raise ConnectionError(
+                    info.get(
+                        "message",
+                        "syncstream: Meet an unknown error on the service side.",
+                    )
+                )
+
+    @overload
+    def __get_states(
+        self, state_name: Literal["closed"], http_pool: SafePoolManager
+    ) -> bool: ...
+
+    @overload
+    def __get_states(
+        self, state_name: Literal["maxlen"], http_pool: SafePoolManager
+    ) -> int: ...
+
+    def __get_states(self, state_name: str, http_pool: SafePoolManager) -> Any:
+        """Check the current buffer states.
+
+        Arguments
+        ---------
+        state_name: `str`
+            The name of the state to be checked.
+
+        http_pool: `SafePoolManager`
+            Need to be provided by the instance.
+
+        The available state name
+        ------------------------
+        closed: `bool`
+            Check whether the service is closed.
+
+        maxlen: `int | None`
+            The maximal length of the buffer.
+        """
+        with http_pool.request(
+            url="{0}-state?{1}".format(
+                self.address, urlencode({"state": state_name}, encoding="utf-8")
+            ),
+            headers=self.headers,
+            method="get",
+            preload_content=False,
+        ) as req:
+            if req.status < 400:
+                res = json.load(req)
+                status = res["data"]
+                return status
+            else:
+                info = json.load(req)
+                raise ConnectionError(
+                    info.get(
+                        "message",
+                        "syncstream: Meet an unknown error on the service side.",
+                    )
+                )
+
+    @overload
+    def __post_states(
+        self,
+        state_name: Literal["closed"],
+        val: Literal["true", "false"],
+        http_pool: SafePoolManager,
+    ) -> bool: ...
+
+    @overload
+    def __post_states(
+        self, state_name: Literal["maxlen"], val: Any, http_pool: SafePoolManager
+    ) -> Never: ...
+
+    def __post_states(
+        self, state_name: str, val: Any, http_pool: SafePoolManager
+    ) -> Any:
+        """Change the states.
+
+        This method should be only used for debugging purposes. Changing anything by
+        this method without clear purposes may causes errors of the server.
+
+        Arguments
+        ---------
+        state_name: `str`
+            The name of the state to be changes.
+
+        val: `Any`
+            The state value that can be serialized.
+
+        http_pool: `SafePoolManager`
+            Need to be provided by the instance.
+
+        The available state name
+        ------------------------
+        closed: `bool`
+            Check whether the service is closed.
+        """
+        with http_pool.request(
+            url="{0}-state".format(self.address),
+            headers=self.headers_post,
+            method="post",
+            preload_content=False,
+            body=json.dumps({"state": state_name, "value": val}).encode(),
+        ) as req:
+            if req.status < 400:
+                res = json.load(req)
+                message = res.get("message", "")
+                return isinstance(message, str) and message == "success"
+            else:
+                info = json.load(req)
+                raise ConnectionError(
+                    info.get(
+                        "message",
+                        "syncstream: Meet an unknown error on the service side.",
+                    )
+                )
+
+    def __read(
+        self, size: Optional[int], http_pool: SafePoolManager
+    ) -> Tuple[Union[str, GroupedMessage], ...]:
+        """Get the buffer contents.
+
+        The returned method will be deserialized.
+
+        Arguments
+        ---------
+        n: `int | None`
+            The number of lines to be read. If not provided, will read the whole
+            buffer.
+
+        http_pool: `SafePoolManager`
+            Need to be provided by the instance.
+        """
+        with http_pool.request(
+            url=(
+                "{0}?n={1}".format(self.address, max(0, size))
+                if isinstance(size, int)
+                else self.address
+            ),
+            headers=self.headers,
+            method="get",
+            preload_content=False,
+        ) as req:
+            if req.status < 400:
+                res = json.load(req)
+                data = res["data"]
+                return tuple(
+                    (val if isinstance(val, str) else GroupedMessage.deserialize(val))
+                    for val in data
+                )
+            else:
+                info = json.load(req)
+                raise ConnectionError(
+                    info.get(
+                        "message",
+                        "syncstream: Meet an unknown error on the service side.",
+                    )
+                )

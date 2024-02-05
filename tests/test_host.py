@@ -22,17 +22,23 @@ import threading
 import multiprocessing
 import logging
 
-from typing import Any
+from typing import Union, Any
 
 try:
+    from typing import Sequence
     from typing import Tuple, Dict
 except ImportError:
+    from collections.abc import Sequence
     from builtins import tuple as Tuple, dict as Dict
 
 import pytest
 
-from syncstream import LineHostBuffer, LineHostMirror  # pylint: disable=import-error
-from syncstream.base import GroupedMessage
+from syncstream import LineHostBuffer, LineHostMirror, LineHostReader
+from syncstream.base import (
+    GroupedMessage,
+    SerializedMessage,
+    is_serialized_grouped_message,
+)
 
 if LineHostBuffer is None:
     pytest.skip(
@@ -42,7 +48,7 @@ if LineHostBuffer is None:
 
 try:
     from werkzeug.serving import make_server
-    import requests
+    import urllib3.util
     import flask
 except ImportError:
     pytest.skip(
@@ -52,6 +58,8 @@ except ImportError:
         ),
         allow_module_level=True,
     )
+
+from syncstream import webtools
 
 
 def worker_writter(address: str) -> None:
@@ -211,11 +219,18 @@ def verify_online(address: str, retries: int = 5) -> None:
     retries: `int`
         The number of retries for the verification.
     """
-    for _ in range(retries):
-        res = requests.get("{addr}/is-online".format(addr=address), timeout=2.0)
-        if res.status_code < 400:
-            if res.json()["message"] == "success":
-                return
+
+    with webtools.SafePoolManager(
+        retries=urllib3.util.Retry(connect=retries, read=retries, redirect=retries),
+        timeout=urllib3.util.Timeout(total=2.0),
+    ) as _http:
+        with _http.request(
+            method="get",
+            url="{addr}/is-online".format(addr=address),
+        ) as req:
+            if req.status < 400:
+                if req.json()["message"] == "success":
+                    return
     raise ConnectionError("test.connect: Fail to connect to the server.")
 
 
@@ -223,11 +238,15 @@ class TestHost:
     """Test the host module of the package."""
 
     @staticmethod
-    def show_messages(log: logging.Logger, messages: dict) -> None:
+    def show_messages(
+        log: logging.Logger,
+        messages: Sequence[Union[SerializedMessage, GroupedMessage, str]],
+    ) -> None:
         """Show the messages from the buffer."""
         for i, item in enumerate(messages):
-            if isinstance(item, dict) and item.get("/is_syncsdata", False):
+            if is_serialized_grouped_message(item):
                 item = GroupedMessage.deserialize(item)
+            if isinstance(item, GroupedMessage):
                 if item.type == "error":
                     log.critical("%s", "{0:02d}: {1}".format(i, item))
                 elif item.type == "warning":
@@ -236,6 +255,45 @@ class TestHost:
                     log.info("%s", "{0:02d}: {1}".format(i, item))
             else:
                 log.info("%s", "{0:02d}: {1}".format(i, item))
+
+    def test_host_read_buffer(self, temp_server: None) -> None:
+        """Test the `read()` functionalities of mproc.LineBuffer."""
+        log = logging.getLogger("test_host")
+        address = "http://localhost:5000/sync-stream"
+        hbuf = LineHostMirror(address=address)
+        verify_online(address)
+        log.info("Successfully connect to the remote server.")
+
+        hbuf.write("line1\n")
+        hbuf.write("line2\nline3")
+
+        with LineHostReader(address) as hreader:
+            # Read status.
+            assert hreader.closed is False
+            assert hreader.maxlen == 10
+
+            # Read all.
+            lines = hreader.read()
+            assert lines[0] == "line1" and lines[1] == "line2" and lines[2] == "line3"
+
+            # Read one line.
+            lines = hreader.read(1)
+            assert len(lines) == 1 and lines[0] == "line3"
+
+            # Read two lines.
+            lines = hreader.read(2)
+            assert len(lines) == 2 and lines[0] == "line2" and lines[1] == "line3"
+
+            # Read three lines.
+            lines = hreader.read(3)
+            assert (
+                len(lines) == 3
+                and lines[0] == "line1"
+                and lines[1] == "line2"
+                and lines[2] == "line3"
+            )
+
+            self.show_messages(log, lines)
 
     def test_host_buffer(self, temp_server: None) -> None:
         """Test the host.LineHostBuffer in the single thread mode."""
@@ -270,27 +328,30 @@ class TestHost:
         hbuf.send_eof()
 
         # Check the validity of the buffer results.
-        res = requests.get(url=address, params={"n": 4})
-        messages = res.json()["data"]
-        assert messages[0] == (
-            "抽象基类 BufferedIOBase 继承了 IOBase ，处理原始二进制流（ RawIOBase ）上的缓"
-            "冲。其子类 BufferedWriter 、 BufferedReader 和 BufferedRWPair 分别缓冲可读、"
-            "可写以及可读写的原始二进制流。 BufferedRandom 提供了带缓冲的可随机访问流接口。 "
-            "BufferedIOBase 的另一个子类 BytesIO 是内存中字节流。"
-        )
-        assert messages[1] == (
-            "抽象基类 TextIOBase 继承了 IOBase 。它处理可表示文本的流，并处理字符串的编码和"
-            "解码。类 TextIOWrapper 继承了 TextIOBase ，是原始缓冲流（ BufferedIOBase ）"
-            "的缓冲文本接口。最后， StringIO 是文本的内存流。"
-        )
-        assert messages[2] == "参数名不是规范的一部分，只有 open() 的参数才用作关键字参数。"
-        assert messages[3] == "Multiple sep example"
+        with LineHostReader(address) as hreader:
+            messages = hreader.read(4)
+            assert len(messages) == 4
+            assert messages[0] == (
+                "抽象基类 BufferedIOBase 继承了 IOBase ，处理原始二进制流（ RawIOBase ）上"
+                "的缓冲。其子类 BufferedWriter 、 BufferedReader 和 BufferedRWPair 分别缓"
+                "冲可读、可写以及可读写的原始二进制流。 BufferedRandom 提供了带缓冲的可随机"
+                "访问流接口。 BufferedIOBase 的另一个子类 BytesIO 是内存中字节流。"
+            )
+            assert messages[1] == (
+                "抽象基类 TextIOBase 继承了 IOBase 。它处理可表示文本的流，并处理字符串的编"
+                "码和解码。类 TextIOWrapper 继承了 TextIOBase ，是原始缓冲流"
+                "（ BufferedIOBase ）的缓冲文本接口。最后， StringIO 是文本的内存流。"
+            )
+            assert messages[2] == (
+                "参数名不是规范的一部分，只有 open() 的参数才用作关键字参数。"
+            )
+            assert messages[3] == "Multiple sep example"
 
         # Show the buffer results.
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        self.show_messages(log, messages)
-        assert len(messages) == 10
+        with LineHostReader(address) as hreader:
+            messages = hreader.read()
+            self.show_messages(log, messages)
+            assert len(messages) == 10
 
     def test_host_thread(self, temp_server: None) -> None:
         """Test the host.LineHostBuffer in the multi-thread mode."""
@@ -311,10 +372,10 @@ class TestHost:
         sys.stdout = sys.__stdout__
 
         # Show the buffer results.
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        self.show_messages(log, messages)
-        assert len(messages) == 10
+        with LineHostReader(address) as hreader:
+            messages = hreader.read()
+            self.show_messages(log, messages)
+            assert len(messages) == 10
 
     def test_host_process(self, temp_server: None) -> None:
         """Test the host.LineHostBuffer in the multi-process mode."""
@@ -330,10 +391,10 @@ class TestHost:
         log.debug("Confirm: The main stdout is not influenced.")
 
         # Show the buffer results.
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        self.show_messages(log, messages)
-        assert len(messages) == 10
+        with LineHostReader(address) as hreader:
+            messages = hreader.read()
+            self.show_messages(log, messages)
+            assert len(messages) == 10
 
     def test_host_thread_clear(self, temp_server: None) -> None:
         """Test the host.LineHostBuffer.clear() in the multi-thread mode."""
@@ -342,55 +403,49 @@ class TestHost:
         verify_online(address)
         log.info("Successfully connect to the remote server.")
 
-        # Clear, then check message items, should be 0 now.
-        res = requests.delete(url=address)
-        assert res.json()["message"] == "success"
-        log.debug("Clear all messages.")
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        assert len(messages) == 0
+        with LineHostReader(address) as hreader:
+            # Clear, then check message items, should be 0 now.
+            assert hreader.clear()
+            log.debug("Clear all messages.")
+            messages = hreader.read()
+            assert len(messages) == 0
 
-        def write_2_threads() -> None:
-            thd_pool = list()
-            for _ in range(2):
-                thd = threading.Thread(target=worker_writter_lite, args=(address,))
-                thd_pool.append(thd)
-            for thd in thd_pool:
-                thd.start()
-            for thd in thd_pool:
-                thd.join()
+            def write_2_threads() -> None:
+                thd_pool = list()
+                for _ in range(2):
+                    thd = threading.Thread(target=worker_writter_lite, args=(address,))
+                    thd_pool.append(thd)
+                for thd in thd_pool:
+                    thd.start()
+                for thd in thd_pool:
+                    thd.join()
 
-        # Write buffer.
-        write_2_threads()
-        write_2_threads()
-        sys.stdout = sys.__stdout__
+            # Write buffer.
+            write_2_threads()
+            write_2_threads()
+            sys.stdout = sys.__stdout__
 
-        # Check message items, should be 8 now.
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        assert len(messages) == 8
+            # Check message items, should be 8 now.
+            messages = hreader.read()
+            assert len(messages) == 8
 
-        # Clear, then check message items, should be 0 now.
-        res = requests.delete(url=address)
-        assert res.json()["message"] == "success"
-        log.debug("Clear all messages.")
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        assert len(messages) == 0
+            # Clear, then check message items, should be 0 now.
+            assert hreader.clear()
+            log.debug("Clear all messages.")
+            messages = hreader.read()
+            assert len(messages) == 0
 
-        # Write buffer with a clear.
-        write_2_threads()
-        sys.stdout = sys.__stdout__
-        res = requests.delete(url=address)
-        assert res.json()["message"] == "success"
-        log.debug("Clear all messages.")
-        write_2_threads()
-        sys.stdout = sys.__stdout__
+            # Write buffer with a clear.
+            write_2_threads()
+            sys.stdout = sys.__stdout__
+            assert hreader.clear()
+            log.debug("Clear all messages.")
+            write_2_threads()
+            sys.stdout = sys.__stdout__
 
-        # Check message items, should be 4 now.
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        assert len(messages) == 4
+            # Check message items, should be 4 now.
+            messages = hreader.read()
+            assert len(messages) == 4
 
     def test_host_process_clear(self, temp_server: None) -> None:
         """Test the host.LineHostBuffer.clear() in the multi-process mode."""
@@ -399,44 +454,38 @@ class TestHost:
         verify_online(address)
         log.info("Successfully connect to the remote server.")
 
-        # Clear, then check message items, should be 0 now.
-        res = requests.delete(url=address)
-        assert res.json()["message"] == "success"
-        log.debug("Clear all messages.")
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        assert len(messages) == 0
-
-        # Write buffer.
-        with multiprocessing.Pool(2) as pool:
-            pool.map(worker_process_lite, tuple(address for _ in range(2)))
-            pool.map(worker_process_lite, tuple(address for _ in range(2)))
-
-        # Check message items, should be 8 now.
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        assert len(messages) == 8
-
-        # Clear, then check message items, should be 0 now.
-        res = requests.delete(url=address)
-        assert res.json()["message"] == "success"
-        log.debug("Clear all messages.")
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        assert len(messages) == 0
-
-        # Write buffer with a clear.
-        with multiprocessing.Pool(2) as pool:
-            pool.map(worker_process_lite, tuple(address for _ in range(2)))
-            res = requests.delete(url=address)
-            assert res.json()["message"] == "success"
+        with LineHostReader(address) as hreader:
+            # Clear, then check message items, should be 0 now.
+            assert hreader.clear()
             log.debug("Clear all messages.")
-            pool.map(worker_process_lite, tuple(address for _ in range(2)))
+            messages = hreader.read()
+            assert len(messages) == 0
 
-        # Check message items, should be 4 now.
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        assert len(messages) == 4
+            # Write buffer.
+            with multiprocessing.Pool(2) as pool:
+                pool.map(worker_process_lite, tuple(address for _ in range(2)))
+                pool.map(worker_process_lite, tuple(address for _ in range(2)))
+
+            # Check message items, should be 8 now.
+            messages = hreader.read()
+            assert len(messages) == 8
+
+            # Clear, then check message items, should be 0 now.
+            assert hreader.clear()
+            log.debug("Clear all messages.")
+            messages = hreader.read()
+            assert len(messages) == 0
+
+            # Write buffer with a clear.
+            with multiprocessing.Pool(2) as pool:
+                pool.map(worker_process_lite, tuple(address for _ in range(2)))
+                assert hreader.clear()
+                log.debug("Clear all messages.")
+                pool.map(worker_process_lite, tuple(address for _ in range(2)))
+
+            # Check message items, should be 4 now.
+            messages = hreader.read()
+            assert len(messages) == 4
 
     def test_host_process_stop(self, temp_server: None) -> None:
         """Test the host.LineHostBuffer.stop_all_mirrors() in the multi-process mode."""
@@ -445,25 +494,20 @@ class TestHost:
         verify_online(address)
         log.info("Successfully connect to the remote server.")
 
-        # Write buffer.
-        log.debug("Start to write the buffer.")
-        with multiprocessing.Pool(4) as pool:
-            workers = pool.map_async(
-                worker_process_stop, tuple(address for _ in range(4))
-            )
-            time.sleep(1.0)
-            log.debug("Send the close signal to the sub-processes.")
-            res = requests.post(
-                url=address + "-state", json={"state": "closed", "value": "true"}
-            )
-            assert res.status_code < 400
-            workers.wait()
+        with LineHostReader(address) as hreader:
+            # Write buffer.
+            log.debug("Start to write the buffer.")
+            with multiprocessing.Pool(4) as pool:
+                workers = pool.map_async(
+                    worker_process_stop, tuple(address for _ in range(4))
+                )
+                time.sleep(1.0)
+                log.debug("Send the close signal to the sub-processes.")
+                assert hreader.stop_all_mirrors()
+                workers.wait()
 
-        res = requests.delete(url=address + "-state")
-        assert res.status_code < 400
+            assert hreader.reset_states
 
-        # Show the buffer results.
-        res = requests.get(url=address)
-        messages = res.json()["data"]
-        log.critical(messages)
-        self.show_messages(log, messages)
+            # Show the buffer results.
+            messages = hreader.read()
+            self.show_messages(log, messages)

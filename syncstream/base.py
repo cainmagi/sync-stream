@@ -115,8 +115,7 @@ def is_serialized_grouped_message(obj: Any) -> TypeGuard[SerializedMessage]:
 class RedirectTarget(Protocol):
     """A protocol for redirectable object"""
 
-    def write(self, data: str) -> int:
-        ...
+    def write(self, data: str) -> int: ...
 
 
 _RedirectTarget = TypeVar("_RedirectTarget", bound=RedirectTarget)

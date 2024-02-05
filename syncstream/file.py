@@ -36,6 +36,9 @@ import fasteners
 from .base import is_end_line_break
 
 
+__all__ = ("LineFileBuffer",)
+
+
 class LineFileBuffer(contextlib.AbstractContextManager):
     """The file-locked line-based buffer handle.
 

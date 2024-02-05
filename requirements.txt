@@ -7,4 +7,3 @@ werkzeug>=2.0.1
 pytest
 pytest-xdist
 pytest-flask
-requests>=2.25.1
