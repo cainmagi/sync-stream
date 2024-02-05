@@ -4,7 +4,7 @@ FROM $BASE_IMAGE
 LABEL maintainer="Yuchen Jin <cainmagi@gmail.com>" \
       author="Yuchen Jin <cainmagi@gmail.com>" \
       description="A python tool for synchronize the messages from different threads, processes or hosts." \
-      version="1.1.0"
+      version="1.1.1"
 
 # Set configs
 ARG INSTALL_MODE=default
