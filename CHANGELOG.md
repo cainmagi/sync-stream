@@ -4,6 +4,25 @@
 
 ## CHANGELOG
 
+### 1.1.0 @ 1/22/2024
+
+#### :mega: New
+
+1. Provide the user-friendly APIs `host.LineHostReader()`. This class reproduces all methods of `host.LineHostBuffer()` because the latter one will not be used once it is equipped as the services.
+2. Add a `force_stop()` method for `mproc.LineProcBuffer`. This method should be used when the subprocesses will be terminated by `SIG_TERMIATE` or `SIG_KILL`.
+3. Add tests for validating whether `Line*Buffer.read()` functionality is correct or not.
+
+#### :wrench: Fix
+
+1. Fix: If the `last_line` is not flushed by a new line (`\n`) symbol, the `read()` method may not read `size - 1` lines. This unexpected behavior may cause the buffer not to be fully read. Now it has been fixed.
+2. Fix: `utils._LazyAttribute` may not initialize a type correctly in some cases. This issue has been fixed by adding a branch for treating the attribute types.
+3. Fix: The `version` folder is missing in the docker scripts. Now the folder has been added.
+
+#### :floppy_disk: Change
+
+1. Replace the typehints `NoReturn` with `Never`.
+2. Drop the testing dependency `requests` so that this package would be lighter.
+
 ### 1.0.0 @ 1/22/2024
 
 #### :mega: New

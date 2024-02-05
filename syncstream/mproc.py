@@ -30,7 +30,7 @@ import multiprocessing.synchronize
 import contextlib
 import types
 
-from typing import Union, Optional, Any, Generic, TypeVar, NoReturn
+from typing import Union, Optional, Any, Generic, TypeVar
 from typing import TextIO
 
 try:
@@ -41,6 +41,8 @@ except ImportError:
     from collections.abc import Sequence, Mapping
     from collections import deque as Deque
 
+from typing_extensions import Never
+
 from .base import is_end_line_break, GroupedMessage
 
 
@@ -48,6 +50,9 @@ _Queue = Union[queue.Queue, multiprocessing.Queue]
 _Lock = Union[threading.Lock, multiprocessing.synchronize.Lock]
 
 T = TypeVar("T")
+
+
+__all__ = ("LineBuffer", "LineProcMirror", "LineProcBuffer")
 
 
 class _LineBuffer(Generic[T]):
@@ -152,23 +157,29 @@ class _LineBuffer(Generic[T]):
             n_lines = len(self.storage)
             if size is None:
                 if has_last_line:
-                    if n_lines > 0:
+                    len_max = self.storage.maxlen
+                    if len_max and n_lines == len_max:
                         value = self.storage.popleft()
                         results = (*self.storage, self.last_line.getvalue())
                         self.storage.appendleft(value)
+                    elif n_lines > 0:
+                        results = (*self.storage, self.last_line.getvalue())
                     else:
                         results = (self.last_line.getvalue(),)
                     return results
                 else:
                     return tuple(self.storage)
             elif size > 0:
-                if has_last_line and n_lines > 0:
+                len_max = self.storage.maxlen
+                if has_last_line and len_max and n_lines == len_max:
                     preserved_value = self.storage.popleft()
-                    size -= 1
                 else:
                     preserved_value = None
+                n_read = min(
+                    size - 1 if has_last_line else size,
+                    n_lines if preserved_value is None else n_lines - 1,
+                )
                 results = list()
-                n_read = min(size, n_lines)
                 if n_read > 0:
                     self.storage.rotate(n_read)
                 for _ in range(n_read):
@@ -585,7 +596,7 @@ class LineProcBuffer(_LineBuffer[GroupedMessage]):
         self.__state = self.__manager.dict(closed=False)
         self.__state_lock: _Lock = self.__manager.Lock()  # pylint: disable=no-member
         self.__mirror: LineProcMirror = LineProcMirror(
-            q_maxsize=2 * maxlen,
+            q_maxsize=2 * int(maxlen),
             aggressive=False,
             timeout=None,
             _queue=self.__manager.Queue(),
@@ -593,6 +604,7 @@ class LineProcBuffer(_LineBuffer[GroupedMessage]):
             _state_lock=self.__state_lock,
         )
         self.n_mirrors: int = 0
+        self.__maxlen: int = int(maxlen)
         self.__config_lock: threading.Lock = threading.Lock()
 
     @property
@@ -626,9 +638,26 @@ class LineProcBuffer(_LineBuffer[GroupedMessage]):
 
         This method should be used if the buffer needs to be reused.
         """
+        if self.n_mirrors > 0:
+            raise TypeError(
+                "syncstream: There are still mirrors of this buffer running. Before "
+                "calling this method, please ensure that all the mirrors get "
+                "finalized by themselves, or the stop_all_mirrors() method, or the "
+                "force_stop() method."
+            )
+
         with self.__state_lock:
             self.__state.clear()
             self.__state["closed"] = False
+
+        self.__mirror: LineProcMirror = LineProcMirror(
+            q_maxsize=2 * self.__maxlen,
+            aggressive=False,
+            timeout=None,
+            _queue=self.__manager.Queue(),
+            _state=self.__state,
+            _state_lock=self.__state_lock,
+        )
 
     def __check_close(self) -> bool:
         """Check whether to finish the `wait()` method.
@@ -644,6 +673,26 @@ class LineProcBuffer(_LineBuffer[GroupedMessage]):
             return True
         else:
             return False
+
+    def force_stop(self) -> None:
+        """Force the buffer stopped.
+
+        Calling this method will force the `receive()` exit with `False` returned.
+        After that, all mirrors sent to the previous processes will be detached.
+
+        Note that calling this method is unsafe and may cause the subprocesses with
+        mirrors blocked. If not necessary, it is better to call `stop_all_mirrors()`
+        instead of using this method.
+
+        Calling this method means that the multi-processing functionalities of this
+        buffer will be disposed, unless `self.reset_states()` is used.
+
+        Recommend that this method should be used when all subprocesses will be
+        stopped by `Process.terminate()` or `Process.kill()`.
+        """
+        getattr(self.__mirror, "_LineProcMirror__queue").put(
+            {"type": "stop", "data": None}
+        )
 
     def receive(self) -> bool:
         """Receive one item from the mirror.
@@ -673,6 +722,9 @@ class LineProcBuffer(_LineBuffer[GroupedMessage]):
                 return True
             elif dtype == "close":
                 return self.__check_close()
+            elif dtype == "stop":
+                self.n_mirrors = 0
+                return False
             return False
 
     def wait(self) -> None:
@@ -680,7 +732,7 @@ class LineProcBuffer(_LineBuffer[GroupedMessage]):
         while self.receive():
             pass
 
-    def write(self, data: str) -> NoReturn:
+    def write(self, data: str) -> Never:
         """Write the records.
         This method should not be used. For instead, please use `self.mirror.write()`.
 

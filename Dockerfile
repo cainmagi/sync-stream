@@ -4,7 +4,7 @@ FROM $BASE_IMAGE
 LABEL maintainer="Yuchen Jin <cainmagi@gmail.com>" \
       author="Yuchen Jin <cainmagi@gmail.com>" \
       description="A python tool for synchronize the messages from different threads, processes or hosts." \
-      version="1.0.0"
+      version="1.1.0"
 
 # Set configs
 ARG INSTALL_MODE=default
@@ -21,6 +21,7 @@ WORKDIR /app
 COPY ./docker/* /app/
 COPY ./*.* /app/
 COPY ./syncstream /app/syncstream
+COPY ./version /app/version
 COPY ./tests /app/tests
 
 # Install dependencies
