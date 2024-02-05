@@ -4,13 +4,13 @@
 
 ## CHANGELOG
 
-### 1.1.1 @ 1/22/2024
+### 1.1.1 @ 2/5/2024
 
 #### :wrench: Fix
 
 1. Fix: Fix an incompatibility issue when `urllib3` is used in `Python==3.6`.
 
-### 1.1.0 @ 1/22/2024
+### 1.1.0 @ 2/5/2024
 
 #### :mega: New
 
