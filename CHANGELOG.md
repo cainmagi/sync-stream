@@ -10,6 +10,10 @@
 
 1. Fix: Fix an incompatibility issue when `urllib3` is used in `Python==3.6`.
 
+#### :floppy_disk: Change
+
+1. Improve the workflow versions.
+
 ### 1.1.0 @ 2/5/2024
 
 #### :mega: New
