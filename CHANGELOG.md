@@ -4,6 +4,12 @@
 
 ## CHANGELOG
 
+### 1.1.2 @ 2/14/2024
+
+#### :wrench: Fix
+
+1. Fix: Remove an unexpected in-release package `version` which should only appear during the package building.
+
 ### 1.1.1 @ 2/5/2024
 
 #### :wrench: Fix
