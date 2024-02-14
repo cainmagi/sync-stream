@@ -38,7 +38,7 @@ except ImportError:
     from builtins import list as List, type as Type
 from collections.abc import Sequence as _Sequence
 
-from typing_extensions import TypeGuard
+from typing_extensions import Literal, Never, TypeGuard, overload
 
 try:  # Suppos that this `utils` module is placed at the root.
     from . import __name__ as __pkg_name__
@@ -72,6 +72,7 @@ _missing = _Missing()
 
 class ModuleReplaceError(ImportError):
     """Exception raised when replacing an existing lazy module.
+
     Replacing an existing lazy module is not allowed, because this will cause
     the previously configured lazy module point to a not-existing "real"
     module.
@@ -105,6 +106,7 @@ class _LazyModule(__LazyModule):
 
     def force_load(self) -> None:
         """Call this method will force the lazy module to be actually loaded.
+
         This module is used by `load_module` when relative dependency is
         needed to be solved.
         """
@@ -138,7 +140,9 @@ class _LazyModule(__LazyModule):
 
     def __getattribute__(self, attr: str):
         """Get the attribute of the module.
+
         If the attribute is missing, load the module.
+
         Once the module is actually loaded, since the class of the module will
         be replaced by the actual module class, this method will not be used
         any more.
@@ -325,59 +329,58 @@ class _LazyLoader(importlib.util.LazyLoader):
             mdict["__dep_modules__"] = self.__dep_modules
 
 
-def lazy_import(
-    name: str,
-    package: Optional[str] = __pkg_name__,
-    required: bool = True,
-    dependencies: Optional[Union[str, Sequence[str]]] = None,
-    rel_dependencies: Optional[Union[ModuleType, Sequence[ModuleType]]] = None,
-) -> ModuleType:
-    """Perform the lazy import for a module.
-    The returned module will not be loaded until it is actually used.
+class _LazyImporter:
+    """The lazy importer.
 
-    Modified from:
-    https://docs.python.org/3/library/importlib.html#implementing-lazy-imports
-
-    Arguments:
-        name: The name of the module. It does not need to start with the `.`
-            symbol.
-        package: The name of the package (anchor).
-            By default: will use the `__name__` of the pacakge where this
-                `utils` module is placed. if `utils` is not placed as a sub-
-                module, and `package` is not specified, will search `name` by
-                absolute import.
-            If using `None`: will search `name` by absolute import.
-        required: Whether to require the existence of the module. If not
-            specified, will allow to load an empty module when the module
-            is not found.
-        dependencies: One or more depdencies for the module to be loaded.
-            If not specified, it means that the module does not need
-            dependencies. If specified, the module is only loaded when
-            all dependencies are detected. Otherwise, returns a module
-            placeholder. The dependencies are module names following the
-            abosolute import rules.
-    Returns:
-        #1: A lazy loaded module. It will be loaded when actually using it.
+    This private class is temporarily used during the lazy importing.
     """
-    full_name = ".".join(map(str, filter(bool, (package, name))))
-    # Fetch the module directly if it has been loaded.
-    prev_module = sys.modules.get(full_name, None)
-    if isinstance(prev_module, ModuleType):
-        return prev_module
-    # Fail to hit the module.
-    # Start the check all absolute module dependencies.
-    is_deps_missing = False
-    if dependencies is not None:
+
+    @staticmethod
+    def check_is_dep_missing(dependencies: Optional[Union[str, Sequence[str]]]) -> bool:
+        """Check if the provided dependencies are missing or not.
+
+        Arguments
+        ---------
+        dependencies: `str | [str] | None`
+            A list of absolute dependencies' names.
+
+        Returns
+        -------
+        #1: `False` if all dependencies exists.
+        """
+        if dependencies is None:
+            return False
         if isinstance(dependencies, str) or (not isinstance(dependencies, _Sequence)):
             dependencies = (dependencies,)
         for dep in dependencies:
             spec = importlib.util.find_spec(str(dep))
             if spec is None:
-                is_deps_missing = True
-                break
-    # Gather the relative module dependencies, send them to the module loader.
-    deps: List[ModuleType] = list()
-    if (not is_deps_missing) and rel_dependencies is not None:
+                return True
+        return False
+
+    @staticmethod
+    def gather_relative_module_dependencies(
+        rel_dependencies: Optional[Union[ModuleType, Sequence[ModuleType]]],
+        is_deps_missing: bool,
+    ) -> List[ModuleType]:
+        """Gather the dependencies that are relative packages.
+
+        These modules (maynbe lazy) need to be loaded before this module is loaded.
+
+        Arguments
+        ---------
+        rel_dependencies: `ModuleType | [ModuleType] | None`
+            A list of relative dependencies. Each item is a module (can be lazy).
+            If using `None`, will return an empty list.
+
+        Returns
+        -------
+        #1: A list of lazy modules that are the members of the provided relative
+            dependencies.
+        """
+        deps: List[ModuleType] = list()
+        if is_deps_missing or rel_dependencies is None:
+            return deps
         if isinstance(rel_dependencies, str):
             raise TypeError(
                 'utils: The argument "rel_dependencies" should be a module or a '
@@ -391,40 +394,168 @@ def lazy_import(
         for dep in rel_dependencies:
             if isinstance(dep, _LazyModule):
                 deps.append(dep)
-    # Start to create the lazy-loaded module.
-    if package is None:
-        spec = importlib.util.find_spec(name)
-    else:
-        spec = importlib.util.find_spec(".{0}".format(name), package=package)
-    if is_deps_missing or (spec is None):
+        return deps
+
+    @overload
+    @staticmethod
+    def create_module_placeholder(full_name: str, required: Literal[True]) -> Never: ...
+
+    @overload
+    @staticmethod
+    def create_module_placeholder(
+        full_name: str, required: bool = False
+    ) -> _ModulePlaceholder: ...
+
+    @staticmethod
+    def create_module_placeholder(full_name: str, required: bool = False):
+        """Create a module placeholder.
+
+        Use this method when the lazy-imported module fails to be imported.
+
+        Arguments
+        ---------
+        full_name: `str`
+            The name of the optional module.
+
+        required: `bool`
+            If `True`, this method will raise `ModuleNotFoundError`. Otherwise,
+            returns a placeholder module.
+
+        Returns
+        -------
+        #1: `_ModulePlaceholder`
+            Return the placeholder only when the `required` is `False`.
+        """
         if required:
             raise ModuleNotFoundError(
                 "utils: The required module to be lazily loaded is not found: "
                 "{0}".format(full_name)
             )
-        else:
-            if sys.modules.get(full_name, None) is not None:
-                raise ModuleReplaceError(
-                    "utils: Try to define a new module placeholder. However, a"
-                    " previous module has been found. Replacing an existing "
-                    "(lazy) module or a placeholder with a new placeholder is "
-                    "not allowed: "
-                    "{0}".format(full_name)
-                )
-            module = _ModulePlaceholder(name=full_name)
-            sys.modules[full_name] = module
-            return module
-    if spec.loader is None:
-        raise TypeError(
-            "utils: The spec.loader of the required module is None, which cannot"
-            "be used for establishing the lazily loaded module: {0}".format(spec)
+        if sys.modules.get(full_name, None) is not None:
+            raise ModuleReplaceError(
+                "utils: Try to define a new module placeholder. However, a"
+                " previous module has been found. Replacing an existing "
+                "(lazy) module or a placeholder with a new placeholder is "
+                "not allowed: "
+                "{0}".format(full_name)
+            )
+        module = _ModulePlaceholder(name=full_name)
+        sys.modules[full_name] = module
+        return module
+
+    @classmethod
+    def lazy_import(
+        cls,
+        name: str,
+        package: Optional[str] = __pkg_name__,
+        required: bool = True,
+        dependencies: Optional[Union[str, Sequence[str]]] = None,
+        rel_dependencies: Optional[Union[ModuleType, Sequence[ModuleType]]] = None,
+    ) -> ModuleType:
+        """Perform the lazy import for a module.
+        The returned module will not be loaded until it is actually used.
+
+        Modified from:
+        https://docs.python.org/3/library/importlib.html#implementing-lazy-imports
+
+        Arguments
+        ---------
+        see the module method `lazy_import()`.
+
+        Returns
+        -------
+        #1: `ModuleType`
+            A lazy loaded module. It will be loaded when actually using it.
+        """
+        full_name = ".".join(map(str, filter(bool, (package, name))))
+        # Fetch the module directly if it has been loaded.
+        prev_module = sys.modules.get(full_name, None)
+        if isinstance(prev_module, ModuleType):
+            return prev_module
+        # Fail to hit the module.
+        # Start the check all absolute module dependencies.
+        is_deps_missing = cls.check_is_dep_missing(dependencies)
+        # Gather the relative module dependencies, send them to the module loader.
+        deps = cls.gather_relative_module_dependencies(
+            rel_dependencies, is_deps_missing=is_deps_missing
         )
-    loader = _LazyLoader(spec.loader, deps)
-    spec.loader = loader
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[full_name] = module
-    loader.exec_module(module)
-    return module
+        # Start to create the lazy-loaded module.
+        if package is None:
+            spec = importlib.util.find_spec(name)
+        else:
+            spec = importlib.util.find_spec(".{0}".format(name), package=package)
+        if is_deps_missing or (spec is None):
+            return cls.create_module_placeholder(full_name=full_name, required=required)
+        if spec.loader is None:
+            raise TypeError(
+                "utils: The spec.loader of the required module is None, which cannot"
+                "be used for establishing the lazily loaded module: {0}".format(spec)
+            )
+        loader = _LazyLoader(spec.loader, deps)
+        spec.loader = loader
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[full_name] = module
+        loader.exec_module(module)
+        return module
+
+
+def lazy_import(
+    name: str,
+    package: Optional[str] = __pkg_name__,
+    required: bool = True,
+    dependencies: Optional[Union[str, Sequence[str]]] = None,
+    rel_dependencies: Optional[Union[ModuleType, Sequence[ModuleType]]] = None,
+) -> ModuleType:
+    """Perform the lazy import for a module.
+    The returned module will not be loaded until it is actually used.
+
+    Modified from:
+    https://docs.python.org/3/library/importlib.html#implementing-lazy-imports
+
+    Arguments
+    ---------
+    name: `str`
+        The name of the module. It does not need to start with the `.` symbol.
+
+    package: `str | None`
+        The name of the package (anchor).
+
+        By default: will use the `__name__` of the pacakge where this
+            `utils` module is placed. if `utils` is not placed as a sub-
+            module, and `package` is not specified, will search `name` by
+            absolute import.
+
+        If using `None`: will search `name` by absolute import.
+
+    required: `bool`
+        Whether to require the existence of the module. If not specified,
+        will allow to load an empty module when the module is not found.
+
+    dependencies: `str | [str] | None`
+        One or more depdencies for the module to be loaded.
+
+        If not specified, it means that the module does not need
+        dependencies. If specified, the module is only loaded when
+        all dependencies are detected. Otherwise, returns a module
+        placeholder. The dependencies are module names following the
+        abosolute import rules.
+
+    rel_dependencies: `ModuleType | [ModuleType] | None`
+        One or more relative dependencies. Each item is a module (can be lazy).
+        If using `None`, will return an empty list.
+
+    Returns
+    -------
+    #1: `ModuleType`
+        A lazy loaded module. It will be loaded when actually using it.
+    """
+    return _LazyImporter().lazy_import(
+        name=name,
+        package=package,
+        required=required,
+        dependencies=dependencies,
+        rel_dependencies=rel_dependencies,
+    )
 
 
 def get_lazy_attribute(
@@ -442,20 +573,28 @@ def get_lazy_attribute(
 
 def is_module_invalid(module: ModuleType) -> TypeGuard[_ModulePlaceholder]:
     """Check whether a lazy module is invalid.
-    Arguments:
-        module: Can be a lazy module, a module or a module placeholder.
-    Returns:
-        #1: True only when the given module is a module placeholder.
+
+    Arguments
+    ---------
+    module: `ModuleType`
+        Can be a lazy module, a module or a module placeholder.
+
+    Returns
+    -------
+    #1: `bool`
+        `True` only when the given module is a module placeholder.
     """
     return isinstance(module, _ModulePlaceholder)
 
 
 class cached_property(Generic[K, T], property):
     """Decorator: Cached Property
+
     Modified from
     ```python
     werkzeug.utils.cached_property
     ```
+
     A decorator that converts a function into a lazy property.  The
     function wrapped is called the first time to retrieve the result
     and then that calculated result is used the next time you access
@@ -473,6 +612,7 @@ class cached_property(Generic[K, T], property):
         def foo(self) -> None:
             del self.__foo
     ```
+
     The class has to have a `__dict__` in order for this property to
     work.
     """
@@ -493,6 +633,12 @@ class cached_property(Generic[K, T], property):
         doc: Optional[str] = None,
         name: Optional[str] = None,
     ) -> None:
+        """Initialization.
+
+        Arguments
+        ---------
+        Similar to the decorator `property`.
+        """
         super().__init__(fget=fget, fset=fset, fdel=fdel, doc=doc)
         name_ = (
             name
