@@ -131,6 +131,56 @@ class _LineBuffer(Generic[T]):
         """
         self.storage.extend(lines)
 
+    def __read_all(self) -> Tuple[Union[T, str], ...]:
+        """Real all lines.
+
+        Private method. Use it to read all lines stored in this buffer.
+        """
+        has_last_line = self.last_line.tell() > 0
+        n_lines = len(self.storage)
+        if has_last_line:
+            len_max = self.storage.maxlen
+            if len_max and n_lines == len_max:
+                value = self.storage.popleft()
+                results = (*self.storage, self.last_line.getvalue())
+                self.storage.appendleft(value)
+            elif n_lines > 0:
+                results = (*self.storage, self.last_line.getvalue())
+            else:
+                results = (self.last_line.getvalue(),)
+            return results
+        else:
+            return tuple(self.storage)
+
+    def __read_n(self, size: int) -> Tuple[Union[T, str], ...]:
+        """Real given number of lines.
+
+        Private method. Use it to read some lines specified in the argument `size`.
+        """
+        has_last_line = self.last_line.tell() > 0
+        n_lines = len(self.storage)
+        len_max = self.storage.maxlen
+        if has_last_line and len_max and n_lines == len_max:
+            preserved_value = self.storage.popleft()
+        else:
+            preserved_value = None
+        n_read = min(
+            size - 1 if has_last_line else size,
+            n_lines if preserved_value is None else n_lines - 1,
+        )
+        results = list()
+        if n_read > 0:
+            self.storage.rotate(n_read)
+        for _ in range(n_read):
+            value = self.storage.popleft()
+            results.append(value)
+            self.storage.append(value)
+        if has_last_line:
+            results.append(self.last_line.getvalue())
+            if preserved_value is not None:
+                self.storage.appendleft(preserved_value)
+        return tuple(results)
+
     def read(self, size: Optional[int] = None) -> Tuple[Union[T, str], ...]:
         """Read the records.
 
@@ -153,44 +203,10 @@ class _LineBuffer(Generic[T]):
             A sequence of fetched record items. Results are sorted in the FIFO order.
         """
         with self.__last_line_lock:
-            has_last_line = self.last_line.tell() > 0
-            n_lines = len(self.storage)
             if size is None:
-                if has_last_line:
-                    len_max = self.storage.maxlen
-                    if len_max and n_lines == len_max:
-                        value = self.storage.popleft()
-                        results = (*self.storage, self.last_line.getvalue())
-                        self.storage.appendleft(value)
-                    elif n_lines > 0:
-                        results = (*self.storage, self.last_line.getvalue())
-                    else:
-                        results = (self.last_line.getvalue(),)
-                    return results
-                else:
-                    return tuple(self.storage)
+                return self.__read_all()
             elif size > 0:
-                len_max = self.storage.maxlen
-                if has_last_line and len_max and n_lines == len_max:
-                    preserved_value = self.storage.popleft()
-                else:
-                    preserved_value = None
-                n_read = min(
-                    size - 1 if has_last_line else size,
-                    n_lines if preserved_value is None else n_lines - 1,
-                )
-                results = list()
-                if n_read > 0:
-                    self.storage.rotate(n_read)
-                for _ in range(n_read):
-                    value = self.storage.popleft()
-                    results.append(value)
-                    self.storage.append(value)
-                if has_last_line:
-                    results.append(self.last_line.getvalue())
-                    if preserved_value is not None:
-                        self.storage.appendleft(preserved_value)
-                return tuple(results)
+                return self.__read_n(size=size)
             else:
                 return tuple()
 

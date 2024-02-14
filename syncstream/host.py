@@ -490,7 +490,7 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
             for val in self.read(size=size)
         )
 
-    def serve(self, app: flask.Flask) -> None:
+    def serve(self, app: flask.Flask) -> None:  # noqa: C901
         """Provide the service of the host buffer.
 
         The service would be equipped as an independent thread. Each time the request

@@ -6,9 +6,18 @@
 
 ### 1.1.2 @ 2/14/2024
 
+#### :mega: New
+
+1. Provide `.dockerignore` file for removing unexpected files in the built docker image.
+
 #### :wrench: Fix
 
 1. Fix: Remove an unexpected in-release package `version` which should only appear during the package building.
+
+#### :floppy_disk: Change
+
+1. Improve the quality of codes.
+2. Make the `flake8` warning validator omit the issues exempted by `black`.
 
 ### 1.1.1 @ 2/5/2024
 
