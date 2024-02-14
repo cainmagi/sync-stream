@@ -13,6 +13,7 @@
 #### :wrench: Fix
 
 1. Fix: Remove an unexpected in-release package `version` which should only appear during the package building.
+2. Find a way to include `tests.version` in `sdist` but exclude all `tests` codes in `wheel`.
 
 #### :floppy_disk: Change
 
