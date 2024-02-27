@@ -31,8 +31,11 @@ except ImportError:
     from builtins import list as List, tuple as Tuple, type as Type
     from collections.abc import Sequence
 
+from typing_extensions import Literal, Never
+
 import fasteners
 
+from .base import GroupedMessage
 from .base import is_end_line_break
 
 
@@ -98,13 +101,16 @@ class LineFileBuffer(contextlib.AbstractContextManager):
         self.__file_dir = "." if file_dir == "" else file_dir
         self.__file_name = file_name
         self.__tmp_id = tmp_id
-        self.maxlen = maxlen
+        self.__maxlen = maxlen
         self.__file_lock = fasteners.InterProcessReaderWriterLock(
             self.__file_path + ".lock"
         )
         self.__file_tmp_lock = fasteners.InterProcessReaderWriterLock(
             self.__file_path + "-{0}.lock".format(self.__tmp_id)
         )
+
+        # Is closed
+        self.__closed: bool = False
 
         # stdout/stderr configs
         self.__stdout: Optional[TextIO] = None
@@ -129,6 +135,10 @@ class LineFileBuffer(contextlib.AbstractContextManager):
         sys.stderr = self.__stderr
         self.__stdout = None
         self.__stderr = None
+        if exc_value is None:
+            self.new_line()
+        else:
+            self.send_exc(exc_value)
         return None
 
     @property
@@ -138,6 +148,99 @@ class LineFileBuffer(contextlib.AbstractContextManager):
         This property is private and should not be exposed to users.
         """
         return "{0}-{1}.tmp".format(self.__file_path, self.__tmp_id)
+
+    @property
+    def maxlen(self) -> int:
+        """The maximal length (number of lines) of the buffer."""
+        return self.__maxlen
+
+    def __len__(self) -> int:
+        """Number of lines/items in the buffer."""
+        max_len = self.__maxlen
+        val_n_lines = 0  # Current number of log files.
+        with self.__file_lock.read_lock():
+            log_files = os.listdir(self.__file_dir)
+            for n in range(self.maxlen):
+                if "{0}-{1:d}.log".format(self.__file_name, n) in log_files:
+                    val_n_lines += 1
+                else:
+                    break
+        if self.__get_last_line():
+            val_n_lines += 1
+        return min(max_len, val_n_lines) if max_len else val_n_lines
+
+    @property
+    def closed(self) -> bool:
+        """Check whether the buffer has been closed."""
+        return self.__closed
+
+    def close(self, exc: Optional[BaseException] = None) -> None:
+        """Close the IO. This method only takes effects once. The second call will
+        do nothing.
+
+        Arguments
+        ---------
+        exc: `BaseException | None`
+            If `exc` is not None, will call `new_line()` before closing the buffer.
+            Otherwise, call `send_exc()`.
+        """
+        if exc is None:
+            self.new_line()
+        else:
+            self.send_exc(exc)
+        self.__closed = True
+
+    def fileno(self) -> Never:
+        """Return the file ID.
+
+        This buffer will not use file ID, so this method will raise an `OSError`.
+        """
+        raise OSError(
+            "syncstream: {0} does not use fileno.".format(self.__class__.__name__)
+        )
+
+    def isatty(self) -> Literal[False]:
+        """Whether the stream is connected to terminal/TTY. Return `False`"""
+        return False
+
+    def readable(self) -> bool:
+        """Whether the stream is readable. The stream is readable as long as the buffer
+        is not closed.
+
+        If the stream is not readable, calling `read()` will raise an OSError.
+        """
+        with self.__file_tmp_lock.read_lock(), self.__file_lock.read_lock():
+            return not self.__closed
+
+    def writable(self) -> bool:
+        """Whether the stream is writable. The stream is writable as long as the buffer
+        is not closed.
+
+        If the stream is not writable, calling `write()` will raise an `OSError`.
+        """
+        with self.__file_tmp_lock.write_lock(), self.__file_lock.write_lock():
+            return not self.__closed
+
+    def seekable(self) -> Literal[False]:
+        """Whether the stream support random access. This buffer does not."""
+        return False
+
+    def seek(self) -> Never:
+        """Will raise an `OSError` since this buffer does not support random access."""
+        raise OSError(
+            "syncstream: {0} does not support random "
+            "access.".format(self.__class__.__name__)
+        )
+
+    def send_exc(self, exc: BaseException) -> None:
+        """Send an exception/warning object to the records.
+
+        The object will be written as a long string with its traceback. Even if the
+        long string contains line break, this item will be still viewed as one record.
+        """
+        if self.__closed:
+            return
+        self.__update_records((str(GroupedMessage(exc)),))
 
     def new_line(self) -> None:
         R"""Manually trigger a new line to the buffer. If the current stream is already
@@ -149,6 +252,9 @@ class LineFileBuffer(contextlib.AbstractContextManager):
             write('\n')
         ```
         """
+        if self.__closed:
+            return
+
         if self.__get_last_line() != "":
             self.__write("\n")
 
@@ -297,6 +403,9 @@ class LineFileBuffer(contextlib.AbstractContextManager):
 
             If `size` is an `int` value, would return the last `size` items.
         """
+        if not self.readable():
+            raise OSError("syncstream: The stream cannot be read now.")
+
         if isinstance(size, int) and size <= 0:
             return tuple()
         # Get the last line.
@@ -313,8 +422,10 @@ class LineFileBuffer(contextlib.AbstractContextManager):
             # Get the number of reading lines.
             if size is None:
                 n_read = n_current
-            else:
+            elif last_line:
                 n_read = min(size - 1, n_current)
+            else:
+                n_read = min(size, n_current)
             # Read the log files.
             res: List[str] = list()
             for n in range(n_read - 1, -1, -1):
@@ -366,4 +477,7 @@ class LineFileBuffer(contextlib.AbstractContextManager):
         #1: `int`
             Number of lines (i.e. the record items) that are written to the storage.
         """
+        if not self.writable():
+            raise OSError("syncstream: The stream cannot be write now.")
+
         return self.__write(data)

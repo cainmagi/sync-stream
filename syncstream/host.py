@@ -106,7 +106,7 @@ class LineHostMirror(contextlib.AbstractContextManager):
         )
 
         # To be created when the first connection is established.
-        self.__buffer_lock_: Optional[threading.Lock] = None
+        self.__buffer_lock_: Optional[threading.RLock] = None
         self.__http_: Optional[SafePoolManager] = None
         self.__finalizer: Optional[weakref.finalize] = None
 
@@ -133,6 +133,7 @@ class LineHostMirror(contextlib.AbstractContextManager):
         sys.stderr = self.__stderr
         self.__stdout = None
         self.__stderr = None
+        self.close(exc_value)
         return None
 
     @property
@@ -161,15 +162,84 @@ class LineHostMirror(contextlib.AbstractContextManager):
         return self.__http_
 
     @property
-    def __buffer_lock(self) -> threading.Lock:
+    def __buffer_lock(self) -> threading.RLock:
         """The threading lock for the buffer.
 
         This lock should not be exposed to users. It is used for ensuring that the
         temporary buffer of the mirror is thread-safe.
         """
         if self.__buffer_lock_ is None:
-            self.__buffer_lock_ = threading.Lock()
+            self.__buffer_lock_ = threading.RLock()
         return self.__buffer_lock_
+
+    @property
+    def closed(self) -> bool:
+        """Check whether the buffer has been closed."""
+        with self.__buffer_lock:
+            return self.__buffer.closed
+
+    def close(self, exc: Optional[BaseException] = None) -> None:
+        """Close the IO. This method only takes effects once. The second call will
+        do nothing.
+
+        Arguments
+        ---------
+        exc: `BaseException | None`
+            If `exc` is not None, will call `send_error()` before closing the buffer.
+            Otherwise, call `send_eof()`.
+        """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+        if exc is None:
+            self.send_eof()
+        else:
+            self.send_error(exc)
+        self.clear()
+        with self.__buffer_lock:
+            self.__buffer.close()
+
+    def fileno(self) -> Never:
+        """Return the file ID.
+
+        This buffer will not use file ID, so this method will raise an `OSError`.
+        """
+        raise OSError(
+            "syncstream: {0} does not use fileno.".format(self.__class__.__name__)
+        )
+
+    def isatty(self) -> Literal[False]:
+        """Whether the stream is connected to terminal/TTY. Return `False`"""
+        return False
+
+    def readable(self) -> bool:
+        """Whether the stream is readable. The stream is readable as long as the buffer
+        is not closed.
+
+        If the stream is not readable, calling `read()` will raise an OSError.
+        """
+        with self.__buffer_lock:
+            return not self.__buffer.closed
+
+    def writable(self) -> bool:
+        """Whether the stream is writable. The stream is writable as long as the buffer
+        is not closed.
+
+        If the stream is not writable, calling `write()` will raise an `OSError`.
+        """
+        with self.__buffer_lock:
+            return not self.__buffer.closed
+
+    def seekable(self) -> Literal[False]:
+        """Whether the stream support random access. This buffer does not."""
+        return False
+
+    def seek(self) -> Never:
+        """Will raise an `OSError` since this buffer does not support random access."""
+        raise OSError(
+            "syncstream: {0} does not support random "
+            "access.".format(self.__class__.__name__)
+        )
 
     def clear(self) -> None:
         """Clear the temporary buffer.
@@ -200,6 +270,10 @@ class LineHostMirror(contextlib.AbstractContextManager):
         Note that this method would not close the queue. The mirror could be reused for
         another program.
         """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+
         self.new_line()
         with self.__http.request(
             url=self.address,
@@ -219,11 +293,15 @@ class LineHostMirror(contextlib.AbstractContextManager):
                     )
                 )
 
-    def send_error(self, obj_err: Exception) -> None:
+    def send_error(self, obj_err: BaseException) -> None:
         """Send the error object to the main buffer.
 
         The error object would be captured as an item of the storage in the main buffer.
         """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+
         self.new_line(check=False if isinstance(obj_err, StopIteration) else True)
         with self.__http.request(
             url=self.address,
@@ -250,6 +328,10 @@ class LineHostMirror(contextlib.AbstractContextManager):
 
         The warning object would be captured as an item of the storage in the main buffer.
         """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+
         self.new_line()
         with self.__http.request(
             url=self.address,
@@ -283,6 +365,10 @@ class LineHostMirror(contextlib.AbstractContextManager):
         Arguments:
             data: a str to be sent to the main buffer.
         """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+
         with self.__http.request(
             url=self.address,
             headers=self.headers,
@@ -306,6 +392,10 @@ class LineHostMirror(contextlib.AbstractContextManager):
 
         Currently, this method in only used for checking whether the service is closed.
         """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+
         is_closed = False
         with self.__http.request(
             url="{0}-state?{1}".format(
@@ -342,6 +432,9 @@ class LineHostMirror(contextlib.AbstractContextManager):
         This method would only read the current bufferred values. If the property
         `aggressive` is `True`, the `read()` method would always return empty value.
         """
+        if not self.readable():
+            raise OSError("syncstream: The mirror cannot be read now.")
+
         with self.__buffer_lock:
             return self.__buffer.getvalue()
 
@@ -392,6 +485,9 @@ class LineHostMirror(contextlib.AbstractContextManager):
         #1: `int`
             Number of lines (i.e. the record items) that are written to the storage.
         """
+        if not self.writable():
+            raise OSError("syncstream: The mirror cannot be read now.")
+
         with self.__buffer_lock:
             return self.__write(data)
 
@@ -535,6 +631,7 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
                         if isinstance(data, collections.abc.Mapping):
                             rself.new_line()
                             data = GroupedMessage.deserialize(dict(data))
+                            rself.storage.append(data)
                     elif dtype == "close":
                         rself.new_line()
                     else:
@@ -580,8 +677,11 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
                         "not exist."
                     )
                 with config_lock:
-                    with state_lock:
-                        res = state.get(name, None)
+                    if name == "curlen":
+                        res = len(rself)
+                    else:
+                        with state_lock:
+                            res = state.get(name, None)
                 return {"message": "success", "data": res}, 200
 
             def post(self):
@@ -770,6 +870,16 @@ class LineHostReader(contextlib.ContextDecorator):
         """Get the default headers (post) of the reader."""
         return collections.ChainMap(dict(), self.__headers_post)
 
+    def __len__(self) -> int:
+        """Property: Get the current length of the buffer."""
+        if self.__http_:
+            return self.__get_states("curlen", self.__http_)
+        with SafePoolManager(
+            retries=urllib3.util.Retry(connect=5, read=2, redirect=5),
+            timeout=urllib3.util.Timeout(total=self.__timeout),
+        ) as _http:
+            return self.__get_states("curlen", _http)
+
     @property
     def maxlen(self) -> int:
         """Property: Get the maximal length of the buffer."""
@@ -949,6 +1059,11 @@ class LineHostReader(contextlib.ContextDecorator):
     @overload
     def __get_states(
         self, state_name: Literal["maxlen"], http_pool: SafePoolManager
+    ) -> int: ...
+
+    @overload
+    def __get_states(
+        self, state_name: Literal["curlen"], http_pool: SafePoolManager
     ) -> int: ...
 
     def __get_states(self, state_name: str, http_pool: SafePoolManager) -> Any:

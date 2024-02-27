@@ -281,6 +281,21 @@ class _ModulePlaceholder(ModuleType):
             name=object.__getattribute__(self, "__name__")
         )
 
+    @property
+    def __file__(self) -> None:
+        """The `file` attribute of this placeholder module is empty."""
+        return None
+
+    @property
+    def __path__(self) -> Sequence[str]:
+        """The `path` attribute of this placeholder module is empty."""
+        return tuple()
+
+    @property
+    def __all__(self) -> Sequence[str]:
+        """The attribute list of this placeholder module is empty."""
+        return tuple()
+
     def force_load(self) -> None:
         """Nothing happens. Because this is a placeholder."""
         return

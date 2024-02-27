@@ -41,7 +41,7 @@ except ImportError:
     from collections.abc import Sequence, Mapping
     from collections import deque as Deque
 
-from typing_extensions import Never
+from typing_extensions import Literal, Never
 
 from .base import is_end_line_break, GroupedMessage
 
@@ -82,6 +82,82 @@ class _LineBuffer(Generic[T]):
         self.storage: Deque[Union[str, T]] = collections.deque(maxlen=maxlen)
         self.last_line: io.StringIO = io.StringIO()
         self.__last_line_lock: threading.Lock = threading.Lock()
+
+    @property
+    def maxlen(self) -> Optional[int]:
+        """The maximal length (number of lines) of the buffer.
+
+        When this value is `None`, it means that there is no maximal length limit.
+        """
+        return self.storage.maxlen
+
+    def __len__(self) -> int:
+        """Number of lines/items in the buffer."""
+        max_len = self.maxlen
+        val_n_lines = len(self.storage)
+        with self.__last_line_lock:
+            if self.last_line:
+                val_n_lines += 1
+        return min(max_len, val_n_lines) if max_len else val_n_lines
+
+    @property
+    def closed(self) -> bool:
+        """Check whether the buffer has been closed."""
+        with self.__last_line_lock:
+            return self.last_line.closed
+
+    def close(self) -> None:
+        """Close the IO. This method only takes effects once. The second call will
+        do nothing.
+        """
+        with self.__last_line_lock:
+            if self.last_line.closed:
+                return
+        self.clear()
+        with self.__last_line_lock:
+            self.last_line.close()
+
+    def fileno(self) -> Never:
+        """Return the file ID.
+
+        This buffer will not use file ID, so this method will raise an `OSError`.
+        """
+        raise OSError(
+            "syncstream: {0} does not use fileno.".format(self.__class__.__name__)
+        )
+
+    def isatty(self) -> Literal[False]:
+        """Whether the stream is connected to terminal/TTY. Return `False`"""
+        return False
+
+    def readable(self) -> bool:
+        """Whether the stream is readable. The stream is readable as long as the buffer
+        is not closed.
+
+        If the stream is not readable, calling `read()` will raise an OSError.
+        """
+        with self.__last_line_lock:
+            return not self.last_line.closed
+
+    def writable(self) -> bool:
+        """Whether the stream is writable. The stream is writable as long as the buffer
+        is not closed.
+
+        If the stream is not writable, calling `write()` will raise an `OSError`.
+        """
+        with self.__last_line_lock:
+            return not self.last_line.closed
+
+    def seekable(self) -> Literal[False]:
+        """Whether the stream support random access. This buffer does not."""
+        return False
+
+    def seek(self) -> Never:
+        """Will raise an `OSError` since this buffer does not support random access."""
+        raise OSError(
+            "syncstream: {0} does not support random "
+            "access.".format(self.__class__.__name__)
+        )
 
     def clear(self) -> None:
         """Clear the whole buffer.
@@ -202,6 +278,9 @@ class _LineBuffer(Generic[T]):
         #1: `[str | T]`
             A sequence of fetched record items. Results are sorted in the FIFO order.
         """
+        if not self.readable():
+            raise OSError("syncstream: The stream cannot be read now.")
+
         with self.__last_line_lock:
             if size is None:
                 return self.__read_all()
@@ -254,6 +333,9 @@ class _LineBuffer(Generic[T]):
         #1: `int`
             Number of lines that have been written.
         """
+        if not self.writable():
+            raise OSError("syncstream: The stream cannot be write now.")
+
         with self.__last_line_lock:
             return self.__write(data)
 
@@ -348,7 +430,7 @@ class LineProcMirror:
             stop signal.
         """
         self.__buffer: io.StringIO = io.StringIO()
-        self.__buffer_lock_: Optional[threading.Lock] = None
+        self.__buffer_lock_: Optional[threading.RLock] = None
         self.aggressive: bool = bool(aggressive)
         self.__timeout: Optional[float] = (
             float(timeout) if timeout is not None else None
@@ -386,18 +468,88 @@ class LineProcMirror:
         sys.stderr = self.__stderr
         self.__stdout = None
         self.__stderr = None
+        self.close(exc_value)
         return None
 
     @property
-    def __buffer_lock(self) -> threading.Lock:
+    def __buffer_lock(self) -> threading.RLock:
         """The threading lock for the buffer.
 
         This lock should not be exposed to users. It is used for ensuring that the
         temporary buffer of the mirror is thread-safe.
         """
         if self.__buffer_lock_ is None:
-            self.__buffer_lock_ = threading.Lock()
+            self.__buffer_lock_ = threading.RLock()
         return self.__buffer_lock_
+
+    @property
+    def closed(self) -> bool:
+        """Check whether the buffer has been closed."""
+        with self.__buffer_lock:
+            return self.__buffer.closed
+
+    def close(self, exc: Optional[BaseException] = None) -> None:
+        """Close the IO. This method only takes effects once. The second call will
+        do nothing.
+
+        Arguments
+        ---------
+        exc: `BaseException | None`
+            If `exc` is not None, will call `send_error()` before closing the buffer.
+            Otherwise, call `send_eof()`.
+        """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+        if exc is None:
+            self.send_eof()
+        else:
+            self.send_error(exc)
+        self.clear()
+        with self.__buffer_lock:
+            self.__buffer.close()
+
+    def fileno(self) -> Never:
+        """Return the file ID.
+
+        This buffer will not use file ID, so this method will raise an `OSError`.
+        """
+        raise OSError(
+            "syncstream: {0} does not use fileno.".format(self.__class__.__name__)
+        )
+
+    def isatty(self) -> Literal[False]:
+        """Whether the stream is connected to terminal/TTY. Return `False`"""
+        return False
+
+    def readable(self) -> bool:
+        """Whether the stream is readable. The stream is readable as long as the buffer
+        is not closed.
+
+        If the stream is not readable, calling `read()` will raise an OSError.
+        """
+        with self.__buffer_lock:
+            return not self.__buffer.closed
+
+    def writable(self) -> bool:
+        """Whether the stream is writable. The stream is writable as long as the buffer
+        is not closed.
+
+        If the stream is not writable, calling `write()` will raise an `OSError`.
+        """
+        with self.__buffer_lock:
+            return not self.__buffer.closed
+
+    def seekable(self) -> Literal[False]:
+        """Whether the stream support random access. This buffer does not."""
+        return False
+
+    def seek(self) -> Never:
+        """Will raise an `OSError` since this buffer does not support random access."""
+        raise OSError(
+            "syncstream: {0} does not support random "
+            "access.".format(self.__class__.__name__)
+        )
 
     def clear(self) -> None:
         """Clear the temporary buffer.
@@ -440,6 +592,10 @@ class LineProcMirror:
         method would not close the queue. The mirror could be reused for another
         program.
         """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+
         self.new_line()
         self.__queue.put(
             {"type": "close", "data": None}, block=self.__block, timeout=self.__timeout
@@ -451,6 +607,10 @@ class LineProcMirror:
         The error object would be captured as an item of the storage in the main
         buffer.
         """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+
         self.new_line()
         self.__queue.put(
             {"type": "error", "data": GroupedMessage(obj_err)},
@@ -464,6 +624,10 @@ class LineProcMirror:
         The warning object would be captured as an item of the storage in the main
         buffer.
         """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+
         self.new_line()
         self.__queue.put(
             {"type": "warning", "data": GroupedMessage(obj_warn)},
@@ -488,6 +652,10 @@ class LineProcMirror:
         data: `str`
             A str to be sent to the main buffer.
         """
+        with self.__buffer_lock:
+            if self.__buffer.closed:
+                return
+
         self.__queue.put(
             {"type": "str", "data": data}, block=self.__block, timeout=self.__timeout
         )
@@ -510,6 +678,9 @@ class LineProcMirror:
 
             If set a int value, would return the last `size` items.
         """
+        if not self.readable():
+            raise OSError("syncstream: The mirror cannot be read now.")
+
         with self.__buffer_lock:
             if size is None:
                 return self.__buffer.getvalue()
@@ -573,6 +744,9 @@ class LineProcMirror:
         #1: `int`
             Number of lines (i.e. the record items) that are written to the storage.
         """
+        if not self.writable():
+            raise OSError("syncstream: The mirror cannot be read now.")
+
         with self.__buffer_lock:
             return self.__write(data)
 
@@ -622,6 +796,11 @@ class LineProcBuffer(_LineBuffer[GroupedMessage]):
         self.n_mirrors: int = 0
         self.__maxlen: int = int(maxlen)
         self.__config_lock: threading.Lock = threading.Lock()
+
+    @property
+    def maxlen(self) -> int:
+        """The maximal length (number of lines) of the buffer."""
+        return self.__maxlen
 
     @property
     def mirror(self) -> LineProcMirror:

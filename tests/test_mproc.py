@@ -88,12 +88,7 @@ def worker_process(buffer: LineProcMirror) -> None:
             create_warn(catch=True)
         except Warning as warn:
             buffer.send_warning(warn)
-        try:
-            raise TypeError("A test error.")
-        except TypeError as err:
-            buffer.send_error(err)
-        else:
-            buffer.send_eof()
+        raise TypeError("A test error.")
 
 
 def worker_process_lite(buffer: LineProcMirror) -> None:
@@ -109,7 +104,6 @@ def worker_process_lite(buffer: LineProcMirror) -> None:
         for i in range(2):
             time.sleep(0.01)
             print("Line:", "buffer", "new", i, end="\n")
-        buffer.send_eof()
 
 
 def worker_process_stop(buffer: LineProcMirror) -> None:
@@ -121,17 +115,12 @@ def worker_process_stop(buffer: LineProcMirror) -> None:
 
     Each end signal should be only sent by once.
     """
-    try:
-        with buffer:
-            for i in range(10):
-                time.sleep(0.1)
-                print("Line:", "buffer", "new", i, end="\n")
-                if i > 0:
-                    time.sleep(0.9)
-    except Exception as error:  # pylint: disable=broad-except
-        buffer.send_error(error)
-    else:
-        buffer.send_eof()
+    with buffer:
+        for i in range(10):
+            time.sleep(0.1)
+            print("Line:", "buffer", "new", i, end="\n")
+            if i > 0:
+                time.sleep(0.9)
 
 
 class TestMProc:
@@ -160,6 +149,8 @@ class TestMProc:
 
         tbuf.write("line1\n")
         tbuf.write("line2\nline3")
+
+        assert len(tbuf) == 3
 
         # Read all.
         lines = tbuf.read()
