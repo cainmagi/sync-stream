@@ -73,7 +73,6 @@ def worker_process(log_info: Tuple[str, int]) -> None:
             time.sleep(0.01)
             print("Line", "buffer", "new", i, end="\n")
         create_warn()
-        buffer.new_line()  # A final signal
 
 
 def worker_process_lite(log_info: Tuple[str, int]) -> None:
@@ -92,7 +91,6 @@ def worker_process_lite(log_info: Tuple[str, int]) -> None:
         for i in range(2):
             time.sleep(0.01)
             print("Line", "buffer", "new", i, end="\n")
-        buffer.new_line()  # A final signal
 
 
 class TestFile:
@@ -119,6 +117,8 @@ class TestFile:
 
         fbuf.write("line1\n")
         fbuf.write("line2\nline3")
+
+        assert len(fbuf) == 3
 
         # Read all.
         lines = fbuf.read()
@@ -195,6 +195,22 @@ class TestFile:
         for i, item in enumerate(messages):
             log.info("%s", "{0:02d}: {1}".format(i, item))
         assert len(messages) == 10
+
+    def test_file_error(self) -> None:
+        """Test the file.LineFileBuffer with error captured."""
+        log = logging.getLogger("test_file")
+        buffer = LineFileBuffer(self.log_path, maxlen=10)
+
+        # Write buffer.
+        with pytest.raises(TypeError):
+            with buffer:
+                print("Hello!")
+                raise TypeError("This is an error!")
+
+        messages = buffer.read()
+        for i, item in enumerate(messages):
+            log.info("%s", "{0:02d}: {1}".format(i, item))
+        assert len(messages) == 2
 
     def test_file_process(self) -> None:
         """Test the file.LineFileBuffer in the multi-process mode."""

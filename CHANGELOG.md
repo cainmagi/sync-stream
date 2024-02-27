@@ -4,6 +4,24 @@
 
 ## CHANGELOG
 
+### 1.2.0 @ 2/27/2024
+
+#### :mega: New
+
+1. Add some missing methods for completing the standard IO protocol: `closed`, `close()`, `fileno()`, `isatty()`, `readable()`, `writable()`, `seekable()`, `seek()`.
+2. Add logics for mainatining the status when buffers are closed.
+3. Enable `file.LineFileBuffer()` to capture warning/exception objects. But the captured objects will be stored as text items.
+4. Expose the `maxlen` property and the `__len__` property for the buffers.
+
+#### :wrench: Fix
+
+1. Fix: A server bug causes the warning/exception objects are captured but not recorded by `host.LineHostBuffer()`. This problem has been fixed.
+2. Fix: Fix an issue that the getting `__file__` attribute of a placeholder module will cause error.
+
+#### :floppy_disk: Change
+
+1. Make the `send_eof()`/`send_error()` methods automatically called by the context. Now the mirror/buffer objects will be closed once the context is closed.
+
 ### 1.1.2 @ 2/14/2024
 
 #### :mega: New

@@ -114,22 +114,19 @@ def worker_process(address: str) -> None:
     Each end signal should be only sent by once.
     """
     buffer = LineHostMirror(address=address)
-    for i in range(10):
-        time.sleep(0.01)
-        print("Line:", "buffer", "new", i, end="\n", file=buffer)
-    with buffer:
-        create_warn()
     try:
         with buffer:
-            create_warn(catch=True)
-    except Warning as warn:
-        buffer.send_warning(warn)
-    try:
-        raise TypeError("A test error.")
-    except TypeError as err:
-        buffer.send_error(err)
-    else:
-        buffer.send_eof()
+            for i in range(10):
+                time.sleep(0.01)
+                print("Line:", "buffer", "new", i, end="\n", file=buffer)
+            create_warn()
+            try:
+                create_warn(catch=True)
+            except Warning as warn:
+                buffer.send_warning(warn)
+            raise TypeError("A test error.")
+    except TypeError:
+        pass
 
 
 def worker_process_lite(address: str) -> None:
@@ -142,10 +139,10 @@ def worker_process_lite(address: str) -> None:
     Each end signal should be only sent by once.
     """
     buffer = LineHostMirror(address=address)
-    for i in range(2):
-        time.sleep(0.01)
-        print("Line:", "buffer", "new", i, end="\n", file=buffer)
-    buffer.send_eof()
+    with buffer:
+        for i in range(2):
+            time.sleep(0.01)
+            print("Line:", "buffer", "new", i, end="\n", file=buffer)
 
 
 def worker_process_stop(address: str) -> None:
@@ -158,16 +155,12 @@ def worker_process_stop(address: str) -> None:
     Each end signal should be only sent by once.
     """
     buffer = LineHostMirror(address=address)
-    try:
+    with buffer:
         for i in range(10):
             time.sleep(0.1)
             print("Line:", "buffer", "new", i, end="\n", file=buffer)
             if i > 0:
                 time.sleep(10.0)
-    except Exception as error:  # pylint: disable=broad-except
-        buffer.send_error(error)
-    else:
-        buffer.send_eof()
 
 
 def create_test_api(name: str = "api_name") -> flask.Flask:
@@ -274,6 +267,7 @@ class TestHost:
             # Read status.
             assert hreader.closed is False
             assert hreader.maxlen == 10
+            assert len(hreader) == 3
 
             # Read all.
             lines = hreader.read()
