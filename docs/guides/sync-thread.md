@@ -54,4 +54,4 @@ if __name__ == '__main__':
 
 Since stdout and stderr are maintained by the process. Different threads of the same process would share the same stdout and stderr. In the above example, we only need to redirect the stdout for one time.
 
-We are still using `syncstream.LineBuffer(10)`, because this class is thread-safe. We could catch the stdout or stderr inside each thread like what we do in the main thread.
+We are still using [`syncstream.LineBuffer(10)`](../apis/mproc/LineBuffer.mdx), because this class is thread-safe. We could catch the stdout or stderr inside each thread like what we do in the main thread.

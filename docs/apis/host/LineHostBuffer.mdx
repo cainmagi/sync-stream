@@ -6,21 +6,14 @@ slug: /apis/host/LineHostBuffer
 description: The web service driven line-based buffer.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import InlineIcon from '@site/src/components/InlineIcon';
-import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import octFileCode16 from '@iconify-icons/octicon/file-code-16';
-import octLinkExternal16 from '@iconify-icons/octicon/link-external-16';
-import { SourceURL, Splitter } from '@site/src/envs/variables';
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
 
-<p>
-  <InlineIcon icon={vsiSymbolClass}/> Class
-  <Splitter />
-  <SourceURL url="host.py#L254">
-    <InlineIcon icon={octFileCode16}/> Source
-  </SourceURL>
-</p>
+import APITopBar from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="host.LineHostBuffer" />
 
 ```python
 hbuf = syncstream.host.LineHostBuffer(api_route='/sync-stream', endpoint=None, maxlen=2)
@@ -29,21 +22,21 @@ hbuf = syncstream.LineHostBuffer(...)  # Alias
 
 The host service provider for the line-based buffer.
 
-The rotating buffer with a maximal storage length. This buffer is the extended version of the basic `LineBuffer`. It is used in the case of multi-devices. It supports the one-host-multi-clients mode, and supports the syncholization by the web services. To learn how to use this buffer, see the [example](#example) on this page, or the [tutorial](/sync-stream/docs/sync-host).
+The rotating buffer with a maximal storage length. This buffer is the extended version of the basic `LineBuffer`. It is used in the case of multi-devices. It supports the one-host-multi-clients mode, and supports the syncholization by the web services. To learn how to use this buffer, see the [example](#example) on this page, or the [tutorial](../../guides/sync-host.mdx).
 
 ## Arguments
 
 ### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `api_route` | `str`  | The route path of the api. It has the same meaning of the parameter [<InlineIcon icon={octLinkExternal16}/>`Api.add_resource(url)`](https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource). |
-| `endpoint`  | `str`  | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [<InlineIcon icon={octLinkExternal16}/>`Api.add_resource(endpoint)`](https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource). |
-| `maxlen`   | `int`  | The maximal number of stored lines. This value has the same meaning of [<InlineIcon icon={octLinkExternal16}/>`deque.maxlen`](https://docs.python.org/3/library/collections.html#collections.deque.maxlen). |
+|  Argument   | Type  | <center>Description</center>                                                                                                                                                                                     |
+| :---------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api_route` | `str` | The route path of the api. It has the same meaning of the parameter [`Api.add_resource(url)`<IconExternalLink/>][link-addresource].                                                                              |
+| `endpoint`  | `str` | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [`Api.add_resource(endpoint)`<IconExternalLink/>][link-addresource]. |
+|  `maxlen`   | `int` | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen].                                                                                   |
 
 ## Methods
 
-### `serve` {#serve}
+### `serve`
 
 ```python
 hbuf.serve(api)
@@ -53,37 +46,37 @@ Load the services to the flask app.
 
 #### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `api`     | [<InlineIcon icon={octLinkExternal16}/>`flask_restful.Api`](https://flask-restful.readthedocs.io/en/latest/api.html?highlight=api#id1)  | The Flask `Api` object. All web services related to this `LineHostBuffer` would be registered to the `Api` object. |
+| Argument |                           Type                            | <center>Description</center>                                                                                       |
+| :------: | :-------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------- |
+|  `api`   | [`flask_restful.Api`<IconExternalLink/>][link-restfulapi] | The Flask `Api` object. All web services related to this `LineHostBuffer` would be registered to the `Api` object. |
 
 ## Services
 
 Register the Flask app with this instance, the following services would be provided, where the **`bold`** arguments are required arguments.
 
-### `<api_route>` {#api_route}
+### `<api_route>`
 
 The basic APIs. They are used for maintaining the storage of the message items.
 
-|  Method  |  <center>Requires</center>  |  <center>Response</center>  |  <center>Description</center>  |
-| :------: | :-------------------------- | :-------------------------- | :----------------------------- |
-| GET      | <ul><li>`n`: The number of messages that is required. If not set, would return the whole storage.</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: A list of returned messages.</li></ul> | Get the message items. Similar to [`LineBuffer.read()`](/docs/apis/mproc/LineBuffer#read). |
-| POST     | <ul><li>**`type`**: The type of the message. Could be `str`, `error`, `warning`, or `close`.</li><li>`data`: A `dict` of message data from [`LineHostMirror`](/docs/apis/host/LineHostMirror).</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul> | Write the remote data into the storage. This method should not be used by users directly, because it is provided for the interaction with [`LineHostMirror`](/docs/apis/host/LineHostMirror). |
-| DELETE   | <center>-</center> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul> | Clear the storage, but the status of the buffer is not reset by this method. |
+| Method | <center>Requires</center>                                                                                                                                                                            | <center>Response</center>                                                                                                                              | <center>Description</center>                                                                                                                                                              |
+| :----: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  GET   | <ul><li>`n`: The number of messages that is required. If not set, would return the whole storage.</li></ul>                                                                                          | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: A list of returned messages.</li></ul> | Get the message items. Similar to [`LineBuffer.read()`](../mproc/LineBuffer.mdx#read).                                                                                                    |
+|  POST  | <ul><li>**`type`**: The type of the message. Could be `str`, `error`, `warning`, or `close`.</li><li>`data`: A `dict` of message data from [`LineHostMirror`](../host/LineHostMirror.mdx).</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                              | Write the remote data into the storage. This method should not be used by users directly, because it is provided for the interaction with [`LineHostMirror`](../host/LineHostMirror.mdx). |
+| DELETE | <center>-</center>                                                                                                                                                                                   | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                              | Clear the storage, but the status of the buffer is not reset by this method.                                                                                                              |
 
-----------
+---
 
-### `<api_route>-state` {#api_route-state}
+### `<api_route>-state`
 
 The APIs used for maintaining the buffer status.
 
-|  Method  |  <center>Requires</center>  |  <center>Response</center>  |  <center>Description</center>  |
-| :------: | :-------------------------- | :-------------------------- | :----------------------------- |
-| GET      | <ul><li>**`state`**: The name of the state to be read.</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: The value of the required state.</li></ul> | Get a specific state value. |
-| POST     | <ul><li>**`state`**: The name of the state to be read.</li><li>`value`: The value used for changing the state.</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul> | Modify a specific state value. |
-| DELETE   | <center>-</center> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul> | Reset the state to the default values. |
+| Method | <center>Requires</center>                                                                                                | <center>Response</center>                                                                                                                                  | <center>Description</center>           |
+| :----: | :----------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------- |
+|  GET   | <ul><li>**`state`**: The name of the state to be read.</li></ul>                                                         | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: The value of the required state.</li></ul> | Get a specific state value.            |
+|  POST  | <ul><li>**`state`**: The name of the state to be read.</li><li>`value`: The value used for changing the state.</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Modify a specific state value.         |
+| DELETE | <center>-</center>                                                                                                       | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Reset the state to the default values. |
 
-The states are shared by different clients. Each time the clients interact with the host, they would use `GET` method to renew their states. Some states could be used for controlling the behaviors of the clients. For example, `POST` with `state=closed`, `value=true` serves the same funcionality of invoking [`LineProcBuffer.stop_all_mirrors()`](/docs/apis/mproc/LineProcBuffer#stop_all_mirrors).
+The states are shared by different clients. Each time the clients interact with the host, they would use `GET` method to renew their states. Some states could be used for controlling the behaviors of the clients. For example, `POST` with `state=closed`, `value=true` serves the same funcionality of invoking [`LineProcBuffer.stop_all_mirrors()`](../mproc/LineProcBuffer.mdx#stop_all_mirrors).
 
 ## Example
 
@@ -145,8 +138,12 @@ http://localhost:5000/test
 The response should be
 
 ```json
-{"items":["example","example","example","example"],"message":"success"}
+{"items": ["example", "example", "example", "example"], "message": "success"}
 ```
 
 </TabItem>
 </Tabs>
+
+[link-addresource]: https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource
+[link-restfulapi]: https://flask-restful.readthedocs.io/en/latest/api.html?highlight=api#id1
+[link-deque-maxlen]: https://docs.python.org/3/library/collections.html#collections.deque.maxlen

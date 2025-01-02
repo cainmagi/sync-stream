@@ -6,21 +6,14 @@ slug: /apis/mproc/LineProcBuffer
 description: The process-safe line-based buffer.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import InlineIcon from '@site/src/components/InlineIcon';
-import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import octFileCode16 from '@iconify-icons/octicon/file-code-16';
-import octLinkExternal16 from '@iconify-icons/octicon/link-external-16';
-import { SourceURL, Splitter } from '@site/src/envs/variables';
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
 
-<p>
-  <InlineIcon icon={vsiSymbolClass}/> Class
-  <Splitter />
-  <SourceURL url="mproc.py#L357">
-    <InlineIcon icon={octFileCode16}/> Source
-  </SourceURL>
-</p>
+import APITopBar from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="mproc.LineProcBuffer" />
 
 ```python
 pbuf = syncstream.mproc.LineProcBuffer(maxlen=20)
@@ -29,19 +22,19 @@ pbuf = syncstream.LineProcBuffer(...)  # Alias
 
 The process-safe line-based buffer.
 
-The rotating buffer with a maximal storage length. This buffer is the extended version of the basic `LineBuffer`. It is used for the case of multi-processing. Use the shared queue of this buffer to ensure the synchronization among processes. To learn how to use this buffer, see the [example](#example) on this page, or the [tutorial](/sync-stream/docs/sync-proc).
+The rotating buffer with a maximal storage length. This buffer is the extended version of the basic `LineBuffer`. It is used for the case of multi-processing. Use the shared queue of this buffer to ensure the synchronization among processes. To learn how to use this buffer, see the [example](#example) on this page, or the [tutorial](../../guides/sync-proc.md).
 
 ## Arguments
 
 ### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `maxlen`   | `int`  | The maximal number of stored lines. This value has the same meaning of [<InlineIcon icon={octLinkExternal16}/>`deque.maxlen`](https://docs.python.org/3/library/collections.html#collections.deque.maxlen) |
+| Argument | Type  | <center>Description</center>                                                                                                  |
+| :------: | :---: | :---------------------------------------------------------------------------------------------------------------------------- |
+| `maxlen` | `int` | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen] |
 
 ## Methods
 
-### `clear` {#clear}
+### `clear`
 
 ```python
 pbuf.clear()
@@ -51,9 +44,9 @@ Clear the whole buffer.
 
 This method would clear the storage and the last line stream of this buffer. However, it would not clear any mirrors or copies of this object. This method is thread-safe and should always success.
 
-----------
+---
 
-### `stop_all_mirrors` {#stop_all_mirrors}
+### `stop_all_mirrors`
 
 ```python
 pbuf.stop_all_mirrors()
@@ -69,9 +62,9 @@ Since this method does not send `TERMINATE` or `KILL` signals, it does not guara
 
 :::
 
-----------
+---
 
-### `reset_states` {#reset_states}
+### `reset_states`
 
 ```python
 pbuf.stop_all_mirrors()
@@ -81,9 +74,9 @@ Reset the states of the buffer.
 
 During the interaction with the mirrors, the states of the buffer may change. If user want to reuse the buffer and start a new group of sub-processes, please use this method.
 
-----------
+---
 
-### `receive` {#receive}
+### `receive`
 
 ```python
 is_live = pbuf.receive()
@@ -95,13 +88,13 @@ This method would fetch one item from the process-safe queue, and write the resu
 
 #### Returns
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `is_live`   | `bool` | The finish flag. If this value is `True`, it means the buffer still needs to receive more messages from the mirrors. If `False`, it means that the close signals from all mirrors have been received. |
+| Argument  |  Type  | <center>Description</center>                                                                                                                                                                          |
+| :-------: | :----: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `is_live` | `bool` | The finish flag. If this value is `True`, it means the buffer still needs to receive more messages from the mirrors. If `False`, it means that the close signals from all mirrors have been received. |
 
-----------
+---
 
-### `wait` {#wait}
+### `wait`
 
 ```python
 pbuf.wait()
@@ -116,9 +109,9 @@ while pbuf.receive():
 
 The method would make the current thread keeping blocked until the buffer receives all messages from the mirrors.
 
-----------
+---
 
-### `parse_lines` {#parse_lines}
+### `parse_lines`
 
 ```python
 pbuf.parse_lines(lines)
@@ -136,13 +129,13 @@ pbuf.storage.extend(lines)
 
 #### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `lines`    | `[str]`  | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
+| Argument |  Type   | <center>Description</center>                                                                                                    |
+| :------: | :-----: | :------------------------------------------------------------------------------------------------------------------------------ |
+| `lines`  | `[str]` | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
 
-----------
+---
 
-### `read` {#read}
+### `read`
 
 ```python
 lines = pbuf.read(size=None)
@@ -154,19 +147,19 @@ If the current written line is not blank, the `read()` method would regard it as
 
 #### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `size`     | `int`  | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
+| Argument | Type  | <center>Description</center>                                                                           |
+| :------: | :---: | :----------------------------------------------------------------------------------------------------- |
+|  `size`  | `int` | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
 
 #### Returns
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
+| Argument |  Type   | <center>Description</center>                                                    |
+| :------: | :-----: | :------------------------------------------------------------------------------ |
+| `lines`  | `[str]` | The returned messages. The messages have been already split by the line breaks. |
 
-----------
+---
 
-### `write` {#write}
+### `write`
 
 :::caution
 
@@ -176,7 +169,7 @@ This method is prohibited for this class. Because the `write()` method should be
 
 ## Properties
 
-### `mirror` {#mirror}
+### `mirror`
 
 ```python
 pbuf.mirror
@@ -184,13 +177,13 @@ pbuf.mirror
 
 Get the mirror of this buffer.
 
-The buffer should not be used in sub-processes directly. Instead, the buffer/mirror work in master/slave mode. The property `pbuf.mirror` is an instance of [`LineProcMirror`](./LineProcMirror). It is used for providing the process-safe mirror of the buffer in the sub-process.
+The buffer should not be used in sub-processes directly. Instead, the buffer/mirror work in master/slave mode. The property `pbuf.mirror` is an instance of [`LineProcMirror`](./LineProcMirror.mdx). It is used for providing the process-safe mirror of the buffer in the sub-process.
 
 This property could not be modified after the initialization.
 
-----------
+---
 
-### `n_mirrors` {#n_mirrors}
+### `n_mirrors`
 
 ```python
 pbuf.n_mirrors
@@ -240,3 +233,5 @@ if __name__ == '__main__':
 
 </TabItem>
 </Tabs>
+
+[link-deque-maxlen]: https://docs.python.org/3/library/collections.html#collections.deque.maxlen

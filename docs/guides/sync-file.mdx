@@ -6,10 +6,12 @@ slug: /sync-file
 description: A tutorial about synchronizing the message among programs.
 ---
 
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-The file-based synchronization is based on the package [`fasteners`][pypi-fasteners]. In this case, the buffer is implemented by shared log files. The synchronization is implemented by the file-based locks. When users need to synchornize the messages from different programs on the same device, it is sutiable to use `LineFileBuffer`.
+The file-based synchronization is based on the package [`fasteners`<IconExternalLink/>][pypi-fasteners]. In this case, the buffer is implemented by shared log files. The synchronization is implemented by the file-based locks. When users need to synchornize the messages from different programs on the same device, it is sutiable to use [`LineFileBuffer`](../apis/file/LineFileBuffer.mdx).
 
 In the following example, we provide two scripts (`writer.py` and `reader.py`). The reader should be launched before the writer starts. Then the messages from the writer would be catched by the reader.
 
@@ -70,7 +72,7 @@ for mitem in messages:
 
 In the above example, the writer and reader are launched by two different python programs. Both the reader and the writer do not know the running details from each other. The only synchronized thing is the messages shared by the files. The file locks could ensure that the programs would not cause synchronization issues.
 
-The same instance `LineFileBuffer` is used for both the writer and the reader. Different from the `LineBuffer` or `LineProcBuffer`. The reader need to call the method `buffer.read()` reapeatly. Each time the method is called, the records in the file would be iterated for once. The reader would keep scanning the file for every one second until 10 lines are collected.
+The same instance [`LineFileBuffer`](../apis/file/LineFileBuffer.mdx) is used for both the writer and the reader. Different from the [`LineBuffer`](../apis/mproc/LineBuffer.mdx) or [`LineProcBuffer`](../apis/mproc/LineProcBuffer.mdx). The reader need to call the method [`buffer.read()`](../apis/file/LineFileBuffer.mdx#read) reapeatly. Each time the method is called, the records in the file would be iterated for once. The reader would keep scanning the file for every one second until 10 lines are collected.
 
 :::danger
 

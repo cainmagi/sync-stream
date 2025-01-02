@@ -6,8 +6,13 @@ slug: /installation
 description: A tutorial about the installation of the package.
 ---
 
-import DarkButton from '@site/src/components/DarkButton';
-import octInfo16 from '@iconify-icons/octicon/info-16';
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import DarkButton from "@site/src/components/DarkButton";
+import octInfo16 from "@iconify-icons/octicon/info-16";
+
+import {IconLinkInline} from "@site/src/components/IconLink";
+import {repoURL} from "@site/src/envs/variables";
 
 To install the package, just run
 
@@ -25,10 +30,22 @@ The basic package would not contain the `file` and `host` modules. To install th
 pip install syncstream[option1,option2...]
 ```
 
-| Option  | Supports |
-| :-----: | :------- |
-| `file` | Install dependencies for the `file` module. The module provides `syncstream.LineFileBuffer`. |
+| Option | Supports                                                                                                                      |
+| :----: | :---------------------------------------------------------------------------------------------------------------------------- |
+| `file` | Install dependencies for the `file` module. The module provides `syncstream.LineFileBuffer`.                                  |
 | `host` | Install dependencies for the `host` module. The module provides `syncstream.LineHostBuffer`, and `syncstream.LineHostMirror`. |
+
+## Install the GitHub version
+
+The GitHub version may be newer than the PyPI version during the development.
+If users want to install the GitHub version, please ensure that
+[Git<IconExternalLink/>][link-git] has been installed.
+
+After that, run the following command to install the developer's version.
+
+```shell
+pip install git+https://github.com/cainmagi/sync-stream.git
+```
 
 ## Run the tests
 
@@ -38,13 +55,17 @@ To verify whether the package is compatible with your device, please clone the p
 git clone https://github.com/cainmagi/sync-stream.git
 cd sync-stream
 pip install -r requirements.txt
-python -m pytest tests
+python -m pytest
 ```
 
 The package is only compatible with `python>=3.6`. If you find the package fails to pass the tests, please
 
 <p>
-  <DarkButton to="https://github.com/cainmagi/sync-stream/issues/new" icon={octInfo16}>
-    Fire an issue
-  </DarkButton>
+  {
+    <DarkButton to={repoURL("issues/new/choose")} icon={octInfo16}>
+      Fire an issue
+    </DarkButton>
+  }
 </p>
+
+[link-git]: https://git-scm.com/downloads

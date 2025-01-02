@@ -1,0 +1,26 @@
+---
+id: index
+title: mproc
+sidebar_label: mproc
+slug: /apis/mproc
+description: The thread-safe and process-safe message synchronization, implemented based on the python stdlib.
+---
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="module" isPrivate={true} source="mproc" />
+
+The base module for the message synchronization. It is totally based on the stdlib of python.
+
+This module should be only used for synchronizing messages between threads and processes on the same device.
+
+## Classes
+
+|                                          Member                                          | <center>Description</center>                       |
+| :--------------------------------------------------------------------------------------: | :------------------------------------------------- |
+|     [<IconObjType type="class" hasText={true} text="LineBuffer"/>](./LineBuffer.mdx)     | The basic line-based buffer handle.                |
+| [<IconObjType type="class" hasText={true} text="LineProcMirror"/>](./LineProcMirror.mdx) | The mirror for the process-safe line-based buffer. |
+| [<IconObjType type="class" hasText={true} text="LineProcBuffer"/>](./LineProcBuffer.mdx) | The process-safe line-based buffer.                |
+
+[link-flask-restful]: https://flask-restful.readthedocs.io/en/latest/
+[link-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html

@@ -1,0 +1,27 @@
+.mb-default {
+  margin-bottom: var(--ifm-paragraph-margin-bottom);
+}
+
+.w-75 {
+  & img {
+    max-width: max(75%, 750px);
+  }
+}
+
+.w-60 {
+  & img {
+    max-width: max(60%, 600px);
+  }
+}
+
+.w-50 {
+  & img {
+    max-width: max(50%, 500px);
+  }
+}
+
+.w-40 {
+  & img {
+    max-width: max(40%, 400px);
+  }
+}

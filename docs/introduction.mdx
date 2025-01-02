@@ -5,42 +5,70 @@ description: The introduction of sync-stream. We provide 4 modes designed for di
 slug: /
 ---
 
-import DarkButton from '@site/src/components/DarkButton';
-import octLaw16 from '@iconify-icons/octicon/law-16';
-import octRepoForked16 from '@iconify-icons/octicon/repo-forked-16';
-import octShareAndroid16 from '@iconify-icons/octicon/share-android-16';
+import DarkButton from "@site/src/components/DarkButton";
+import {repoURL} from "@site/src/envs/variables";
+
+import octClock16 from "@iconify-icons/octicon/clock-16";
+import octLaw16 from "@iconify-icons/octicon/law-16";
+import octRepoForked16 from "@iconify-icons/octicon/repo-forked-16";
+import octShareAndroid16 from "@iconify-icons/octicon/share-android-16";
 
 This project is designed for providing the synchoronization of the stdout / stderr among different threads, processes, devices or hosts. The package could be used for the following cases:
 
-|  Class  |  <center>Usage</center>  |
-| :-----: | :------ |
-| `LineBuffer` | Used when multiple threads are created. The messages (stdout) from different threads are required to be collected.
-| `LineProcBuffer` | Use `syncstream.LineProcBuffer` in the main process, and `syncstream.LineProcMirror` in the sub-processes: Multiple sub-processes are created on the same device. The stdout / stderr of each process is redirected to a `LineProcMirror`, and the results are collected by `LineProcBuffer`. |
-| `LineFileBuffer` | Multiple processes are created. These processes may be deployed on different devices (even with different platforms), but all devices could get accessed to the same shared disk. In this case, the message could be shared by locked files. Each process would hold an independent `LineFileBuffer` pointing to the same log files. |
+|      Class       | <center>Usage</center>                                                                                                                                                                                                                                                                                                                                                   |
+| :--------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|   `LineBuffer`   | Used when multiple threads are created. The messages (stdout) from different threads are required to be collected.                                                                                                                                                                                                                                                       |
+| `LineProcBuffer` | Use `syncstream.LineProcBuffer` in the main process, and `syncstream.LineProcMirror` in the sub-processes: Multiple sub-processes are created on the same device. The stdout / stderr of each process is redirected to a `LineProcMirror`, and the results are collected by `LineProcBuffer`.                                                                            |
+| `LineFileBuffer` | Multiple processes are created. These processes may be deployed on different devices (even with different platforms), but all devices could get accessed to the same shared disk. In this case, the message could be shared by locked files. Each process would hold an independent `LineFileBuffer` pointing to the same log files.                                     |
 | `LineHostBuffer` | Use `syncstream.LineHostBuffer` on the server side, and `syncstream.LineHostMirror` on the client side: Multiple processes are deployed on different devices, and they could not share the same disk. In this case, the message are synchronized by the web service. Each process would hold a `LineHostMirror`, and the results would be collected by `LineHostBuffer`. |
 
 ## Related materials
 
+Changelog:
+
+<p>
+  {
+    <DarkButton
+      to={repoURL("blob/main/README.md#update-reports")}
+      icon={octClock16}
+    >
+      Changelog
+    </DarkButton>
+  }
+</p>
+
 License of this project:
 
 <p>
-  <DarkButton to="https://github.com/cainmagi/sync-stream/blob/main/LICENSE" icon={octLaw16}>
-    MIT License
-  </DarkButton>
+  {
+    <DarkButton to={repoURL("blob/main/LICENSE")} icon={octLaw16}>
+      MIT License
+    </DarkButton>
+  }
 </p>
 
 Guidelines for the contributions:
 
 <p>
-  <DarkButton to="https://github.com/cainmagi/sync-stream/blob/main/CONTRIBUTING.md" icon={octRepoForked16}>
-    Contributions
-  </DarkButton>
+  {
+    <DarkButton
+      to={repoURL("blob/main/CONTRIBUTING.md")}
+      icon={octRepoForked16}
+    >
+      Contributing
+    </DarkButton>
+  }
 </p>
 
 Contributor covenant code of conduct:
 
 <p>
-  <DarkButton to="https://github.com/cainmagi/sync-stream/blob/main/CODE_OF_CONDUCT.md" icon={octShareAndroid16}>
-    Code of Conduct
-  </DarkButton>
+  {
+    <DarkButton
+      to={repoURL("blob/main/CODE_OF_CONDUCT.md")}
+      icon={octShareAndroid16}
+    >
+      Code of Conduct
+    </DarkButton>
+  }
 </p>

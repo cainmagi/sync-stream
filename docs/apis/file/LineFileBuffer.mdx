@@ -6,20 +6,13 @@ slug: /apis/file/LineFileBuffer
 description: The file-driven line-based buffer handle.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import InlineIcon from '@site/src/components/InlineIcon';
-import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import octFileCode16 from '@iconify-icons/octicon/file-code-16';
-import { SourceURL, Splitter } from '@site/src/envs/variables';
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
-<p>
-  <InlineIcon icon={vsiSymbolClass}/> Class
-  <Splitter />
-  <SourceURL url="file.py#L32">
-    <InlineIcon icon={octFileCode16}/> Source
-  </SourceURL>
-</p>
+import APITopBar from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="file.LineFileBuffer" />
 
 ```python
 fbuf = syncstream.file.LineFileBuffer(file_path, maxlen=20, tmp_id='tmp')
@@ -42,15 +35,15 @@ Note that this handle is process-safe, not thread-safe. In other words, each pro
 
 ### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `file_path` | `str` | The basic path of the saved records, including the saved storage and the file locks. The file suffix would be automatically set as `.log`. |
-| `maxlen`   | `int`  | The maximal number of records. Each record would be saved as one file. |
-| `tmp_id`   | `str`  | The identifier for the temporary file. Each process should holds one unique id. A conflict id may cause the written flows from different processes to interrupt each other. |
+|  Argument   | Type  | <center>Description</center>                                                                                                                                                |
+| :---------: | :---: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_path` | `str` | The basic path of the saved records, including the saved storage and the file locks. The file suffix would be automatically set as `.log`.                                  |
+|  `maxlen`   | `int` | The maximal number of records. Each record would be saved as one file.                                                                                                      |
+|  `tmp_id`   | `str` | The identifier for the temporary file. Each process should holds one unique id. A conflict id may cause the written flows from different processes to interrupt each other. |
 
 ## Methods
 
-### `clear` {#clear}
+### `clear`
 
 ```python
 fbuf.clear()
@@ -60,9 +53,9 @@ Clear the whole buffer.
 
 This method would search and remove all log files, including the temporary file. However, the lock files would not be removed. A typical usage of this method is to clear files only in the main process.
 
-----------
+---
 
-### `new_line` {#new_line}
+### `new_line`
 
 ```python
 fbuf.new_line()
@@ -77,9 +70,9 @@ if (last line is not empty):
     write('\n')
 ```
 
-----------
+---
 
-### `flush` {#flush}
+### `flush`
 
 ```python
 fbuf.flush()
@@ -93,9 +86,9 @@ This method does nothing, because the file-based buffer does not need to flush t
 
 :::
 
-----------
+---
 
-### `parse_lines` {#parse_lines}
+### `parse_lines`
 
 ```python
 fbuf.parse_lines(lines)
@@ -113,13 +106,13 @@ fbuf.__update_records(lines)
 
 #### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `lines`    | `[str]`  | A sequence of strs to be written in the log files. Users could catch any line item, and extract any specific information from it. |
+| Argument |  Type   | <center>Description</center>                                                                                                      |
+| :------: | :-----: | :-------------------------------------------------------------------------------------------------------------------------------- |
+| `lines`  | `[str]` | A sequence of strs to be written in the log files. Users could catch any line item, and extract any specific information from it. |
 
-----------
+---
 
-### `read` {#read}
+### `read`
 
 ```python
 lines = fbuf.read(size=None)
@@ -131,19 +124,19 @@ If the current written line is not blank, the `read()` method would regard it as
 
 #### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `size`     | `int`  | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
+| Argument | Type  | <center>Description</center>                                                                           |
+| :------: | :---: | :----------------------------------------------------------------------------------------------------- |
+|  `size`  | `int` | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
 
 #### Returns
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
+| Argument |  Type   | <center>Description</center>                                                    |
+| :------: | :-----: | :------------------------------------------------------------------------------ |
+| `lines`  | `[str]` | The returned messages. The messages have been already split by the line breaks. |
 
-----------
+---
 
-### `write` {#write}
+### `write`
 
 ```python
 n_bytes = fbuf.write(data)
@@ -153,15 +146,15 @@ The writting method of the buffer. The source data is the same as that of a text
 
 #### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `data`     | `str`  | The written messages. The line breaks would be detected automatically. |
+| Argument | Type  | <center>Description</center>                                           |
+| :------: | :---: | :--------------------------------------------------------------------- |
+|  `data`  | `str` | The written messages. The line breaks would be detected automatically. |
 
 #### Returns
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `n_bytes`  | `int`  | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
+| Argument  | Type  | <center>Description</center>                                                                                   |
+| :-------: | :---: | :------------------------------------------------------------------------------------------------------------- |
+| `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
 
 ## Example
 

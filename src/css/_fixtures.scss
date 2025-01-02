@@ -1,0 +1,10 @@
+/**
+ * Fixtures for existing styles.
+ */
+
+.hero code {
+    color: var(--ifm-font-color-base);
+    :root[data-theme="dark"] & {
+        color: var(--ifm-hero-text-color);
+    }
+}

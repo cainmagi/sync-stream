@@ -6,21 +6,14 @@ slug: /apis/mproc/LineBuffer
 description: The basic line-based buffer handle.
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import InlineIcon from '@site/src/components/InlineIcon';
-import vsiSymbolClass from '@iconify-icons/codicon/symbol-class';
-import octFileCode16 from '@iconify-icons/octicon/file-code-16';
-import octLinkExternal16 from '@iconify-icons/octicon/link-external-16';
-import { SourceURL, Splitter } from '@site/src/envs/variables';
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
 
-<p>
-  <InlineIcon icon={vsiSymbolClass}/> Class
-  <Splitter />
-  <SourceURL url="mproc.py#L37">
-    <InlineIcon icon={octFileCode16}/> Source
-  </SourceURL>
-</p>
+import APITopBar from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="mproc.LineBuffer" />
 
 ```python
 tbuf = syncstream.mproc.LineBuffer(maxlen=20)
@@ -35,13 +28,13 @@ This buffer provides a rotating item stroage for the text-based stream. The text
 
 ### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `maxlen`   | `int`  | The maximal number of stored lines. This value has the same meaning of [<InlineIcon icon={octLinkExternal16}/>`deque.maxlen`](https://docs.python.org/3/library/collections.html#collections.deque.maxlen). |
+| Argument | Type  | <center>Description</center>                                                                                                   |
+| :------: | :---: | :----------------------------------------------------------------------------------------------------------------------------- |
+| `maxlen` | `int` | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]. |
 
 ## Methods
 
-### `clear` {#clear}
+### `clear`
 
 ```python
 tbuf.clear()
@@ -51,9 +44,9 @@ Clear the whole buffer.
 
 This method would clear the storage and the last line stream of this buffer. However, it would not clear any mirrors or copies of this object. This method is thread-safe and should always success.
 
-----------
+---
 
-### `new_line` {#new_line}
+### `new_line`
 
 ```python
 tbuf.new_line()
@@ -68,9 +61,9 @@ if tbuf.last_line.tell() > 0:
     write('\n')
 ```
 
-----------
+---
 
-### `flush` {#flush}
+### `flush`
 
 ```python
 tbuf.flush()
@@ -78,9 +71,9 @@ tbuf.flush()
 
 Flush the current written line stream (temporary buffer).
 
-----------
+---
 
-### `parse_lines` {#parse_lines}
+### `parse_lines`
 
 ```python
 tbuf.parse_lines(lines)
@@ -98,13 +91,13 @@ tbuf.storage.extend(lines)
 
 #### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `lines`    | `[str]`  | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
+| Argument |  Type   | <center>Description</center>                                                                                                    |
+| :------: | :-----: | :------------------------------------------------------------------------------------------------------------------------------ |
+| `lines`  | `[str]` | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
 
-----------
+---
 
-### `read` {#read}
+### `read`
 
 ```python
 lines = tbuf.read(size=None)
@@ -116,19 +109,19 @@ If the current written line is not blank, the `read()` method would regard it as
 
 #### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `size`     | `int`  | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
+| Argument | Type  | <center>Description</center>                                                                           |
+| :------: | :---: | :----------------------------------------------------------------------------------------------------- |
+|  `size`  | `int` | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
 
 #### Returns
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `lines`    | `[str]`  | The returned messages. The messages have been already split by the line breaks. |
+| Argument |  Type   | <center>Description</center>                                                    |
+| :------: | :-----: | :------------------------------------------------------------------------------ |
+| `lines`  | `[str]` | The returned messages. The messages have been already split by the line breaks. |
 
-----------
+---
 
-### `write` {#write}
+### `write`
 
 ```python
 n_bytes = tbuf.write(data)
@@ -138,15 +131,15 @@ The writting method of the buffer. The source `data` is the same as that of a te
 
 #### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `data`     | `str`  | The written messages. The line breaks would be detected automatically. |
+| Argument | Type  | <center>Description</center>                                           |
+| :------: | :---: | :--------------------------------------------------------------------- |
+|  `data`  | `str` | The written messages. The line breaks would be detected automatically. |
 
 #### Returns
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `n_bytes`  | `int`  | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
+| Argument  | Type  | <center>Description</center>                                                                                   |
+| :-------: | :---: | :------------------------------------------------------------------------------------------------------------- |
+| `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
 
 ## Example
 
@@ -183,3 +176,5 @@ print(tbuf.read())
 
 </TabItem>
 </Tabs>
+
+[link-deque-maxlen]: https://docs.python.org/3/library/collections.html#collections.deque.maxlen

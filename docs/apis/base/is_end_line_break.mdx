@@ -6,26 +6,14 @@ slug: /apis/base/is_end_line_break
 description: Check whether the str ends with a line break.
 ---
 
-import Link from '@docusaurus/Link';
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import InlineIcon from '@site/src/components/InlineIcon';
-import mdiFunctionVariant from '@iconify-icons/mdi/function-variant';
-import mdiLockOutline from '@iconify-icons/mdi/lock-outline';
-import octFileCode16 from '@iconify-icons/octicon/file-code-16';
-import octLinkExternal16 from '@iconify-icons/octicon/link-external-16';
+import Link from "@docusaurus/Link";
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
 
-import { SourceURL, Splitter } from '@site/src/envs/variables';
+import APITopBar from "@site/src/components/APITopBar";
+import IconLink from "@site/src/components/IconLink";
 
-<p>
-  <InlineIcon icon={mdiFunctionVariant}/> Function
-  <Splitter />
-  <InlineIcon icon={mdiLockOutline}/> Private
-  <Splitter />
-  <SourceURL url="base.py#L25">
-    <InlineIcon icon={octFileCode16}/> Source
-  </SourceURL>
-</p>
+<APITopBar type="func" isPrivate={true} source="base.is_end_line_break" />
 
 ```python
 flag = syncstream.base.is_end_line_break(val_str)
@@ -35,9 +23,7 @@ A function used for checking whether the str ends with a line break.
 
 The checking is implemented by
 
-<p><Link to="https://docs.python.org/3/library/stdtypes.html#str.splitlines">
-  <InlineIcon icon={octLinkExternal16}/> https://docs.python.org/3/library/stdtypes.html#str.splitlines
-</Link></p>
+<IconLink href="https://docs.python.org/3/library/stdtypes.html#str.splitlines" />
 
 We use this function to fix the missing final line break problem of `str.splitlines`.
 
@@ -45,15 +31,15 @@ We use this function to fix the missing final line break problem of `str.splitli
 
 ### Requires
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `val_str`  | `str`  | The string that needs to be validated. |
+| Argument  | Type  | <center>Description</center>           |
+| :-------: | :---: | :------------------------------------- |
+| `val_str` | `str` | The string that needs to be validated. |
 
 ### Returns
 
-|  Argument  |  Type  |  <center>Description</center>  |
-| :--------: | :----: | :----------------------------- |
-| `flag`     | `bool` | If `True`, the validated string ends with a line break. |
+| Argument |  Type  | <center>Description</center>                            |
+| :------: | :----: | :------------------------------------------------------ |
+|  `flag`  | `bool` | If `True`, the validated string ends with a line break. |
 
 ## Example
 

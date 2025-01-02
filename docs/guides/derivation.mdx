@@ -93,4 +93,4 @@ if __name__ == '__main__':
         print(mitem)
 ```
 
-In this example, we override the `parse_lines` method of `syncstream.LineProcBuffer`. It is still important to run the `pbuf.wait` in the background. Because the buffer would not bu updated unless `pbuf.wait` or `pbuf.receive` is called. We move this check to a daemon thread. Then we check the progress repeatly until we get 100%. The results does not contain any messages like `>>> Progress ...`, beause such messages have been already catched for updating the progress value.
+In this example, we override the `parse_lines` method of [`syncstream.LineProcBuffer`](../apis/mproc/LineProcBuffer.mdx). It is still important to run the `pbuf.wait` in the background. Because the buffer would not bu updated unless `pbuf.wait` or `pbuf.receive` is called. We move this check to a daemon thread. Then we check the progress repeatly until we get 100%. The results does not contain any messages like `>>> Progress ...`, beause such messages have been already catched for updating the progress value.

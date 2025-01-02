@@ -6,7 +6,7 @@ slug: /daemon-buffer
 description: An advanced tutorial about the early stop of the mirrors.
 ---
 
-We need to use the mirrors when using `LineProcBuffer` and `LineHostBuffer`. In the previous article, we have explained how to use the derived class of `LineProcBuffer` to catch the progress. In that example, we need to move the `pbuf.wait` method to the background like this:
+We need to use the mirrors when using [`LineProcBuffer`](../apis/mproc/LineProcBuffer.mdx) and [`LineHostBuffer`](../apis/host/LineHostBuffer.mdx). In the previous article, we have explained how to use the derived class of `LineProcBuffer` to catch the progress. In that example, we need to move the `pbuf.wait` method to the background like this:
 
 ```python
 ...
