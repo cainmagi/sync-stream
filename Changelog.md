@@ -21,5 +21,6 @@
 6. Make the API source file links centralized.
 7. Reformat the whole project by `prettier`.
 8. Adjust the global stylesheets to improve the details of elements.
+9. Remove an unused page `/markdown-page`.
 
 The older commit histories are not recorded in this file.
