@@ -10,7 +10,7 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import IconExternalLink from "@theme/Icon/ExternalLink";
 
-import APITopBar from "@site/src/components/APITopBar";
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" isPrivate={true} source="mproc.LineProcMirror" />
@@ -25,7 +25,7 @@ The mirror for the process-safe line-based buffer.
 
 :::danger
 
-This mirror is initialized by [`LineProcBuffer`](./LineProcBuffer.mdx), and would be used for managing the lines written to the buffer. Users do not need, and should not use this class to initialize objects. Please always use [`pbuf.mirror`](./LineProcBuffer.mdx#mirror) to get the mirror object.
+This mirror is initialized by [`LineProcBuffer`](./LineProcBuffer.mdx), and would be used for managing the lines written to the buffer. Users do not need, and should not use this class to initialize objects. Please always use [`pbuf.mirror`](./LineProcBuffer.mdx#-mirror) to get the mirror object.
 
 :::
 
@@ -44,7 +44,7 @@ This mirror is initialized by [`LineProcBuffer`](./LineProcBuffer.mdx), and woul
 
 ## Methods
 
-### `clear`
+### <IconObjType type="method"/> `clear`
 
 ```python
 buffer.clear()
@@ -59,7 +59,7 @@ This method is thread-safe. Mirrors in different processes would not share the t
 
 ---
 
-### `new_line`
+### <IconObjType type="method"/> `new_line`
 
 ```python
 buffer.new_line()
@@ -76,7 +76,7 @@ if buffer.last_line.tell() > 0:
 
 ---
 
-### `flush`
+### <IconObjType type="method"/> `flush`
 
 ```python
 buffer.flush()
@@ -86,7 +86,7 @@ Flush the current written line stream (temporary buffer).
 
 ---
 
-### `send_eof`
+### <IconObjType type="method"/> `send_eof`
 
 ```python
 buffer.send_eof()
@@ -105,7 +105,7 @@ The signal should be used at the end of the sub-process. This method is used for
 
 ---
 
-### `send_error`
+### <IconObjType type="method"/> `send_error`
 
 ```python
 buffer.send_error(error)
@@ -117,7 +117,7 @@ Send the catched error object. This method should always be used in the try / ex
 
 :::danger
 
-See [`send_eof()`](#send_eof)
+See [`send_eof()`](#-send_eof)
 
 :::
 
@@ -129,7 +129,7 @@ See [`send_eof()`](#send_eof)
 
 ---
 
-### `send_warning`
+### <IconObjType type="method"/> `send_warning`
 
 ```python
 buffer.send_warning(warning)
@@ -153,7 +153,7 @@ This method could only catch the warning object defined by the stdlib. Some diff
 
 ---
 
-### `send_data`
+### <IconObjType type="method"/> `send_data`
 
 ```python
 buffer.send_data(data)
@@ -177,7 +177,7 @@ This method is used by other methods implicitly, and should not be used by users
 
 ---
 
-### `read`
+### <IconObjType type="method"/> `read`
 
 ```python
 line = buffer.read()
@@ -193,7 +193,7 @@ This method would only read the current bufferred values in the mirror storage. 
 
 ---
 
-### `write`
+### <IconObjType type="method"/> `write`
 
 ```python
 n_bytes = buffer.write(data)
@@ -215,7 +215,7 @@ The writting method of the buffer. The source `data` is the same as that of a te
 
 ## Properties
 
-### `aggressive`
+### <IconObjType type="param"/> `aggressive`
 
 ```python
 buffer.aggressive
@@ -229,7 +229,7 @@ In current implementation, this value is always configured as `False`.
 
 ---
 
-### `timeout`
+### <IconObjType type="param"/> `timeout`
 
 ```python
 buffer.timeout

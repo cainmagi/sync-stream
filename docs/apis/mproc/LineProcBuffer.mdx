@@ -10,7 +10,7 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import IconExternalLink from "@theme/Icon/ExternalLink";
 
-import APITopBar from "@site/src/components/APITopBar";
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" source="mproc.LineProcBuffer" />
@@ -34,7 +34,7 @@ The rotating buffer with a maximal storage length. This buffer is the extended v
 
 ## Methods
 
-### `clear`
+### <IconObjType type="method"/> `clear`
 
 ```python
 pbuf.clear()
@@ -46,7 +46,7 @@ This method would clear the storage and the last line stream of this buffer. How
 
 ---
 
-### `stop_all_mirrors`
+### <IconObjType type="method"/> `stop_all_mirrors`
 
 ```python
 pbuf.stop_all_mirrors()
@@ -64,7 +64,7 @@ Since this method does not send `TERMINATE` or `KILL` signals, it does not guara
 
 ---
 
-### `reset_states`
+### <IconObjType type="method"/> `reset_states`
 
 ```python
 pbuf.stop_all_mirrors()
@@ -76,7 +76,7 @@ During the interaction with the mirrors, the states of the buffer may change. If
 
 ---
 
-### `receive`
+### <IconObjType type="method"/> `receive`
 
 ```python
 is_live = pbuf.receive()
@@ -94,7 +94,7 @@ This method would fetch one item from the process-safe queue, and write the resu
 
 ---
 
-### `wait`
+### <IconObjType type="method"/> `wait`
 
 ```python
 pbuf.wait()
@@ -111,7 +111,7 @@ The method would make the current thread keeping blocked until the buffer receiv
 
 ---
 
-### `parse_lines`
+### <IconObjType type="method"/> `parse_lines`
 
 ```python
 pbuf.parse_lines(lines)
@@ -135,7 +135,7 @@ pbuf.storage.extend(lines)
 
 ---
 
-### `read`
+### <IconObjType type="method"/> `read`
 
 ```python
 lines = pbuf.read(size=None)
@@ -159,7 +159,7 @@ If the current written line is not blank, the `read()` method would regard it as
 
 ---
 
-### `write`
+### <IconObjType type="method"/> `write`
 
 :::caution
 
@@ -169,7 +169,7 @@ This method is prohibited for this class. Because the `write()` method should be
 
 ## Properties
 
-### `mirror`
+### <IconObjType type="param"/> `mirror`
 
 ```python
 pbuf.mirror
@@ -183,7 +183,7 @@ This property could not be modified after the initialization.
 
 ---
 
-### `n_mirrors`
+### <IconObjType type="param"/> `n_mirrors`
 
 ```python
 pbuf.n_mirrors
@@ -192,6 +192,8 @@ pbuf.n_mirrors
 Current living mirrors. The buffer should still need to receive message until `n_mirrors` becomes 0. Each time `pbuf.mirror` is invoked, this value would be increased by 1.
 
 ## Example
+
+### <IconObjType type="term"/> Synchronize messages among processes
 
 <Tabs
   defaultValue="codes"

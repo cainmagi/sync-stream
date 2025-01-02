@@ -10,7 +10,7 @@ import Link from "@docusaurus/Link";
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-import APITopBar from "@site/src/components/APITopBar";
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import IconLink from "@site/src/components/IconLink";
 
 <APITopBar type="func" isPrivate={true} source="base.is_end_line_break" />
@@ -42,6 +42,8 @@ We use this function to fix the missing final line break problem of `str.splitli
 |  `flag`  | `bool` | If `True`, the validated string ends with a line break. |
 
 ## Example
+
+### <IconObjType type="term"/> Check the line break
 
 <Tabs
   defaultValue="codes"

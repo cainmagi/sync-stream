@@ -22,6 +22,7 @@ import {iconoirComponentSolid} from "../icons/IconoirComponentSolid";
 import {riQuillPenAiFill} from "../icons/RiQuillPenAiFill";
 import {clarityObjectsLine} from "../icons/ClarityObjectsLine";
 import {ixError} from "../icons/IxError";
+import {materialSymbolsApiRounded} from "../icons/MaterialSymbolsApiRounded";
 
 import InlineIcon from "../InlineIcon";
 import {SourceLink, Splitter} from "@site/src/envs/variables";
@@ -47,6 +48,7 @@ export type IconObjTypeProps = {
     | "term"
     | "private"
     | "public"
+    | "service"
     | "src";
   vspace?: number;
   hasText?: boolean;
@@ -452,6 +454,27 @@ export const IconObjType = ({
                     description:
                       "The text displayed for the APITopBar icon: Public.",
                     message: "Public",
+                  },
+                  {}
+                )
+              : undefined
+          }
+        />
+      );
+    case "service":
+      return (
+        <InlineIcon
+          icon={materialSymbolsApiRounded}
+          vspace={vspace}
+          text={
+            hasText
+              ? text ||
+                translate(
+                  {
+                    id: "components.apitopbar.icon.service",
+                    description:
+                      "The text displayed for the APITopBar icon: Service.",
+                    message: "Service",
                   },
                   {}
                 )

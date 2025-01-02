@@ -9,7 +9,7 @@ description: The file-driven line-based buffer handle.
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-import APITopBar from "@site/src/components/APITopBar";
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" source="file.LineFileBuffer" />
@@ -43,7 +43,7 @@ Note that this handle is process-safe, not thread-safe. In other words, each pro
 
 ## Methods
 
-### `clear`
+### <IconObjType type="method"/> `clear`
 
 ```python
 fbuf.clear()
@@ -55,7 +55,7 @@ This method would search and remove all log files, including the temporary file.
 
 ---
 
-### `new_line`
+### <IconObjType type="method"/> `new_line`
 
 ```python
 fbuf.new_line()
@@ -72,7 +72,7 @@ if (last line is not empty):
 
 ---
 
-### `flush`
+### <IconObjType type="method"/> `flush`
 
 ```python
 fbuf.flush()
@@ -88,7 +88,7 @@ This method does nothing, because the file-based buffer does not need to flush t
 
 ---
 
-### `parse_lines`
+### <IconObjType type="method"/> `parse_lines`
 
 ```python
 fbuf.parse_lines(lines)
@@ -112,7 +112,7 @@ fbuf.__update_records(lines)
 
 ---
 
-### `read`
+### <IconObjType type="method"/> `read`
 
 ```python
 lines = fbuf.read(size=None)
@@ -136,7 +136,7 @@ If the current written line is not blank, the `read()` method would regard it as
 
 ---
 
-### `write`
+### <IconObjType type="method"/> `write`
 
 ```python
 n_bytes = fbuf.write(data)
@@ -157,6 +157,8 @@ The writting method of the buffer. The source data is the same as that of a text
 | `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
 
 ## Example
+
+### <IconObjType type="term"/> Synchronize messages by shared log files
 
 <Tabs
   defaultValue="codes"

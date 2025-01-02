@@ -9,7 +9,7 @@ description: A group of messages.
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-import APITopBar from "@site/src/components/APITopBar";
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" isPrivate={true} source="base.GroupedMessage" />
@@ -34,7 +34,7 @@ This class would be used by [`mproc.LineProcMirror`](../mproc/LineProcMirror.mdx
 
 ## Methods
 
-### `serialize`
+### <IconObjType type="method"/> `serialize`
 
 ```python
 jdata = gpm.serialize()
@@ -46,11 +46,11 @@ Serialize this message item into a JSON compatible dict.
 
 | Argument |  Type  | <center>Description</center>                                                                                                               |
 | :------: | :----: | :----------------------------------------------------------------------------------------------------------------------------------------- |
-| `jdata`  | `dict` | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#deserialize) method. |
+| `jdata`  | `dict` | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#-deserialize) method. |
 
 ---
 
-### `deserialize`
+### <IconObjType type="method"/> `deserialize`
 
 ```python
 gpm = GroupedMessage.deserialize(jdata)
@@ -69,6 +69,8 @@ gpm = GroupedMessage.deserialize(jdata)
 |  `gpm`   | `GroupedMessage` | The deserialized object. This object could be converted to formatted strings by `str(gpm)`. |
 
 ## Example
+
+### <IconObjType type="term"/> Catch the error traceback as gruped messages
 
 <Tabs
   defaultValue="codes"

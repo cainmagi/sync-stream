@@ -10,7 +10,7 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import IconExternalLink from "@theme/Icon/ExternalLink";
 
-import APITopBar from "@site/src/components/APITopBar";
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" source="host.LineHostBuffer" />
@@ -36,7 +36,7 @@ The rotating buffer with a maximal storage length. This buffer is the extended v
 
 ## Methods
 
-### `serve`
+### <IconObjType type="method"/> `serve`
 
 ```python
 hbuf.serve(api)
@@ -54,19 +54,19 @@ Load the services to the flask app.
 
 Register the Flask app with this instance, the following services would be provided, where the **`bold`** arguments are required arguments.
 
-### `<api_route>`
+### <IconObjType type="service"/> `<api_route>`
 
 The basic APIs. They are used for maintaining the storage of the message items.
 
 | Method | <center>Requires</center>                                                                                                                                                                            | <center>Response</center>                                                                                                                              | <center>Description</center>                                                                                                                                                              |
 | :----: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|  GET   | <ul><li>`n`: The number of messages that is required. If not set, would return the whole storage.</li></ul>                                                                                          | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: A list of returned messages.</li></ul> | Get the message items. Similar to [`LineBuffer.read()`](../mproc/LineBuffer.mdx#read).                                                                                                    |
+|  GET   | <ul><li>`n`: The number of messages that is required. If not set, would return the whole storage.</li></ul>                                                                                          | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: A list of returned messages.</li></ul> | Get the message items. Similar to [`LineBuffer.read()`](../mproc/LineBuffer.mdx#-read).                                                                                                    |
 |  POST  | <ul><li>**`type`**: The type of the message. Could be `str`, `error`, `warning`, or `close`.</li><li>`data`: A `dict` of message data from [`LineHostMirror`](../host/LineHostMirror.mdx).</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                              | Write the remote data into the storage. This method should not be used by users directly, because it is provided for the interaction with [`LineHostMirror`](../host/LineHostMirror.mdx). |
 | DELETE | <center>-</center>                                                                                                                                                                                   | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                              | Clear the storage, but the status of the buffer is not reset by this method.                                                                                                              |
 
 ---
 
-### `<api_route>-state`
+### <IconObjType type="service"/> `<api_route>-state`
 
 The APIs used for maintaining the buffer status.
 
@@ -76,9 +76,11 @@ The APIs used for maintaining the buffer status.
 |  POST  | <ul><li>**`state`**: The name of the state to be read.</li><li>`value`: The value used for changing the state.</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Modify a specific state value.         |
 | DELETE | <center>-</center>                                                                                                       | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Reset the state to the default values. |
 
-The states are shared by different clients. Each time the clients interact with the host, they would use `GET` method to renew their states. Some states could be used for controlling the behaviors of the clients. For example, `POST` with `state=closed`, `value=true` serves the same funcionality of invoking [`LineProcBuffer.stop_all_mirrors()`](../mproc/LineProcBuffer.mdx#stop_all_mirrors).
+The states are shared by different clients. Each time the clients interact with the host, they would use `GET` method to renew their states. Some states could be used for controlling the behaviors of the clients. For example, `POST` with `state=closed`, `value=true` serves the same funcionality of invoking [`LineProcBuffer.stop_all_mirrors()`](../mproc/LineProcBuffer.mdx#-stop_all_mirrors).
 
 ## Example
+
+### <IconObjType type="term"/> Synchronize messages by web services
 
 <Tabs
   defaultValue="codes"

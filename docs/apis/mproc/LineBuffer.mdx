@@ -10,7 +10,7 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import IconExternalLink from "@theme/Icon/ExternalLink";
 
-import APITopBar from "@site/src/components/APITopBar";
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" source="mproc.LineBuffer" />
@@ -34,7 +34,7 @@ This buffer provides a rotating item stroage for the text-based stream. The text
 
 ## Methods
 
-### `clear`
+### <IconObjType type="method"/> `clear`
 
 ```python
 tbuf.clear()
@@ -46,7 +46,7 @@ This method would clear the storage and the last line stream of this buffer. How
 
 ---
 
-### `new_line`
+### <IconObjType type="method"/> `new_line`
 
 ```python
 tbuf.new_line()
@@ -63,7 +63,7 @@ if tbuf.last_line.tell() > 0:
 
 ---
 
-### `flush`
+### <IconObjType type="method"/> `flush`
 
 ```python
 tbuf.flush()
@@ -73,7 +73,7 @@ Flush the current written line stream (temporary buffer).
 
 ---
 
-### `parse_lines`
+### <IconObjType type="method"/> `parse_lines`
 
 ```python
 tbuf.parse_lines(lines)
@@ -97,7 +97,7 @@ tbuf.storage.extend(lines)
 
 ---
 
-### `read`
+### <IconObjType type="method"/> `read`
 
 ```python
 lines = tbuf.read(size=None)
@@ -121,7 +121,7 @@ If the current written line is not blank, the `read()` method would regard it as
 
 ---
 
-### `write`
+### <IconObjType type="method"/> `write`
 
 ```python
 n_bytes = tbuf.write(data)
@@ -142,6 +142,8 @@ The writting method of the buffer. The source `data` is the same as that of a te
 | `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
 
 ## Example
+
+### <IconObjType type="term"/> Synchronize messages among threads
 
 <Tabs
   defaultValue="codes"

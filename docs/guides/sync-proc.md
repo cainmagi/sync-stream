@@ -61,11 +61,11 @@ The method
 pbuf.wait()
 ```
 
-is used for waiting the closing signal from each mirror. The method [`buffer.send_error`](../apis/mproc/LineProcMirror.mdx#send_error) or [`buffer.send_eof`](../apis/mproc/LineProcMirror.mdx#send_eof) would trigger a closing singal. In the above example, the `pbuf` needs to wait for 4 closing signal from the sub-processes.
+is used for waiting the closing signal from each mirror. The method [`buffer.send_error`](../apis/mproc/LineProcMirror.mdx#-send_error) or [`buffer.send_eof`](../apis/mproc/LineProcMirror.mdx#-send_eof) would trigger a closing singal. In the above example, the `pbuf` needs to wait for 4 closing signal from the sub-processes.
 
 :::danger
 
-The mirror should not be copied in any case, because each time the property [`pbuf.mirror`](../apis/mproc/LineProcBuffer.mdx#mirror) is accessed, the counter of the sub-process in `pbuf` would increase by 1. Therefore, it is not allowed to replace `tuple(pbuf.mirror for _ in range(4))` by `(pbuf.mirror, ) * 4`.
+The mirror should not be copied in any case, because each time the property [`pbuf.mirror`](../apis/mproc/LineProcBuffer.mdx#-mirror) is accessed, the counter of the sub-process in `pbuf` would increase by 1. Therefore, it is not allowed to replace `tuple(pbuf.mirror for _ in range(4))` by `(pbuf.mirror, ) * 4`.
 
 :::
 
