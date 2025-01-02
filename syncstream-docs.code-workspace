@@ -1,21 +1,88 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"jshint.options": {
-			"esversion":6
-		},
-		"eslint.options": {
-			"env":{
-				"es6":true
-			},
-			"parserOptions": {
-				"ecmaVersion": 6 // or 7,8,9
-			}
-		},
-		"cSpell.enabled": false
-	},
+  "folders": [
+    {
+      "path": ".",
+      "name": "Docs"
+    },
+    {
+      "path": "..",
+      "name": "Sources"
+    }
+  ],
+  "settings": {
+    "git.autofetch": true,
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "editor.tabSize": 4
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[scss]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[mdx]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "standard",
+    "prettier.tabWidth": 2,
+    "editor.tabSize": 4,
+    "npm.packageManager": "yarn",
+    "search.exclude": {
+      "**/.yarn": true,
+      "**/.pnp.*": true,
+      ".git": true,
+      "node_modules": true,
+      "bower_components": true,
+      "versioned_docs": true,
+      "i18n/zh-cn/docusaurus-plugin-content-docs/version-*": true
+    },
+    "typescript.tsdk": "Docs/.yarn/sdks/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true
+  },
+  "extensions": {
+    "recommendations": [
+      "arcanis.vscode-zipfs",
+      "codezombiech.gitignore",
+      "dutchigor.json-viewer",
+      "ecmel.vscode-html-css",
+      "mhutchie.git-graph",
+      "tamasfe.even-better-toml",
+      "yzhang.markdown-all-in-one",
+      "zainchen.json",
+      "mohsen1.prettify-json",
+      "syler.sass-indented",
+      "sibiraj-s.vscode-scss-formatter",
+      "redhat.vscode-yaml",
+      "unifiedjs.vscode-mdx"
+    ]
+  }
 }

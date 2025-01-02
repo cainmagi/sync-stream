@@ -8,6 +8,18 @@
 .docusaurus
 .cache-loader
 
+# Marked by the dev
+/alpha*
+/temp*
+
+# vscode config folder created by Yarn
+/.vscode
+
+# Created by Yarn
+/.yarn
+/.pnp.cjs
+/.pnp.loader.mjs
+
 # Misc
 .DS_Store
 .env.local
