@@ -11,6 +11,7 @@
 1. Add description pages for categories and API modules.
 2. Add icons to the API document sub-titiles.
 3. Add the social card.
+4. Add documents of the private module `webtools`.
 
 #### :floppy_disk: Change
 

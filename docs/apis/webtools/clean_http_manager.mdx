@@ -1,0 +1,26 @@
+---
+id: clean_http_manager
+title: clean_http_manager
+sidebar_label: clean_http_manager
+slug: /apis/webtools/clean_http_manager
+description: A callback for cleaning the http requests.
+---
+
+import APITopBar from "@site/src/components/APITopBar";
+
+<APITopBar type="func" isPrivate={true} source="webtools.clean_http_manager" />
+
+```python
+syncstream.webtools.clean_http_manager(http: urllib3.PoolManager)
+```
+
+A callback for the finializer, this function would be used for cleaning the http
+requests, if the connection does not need to exist.
+
+## Arguments
+
+### Requires
+
+| Argument |         Type          | <center>Description</center>       |
+| :------: | :-------------------: | :--------------------------------- |
+|  `http`  | `urllib3.PoolManager` | The connection ppol to be cleared. |

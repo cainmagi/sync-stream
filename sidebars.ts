@@ -95,6 +95,22 @@ const sidebars: SidebarsConfig = {
       },
       items: ["apis/host/LineHostMirror", "apis/host/LineHostBuffer"],
     },
+    {
+      type: "category",
+      label: "webtools",
+      collapsed: true,
+      link: {
+        type: "doc",
+        id: "apis/webtools/index",
+      },
+      items: [
+        "apis/webtools/StdoutWrapper",
+        "apis/webtools/SafePoolManager",
+        "apis/webtools/SafeRequest",
+        "apis/webtools/clean_http_manager",
+        "apis/webtools/close_request_session",
+      ],
+    },
   ],
 };
 
