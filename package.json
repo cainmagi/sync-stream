@@ -15,10 +15,10 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@docusaurus/core": "3.6.3",
-    "@docusaurus/plugin-content-docs": "^3.6.3",
-    "@docusaurus/preset-classic": "3.6.3",
-    "@docusaurus/theme-common": "^3.6.3",
+    "@docusaurus/core": "3.7.0",
+    "@docusaurus/plugin-content-docs": "^3.7.0",
+    "@docusaurus/preset-classic": "3.7.0",
+    "@docusaurus/theme-common": "^3.7.0",
     "@iconify-icons/codicon": "^1.2.30",
     "@iconify-icons/mdi": "^1.2.48",
     "@iconify-icons/octicon": "^1.2.46",
@@ -34,9 +34,9 @@
     "sass-loader": "^13.2.1"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.6.3",
-    "@docusaurus/tsconfig": "3.6.3",
-    "@docusaurus/types": "3.6.3",
+    "@docusaurus/module-type-aliases": "3.7.0",
+    "@docusaurus/tsconfig": "3.7.0",
+    "@docusaurus/types": "3.7.0",
     "@types/node": "^22.7.5",
     "@types/prop-types": "^15",
     "@types/react": "^18.0.0",
