@@ -15,7 +15,9 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" isPrivate={true} source="base.GroupedMessage" />
 
 ```python
-gpm = syncstream.base.GroupedMessage(data=None)
+gpm = syncstream.base.GroupedMessage(
+    data: Sequence[str] | Warning | Exception | None = None,
+)
 ```
 
 A group of messages.
@@ -28,24 +30,24 @@ This class would be used by [`mproc.LineProcMirror`](../mproc/LineProcMirror.mdx
 
 ### Requires
 
-| Argument |                 Type                 | <center>Description</center>                                                                                                              |
-| :------: | :----------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
-|  `data`  | `[str]`, or `Warning` or `Exception` | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
+| Argument |                     Type                     | <center>Description</center>                                                                                                              |
+| :------: | :------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
+|  `data`  | `Sequence[str]`, or `Warning` or `Exception` | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
 
 ## Methods
 
 ### <IconObjType type="method"/> `serialize`
 
 ```python
-jdata = gpm.serialize()
+jdata: dict[str, Any] = gpm.serialize()
 ```
 
 Serialize this message item into a JSON compatible dict.
 
 #### Returns
 
-| Argument |  Type  | <center>Description</center>                                                                                                               |
-| :------: | :----: | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| Argument |  Type  | <center>Description</center>                                                                                                                |
+| :------: | :----: | :------------------------------------------------------------------------------------------------------------------------------------------ |
 | `jdata`  | `dict` | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#-deserialize) method. |
 
 ---
@@ -53,7 +55,7 @@ Serialize this message item into a JSON compatible dict.
 ### <IconObjType type="method"/> `deserialize`
 
 ```python
-gpm = GroupedMessage.deserialize(jdata)
+gpm: GroupedMessage = GroupedMessage.deserialize(jdata: dict[str, Any])
 ```
 
 #### Requires

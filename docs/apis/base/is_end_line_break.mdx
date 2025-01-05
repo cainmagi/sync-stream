@@ -6,7 +6,6 @@ slug: /apis/base/is_end_line_break
 description: Check whether the str ends with a line break.
 ---
 
-import Link from "@docusaurus/Link";
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
@@ -16,7 +15,7 @@ import IconLink from "@site/src/components/IconLink";
 <APITopBar type="func" isPrivate={true} source="base.is_end_line_break" />
 
 ```python
-flag = syncstream.base.is_end_line_break(val_str)
+flag: bool = syncstream.base.is_end_line_break(val_str: str)
 ```
 
 A function used for checking whether the str ends with a line break.

@@ -15,8 +15,11 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="file.LineFileBuffer" />
 
 ```python
-fbuf = syncstream.file.LineFileBuffer(file_path, maxlen=20, tmp_id='tmp')
-fbuf = syncstream.LineFileBuffer(...)  # Alias
+fbuf = syncstream.file.LineFileBuffer(
+    file_path: str,
+    maxlen: int = 20,
+    tmp_id: str = "tmp",
+)
 ```
 
 The file-driven line-based buffer handle.
@@ -30,6 +33,18 @@ The file-locked handle could be shared by different processes, but we do not rec
 Note that this handle is process-safe, not thread-safe. In other words, each process should only maintain one **INDEPENDENT** `LineFileBuffer`. The `LineFileBuffer` should not be shared by either different threads or different processes.
 
 :::
+
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.LineFileBuffer
+syncstream.file.LineFileBuffer
+```
 
 ## Arguments
 
@@ -91,7 +106,7 @@ This method does nothing, because the file-based buffer does not need to flush t
 ### <IconObjType type="method"/> `parse_lines`
 
 ```python
-fbuf.parse_lines(lines)
+fbuf.parse_lines(lines: Sequence[str])
 ```
 
 Parse the lines.
@@ -106,16 +121,16 @@ fbuf.__update_records(lines)
 
 #### Requires
 
-| Argument |  Type   | <center>Description</center>                                                                                                      |
-| :------: | :-----: | :-------------------------------------------------------------------------------------------------------------------------------- |
-| `lines`  | `[str]` | A sequence of strs to be written in the log files. Users could catch any line item, and extract any specific information from it. |
+| Argument |      Type       | <center>Description</center>                                                                                                      |
+| :------: | :-------------: | :-------------------------------------------------------------------------------------------------------------------------------- |
+| `lines`  | `Sequence[str]` | A sequence of strs to be written in the log files. Users could catch any line item, and extract any specific information from it. |
 
 ---
 
 ### <IconObjType type="method"/> `read`
 
 ```python
-lines = fbuf.read(size=None)
+lines: Sequence[str] = fbuf.read(size: int | None = None)
 ```
 
 Fetch the stored record items from the buffer. Using the `read()` method is process-safe and would not influence the cursor of `write()` method.
@@ -124,22 +139,22 @@ If the current written line is not blank, the `read()` method would regard it as
 
 #### Requires
 
-| Argument | Type  | <center>Description</center>                                                                           |
-| :------: | :---: | :----------------------------------------------------------------------------------------------------- |
-|  `size`  | `int` | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
+| Argument |     Type      | <center>Description</center>                                                                           |
+| :------: | :-----------: | :----------------------------------------------------------------------------------------------------- |
+|  `size`  | `int \| None` | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
 
 #### Returns
 
-| Argument |  Type   | <center>Description</center>                                                    |
-| :------: | :-----: | :------------------------------------------------------------------------------ |
-| `lines`  | `[str]` | The returned messages. The messages have been already split by the line breaks. |
+| Argument |      Type       | <center>Description</center>                                                    |
+| :------: | :-------------: | :------------------------------------------------------------------------------ |
+| `lines`  | `Sequence[str]` | The returned messages. The messages have been already split by the line breaks. |
 
 ---
 
 ### <IconObjType type="method"/> `write`
 
 ```python
-n_bytes = fbuf.write(data)
+n_bytes: int = fbuf.write(data: str)
 ```
 
 The writting method of the buffer. The source data is the same as that of a text-based IO. Each time when `data` contains a line break, a new record item would be pushed in the storage. The `write()` method is process-safe.

@@ -16,23 +16,38 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="host.LineHostMirror" />
 
 ```python
-buffer = syncstream.host.LineHostMirror(address, aggressive=False, timeout=None)
-buffer = syncstream.LineHostMirror(...)  # Alias
+buffer = syncstream.host.LineHostMirror(
+    address: str,
+    aggressive: bool = False,
+    timeout: int | None = None,
+)
 ```
 
 The mirror for the host-safe line-based buffer.
 
 This mirror is the client of the services from [`LineHostBuffer`](./LineHostBuffer.mdx). It should be initialized independently, and would be used for managing the lines written to the buffer. Different from [`LineProcMirror`](../mproc/LineProcMirror.mdx), the independent mirror does not require shared queue.
 
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.LineHostMirror
+syncstream.host.LineHostMirror
+```
+
 ## Arguments
 
 ### Requires
 
-|   Argument   |  Type  | <center>Description</center>                                                                                                                                                                                                         |
-| :----------: | :----: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|  `address`   | `str`  | The full url, including the API name of the [`LineHostBuffer`](./LineHostBuffer.mdx) services.                                                                                                                                       |
-| `aggressive` | `bool` | If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written. |
-|  `timeout`   | `int`  | The timeout of the web syncholizing events. If not set, the synchronization would block the current process.                                                                                                                         |
+|   Argument   |     Type      | <center>Description</center>                                                                                                                                                                                                         |
+| :----------: | :-----------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  `address`   |     `str`     | The full url, including the API name of the [`LineHostBuffer`](./LineHostBuffer.mdx) services.                                                                                                                                       |
+| `aggressive` |    `bool`     | If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written. |
+|  `timeout`   | `int \| None` | The timeout of the web syncholizing events. If not set, the synchronization would block the current process.                                                                                                                         |
 
 ## Methods
 
@@ -99,7 +114,7 @@ The signal should be used at the end of the sub-process. This method is used for
 ### <IconObjType type="method"/> `send_error`
 
 ```python
-buffer.send_error(error)
+buffer.send_error(error: Exception)
 ```
 
 Send the exception object to the main buffer.
@@ -123,7 +138,7 @@ See [`send_eof()`](#-send_eof)
 ### <IconObjType type="method"/> `send_warning`
 
 ```python
-buffer.send_warning(warning)
+buffer.send_warning(warning: Warning)
 ```
 
 Send the standard warning object to the main buffer.
@@ -147,7 +162,7 @@ This method could only catch the warning object defined by the stdlib. Some diff
 ### <IconObjType type="method"/> `send_data`
 
 ```python
-buffer.send_data(data)
+buffer.send_data(data: str)
 ```
 
 Send the data to the main buffer.
@@ -181,7 +196,7 @@ This method is used by other methods implicitly, and should not be used by users
 ### <IconObjType type="method"/> `read`
 
 ```python
-line = buffer.read()
+line: str = buffer.read()
 ```
 
 This method would only read the current bufferred values in the mirror storage. If the property `aggressive` is `True`, the `read()` method would always return empty value.
@@ -197,7 +212,7 @@ This method would only read the current bufferred values in the mirror storage. 
 ### <IconObjType type="method"/> `write`
 
 ```python
-n_bytes = buffer.write(data)
+n_bytes: int = buffer.write(data: str)
 ```
 
 The writting method of the buffer. The source data is the same as that of a text-based IO. If `aggressive` is `True`, each call of `write()` would make the stream value sent to the main buffer. If not, each time when `data` contains a line break, the stream value would be sent to the main buffer.
@@ -221,7 +236,7 @@ The method is thread-safe, but the message synchronization is host-safe.
 ### <IconObjType type="param"/> `aggressive`
 
 ```python
-buffer.aggressive
+is_aggressive: bool = buffer.aggressive
 ```
 
 The aggressive mode.
@@ -235,7 +250,7 @@ In current implementation, this value is always configured as `False`.
 ### <IconObjType type="param"/> `timeout`
 
 ```python
-buffer.timeout
+timeout: int = buffer.timeout
 ```
 
 The timeout of the web syncholizing events. If not set, the synchronization would block the current process.
@@ -245,7 +260,7 @@ The timeout of the web syncholizing events. If not set, the synchronization woul
 ### <IconObjType type="param"/> `headers`
 
 ```python
-buffer.headers
+headers: dict[str, str] = buffer.headers
 ```
 
 The default headers of the web connections. These headers are used by each `POST` or `GET` methods.

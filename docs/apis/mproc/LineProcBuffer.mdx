@@ -16,13 +16,24 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="mproc.LineProcBuffer" />
 
 ```python
-pbuf = syncstream.mproc.LineProcBuffer(maxlen=20)
-pbuf = syncstream.LineProcBuffer(...)  # Alias
+pbuf = syncstream.mproc.LineProcBuffer(maxlen: int = 20)
 ```
 
 The process-safe line-based buffer.
 
 The rotating buffer with a maximal storage length. This buffer is the extended version of the basic `LineBuffer`. It is used for the case of multi-processing. Use the shared queue of this buffer to ensure the synchronization among processes. To learn how to use this buffer, see the [example](#example) on this page, or the [tutorial](../../guides/sync-proc.md).
+
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.LineProcBuffer
+syncstream.mproc.LineProcBuffer
+```
 
 ## Arguments
 
@@ -79,7 +90,7 @@ During the interaction with the mirrors, the states of the buffer may change. If
 ### <IconObjType type="method"/> `receive`
 
 ```python
-is_live = pbuf.receive()
+is_live: bool = pbuf.receive()
 ```
 
 Receive one item from the mirror.
@@ -114,7 +125,7 @@ The method would make the current thread keeping blocked until the buffer receiv
 ### <IconObjType type="method"/> `parse_lines`
 
 ```python
-pbuf.parse_lines(lines)
+pbuf.parse_lines(lines: Sequence[str])
 ```
 
 Parse the lines.
@@ -129,16 +140,16 @@ pbuf.storage.extend(lines)
 
 #### Requires
 
-| Argument |  Type   | <center>Description</center>                                                                                                    |
-| :------: | :-----: | :------------------------------------------------------------------------------------------------------------------------------ |
-| `lines`  | `[str]` | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
+| Argument |      Type       | <center>Description</center>                                                                                                    |
+| :------: | :-------------: | :------------------------------------------------------------------------------------------------------------------------------ |
+| `lines`  | `Sequence[str]` | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
 
 ---
 
 ### <IconObjType type="method"/> `read`
 
 ```python
-lines = pbuf.read(size=None)
+lines: Sequence[str] = pbuf.read(size: int | None = None)
 ```
 
 Fetch the stored record items from the buffer. Using the `read()` method is thread-safe and would not influence the cursor of `write()` method.
@@ -147,15 +158,15 @@ If the current written line is not blank, the `read()` method would regard it as
 
 #### Requires
 
-| Argument | Type  | <center>Description</center>                                                                           |
-| :------: | :---: | :----------------------------------------------------------------------------------------------------- |
-|  `size`  | `int` | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
+| Argument |     Type      | <center>Description</center>                                                                           |
+| :------: | :-----------: | :----------------------------------------------------------------------------------------------------- |
+|  `size`  | `int \| None` | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
 
 #### Returns
 
-| Argument |  Type   | <center>Description</center>                                                    |
-| :------: | :-----: | :------------------------------------------------------------------------------ |
-| `lines`  | `[str]` | The returned messages. The messages have been already split by the line breaks. |
+| Argument |      Type       | <center>Description</center>                                                    |
+| :------: | :-------------: | :------------------------------------------------------------------------------ |
+| `lines`  | `Sequence[str]` | The returned messages. The messages have been already split by the line breaks. |
 
 ---
 
@@ -172,7 +183,7 @@ This method is prohibited for this class. Because the `write()` method should be
 ### <IconObjType type="param"/> `mirror`
 
 ```python
-pbuf.mirror
+mirror: LineProcMirror = pbuf.mirror
 ```
 
 Get the mirror of this buffer.
@@ -186,7 +197,7 @@ This property could not be modified after the initialization.
 ### <IconObjType type="param"/> `n_mirrors`
 
 ```python
-pbuf.n_mirrors
+n_mirrors: int = pbuf.n_mirrors
 ```
 
 Current living mirrors. The buffer should still need to receive message until `n_mirrors` becomes 0. Each time `pbuf.mirror` is invoked, this value would be increased by 1.

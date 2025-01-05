@@ -6,13 +6,13 @@ import syncstream
 
 buffer = syncstream.LineBuffer(10)
 with redirect_stdout(buffer):
-  for i in range(20):
-      print(f'Message "{i:02d}".')
-  print('No line break.', end='')
+    for i in range(20):
+        print(f'Message "{i:02d}".')
+    print('No line break.', end='')
 
 messages = buffer.read()
 for mitem in messages:
-  print(mitem)`,
+    print(mitem)`,
   exProc: `import multiprocessing
 from contextlib import redirect_stdout
 import syncstream

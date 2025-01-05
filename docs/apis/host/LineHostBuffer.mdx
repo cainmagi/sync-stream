@@ -16,30 +16,45 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="host.LineHostBuffer" />
 
 ```python
-hbuf = syncstream.host.LineHostBuffer(api_route='/sync-stream', endpoint=None, maxlen=2)
-hbuf = syncstream.LineHostBuffer(...)  # Alias
+hbuf = syncstream.host.LineHostBuffer(
+    api_route: str = "/sync-stream",
+    endpoint: str | None = None,
+    maxlen: int = 2,
+)
 ```
 
 The host service provider for the line-based buffer.
 
 The rotating buffer with a maximal storage length. This buffer is the extended version of the basic `LineBuffer`. It is used in the case of multi-devices. It supports the one-host-multi-clients mode, and supports the syncholization by the web services. To learn how to use this buffer, see the [example](#example) on this page, or the [tutorial](../../guides/sync-host.mdx).
 
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.LineHostBuffer
+syncstream.host.LineHostBuffer
+```
+
 ## Arguments
 
 ### Requires
 
-|  Argument   | Type  | <center>Description</center>                                                                                                                                                                                     |
-| :---------: | :---: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api_route` | `str` | The route path of the api. It has the same meaning of the parameter [`Api.add_resource(url)`<IconExternalLink/>][link-addresource].                                                                              |
-| `endpoint`  | `str` | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [`Api.add_resource(endpoint)`<IconExternalLink/>][link-addresource]. |
-|  `maxlen`   | `int` | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen].                                                                                   |
+|  Argument   |     Type      | <center>Description</center>                                                                                                                                                                                     |
+| :---------: | :-----------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api_route` |     `str`     | The route path of the api. It has the same meaning of the parameter [`Api.add_resource(url)`<IconExternalLink/>][link-addresource].                                                                              |
+| `endpoint`  | `str \| None` | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [`Api.add_resource(endpoint)`<IconExternalLink/>][link-addresource]. |
+|  `maxlen`   |     `int`     | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen].                                                                                   |
 
 ## Methods
 
 ### <IconObjType type="method"/> `serve`
 
 ```python
-hbuf.serve(api)
+hbuf.serve(api: flask_restful.Api)
 ```
 
 Load the services to the flask app.
@@ -60,7 +75,7 @@ The basic APIs. They are used for maintaining the storage of the message items.
 
 | Method | <center>Requires</center>                                                                                                                                                                            | <center>Response</center>                                                                                                                              | <center>Description</center>                                                                                                                                                              |
 | :----: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|  GET   | <ul><li>`n`: The number of messages that is required. If not set, would return the whole storage.</li></ul>                                                                                          | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: A list of returned messages.</li></ul> | Get the message items. Similar to [`LineBuffer.read()`](../mproc/LineBuffer.mdx#-read).                                                                                                    |
+|  GET   | <ul><li>`n`: The number of messages that is required. If not set, would return the whole storage.</li></ul>                                                                                          | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: A list of returned messages.</li></ul> | Get the message items. Similar to [`LineBuffer.read()`](../mproc/LineBuffer.mdx#-read).                                                                                                   |
 |  POST  | <ul><li>**`type`**: The type of the message. Could be `str`, `error`, `warning`, or `close`.</li><li>`data`: A `dict` of message data from [`LineHostMirror`](../host/LineHostMirror.mdx).</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                              | Write the remote data into the storage. This method should not be used by users directly, because it is provided for the interaction with [`LineHostMirror`](../host/LineHostMirror.mdx). |
 | DELETE | <center>-</center>                                                                                                                                                                                   | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                              | Clear the storage, but the status of the buffer is not reset by this method.                                                                                                              |
 

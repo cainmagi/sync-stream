@@ -38,6 +38,17 @@ The follolowing modules are optional. To install them, please add the arguments 
 |  [<IconObjType type="module" hasText={true} text="file"/>](./apis/file/index.mdx)  | The file-lock-based message synchronization, implemented based on [`fasteners`<IconExternalLink/>][link-fasteners].                                                            |
 |  [<IconObjType type="module" hasText={true} text="host"/>](./apis/host/index.mdx)  | The web-service-based message synchronization, implemented based on [`Flask-RESTful`<IconExternalLink/>][link-flask-restful] and [`urllib3`<IconExternalLink/>][link-urllib3]. |
 
+## Aliases
+
+|                              Member                              | <center>Alias of</center>                                            |
+| :--------------------------------------------------------------: | :------------------------------------------------------------------- |
+|   <IconObjType type="class" hasText={true} text="LineBuffer"/>   | [`syncstream.mproc.LineBuffer`](./apis/mproc/LineBuffer.mdx)         |
+| <IconObjType type="class" hasText={true} text="LineProcBuffer"/> | [`syncstream.mproc.LineProcBuffer`](./apis/mproc/LineProcBuffer.mdx) |
+| <IconObjType type="class" hasText={true} text="LineProcMirror"/> | [`syncstream.mproc.LineProcMirror`](./apis/mproc/LineProcMirror.mdx) |
+| <IconObjType type="class" hasText={true} text="LineFileBuffer"/> | [`syncstream.file.LineFileBuffer`](./apis/file/LineFileBuffer.mdx)   |
+| <IconObjType type="class" hasText={true} text="LineHostBuffer"/> | [`syncstream.host.LineHostBuffer`](./apis/host/LineHostBuffer.mdx)   |
+| <IconObjType type="class" hasText={true} text="LineHostMirror"/> | [`syncstream.host.LineHostMirror`](./apis/host/LineHostMirror.mdx)   |
+
 [link-fasteners]: https://fasteners.readthedocs.io/en/latest/
 [link-flask-restful]: https://flask-restful.readthedocs.io/en/latest/
 [link-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html

@@ -23,5 +23,6 @@
 7. Reformat the whole project by `prettier`.
 8. Adjust the global stylesheets to improve the details of elements.
 9. Remove an unused page `/markdown-page`.
+10. Reformat the notations and the aliases of all API documents.
 
 The older commit histories are not recorded in this file.
