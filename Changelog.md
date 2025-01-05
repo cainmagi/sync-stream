@@ -10,6 +10,7 @@
 
 1. Add description pages for categories and API modules.
 2. Add icons to the API document sub-titiles.
+3. Add the social card.
 
 #### :floppy_disk: Change
 
