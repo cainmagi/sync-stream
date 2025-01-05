@@ -13,6 +13,10 @@
 3. Add the social card.
 4. Add documents of the private module `webtools`.
 
+#### :wrench: Fix
+
+1. Fix: Correct the missing imports and clean the unused imports.
+
 #### :floppy_disk: Change
 
 1. Bump the `docusaurus` version from `2.0.0-beta.3` to `3.6.3`.
