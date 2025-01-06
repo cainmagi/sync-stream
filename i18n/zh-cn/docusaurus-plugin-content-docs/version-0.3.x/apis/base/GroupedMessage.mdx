@@ -1,0 +1,112 @@
+---
+id: GroupedMessage
+title: GroupedMessage
+sidebar_label: GroupedMessage
+slug: /apis/base/GroupedMessage
+description: 一组信息。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" isPrivate={true} source="base.GroupedMessage" />
+
+```python
+gpm = syncstream.base.GroupedMessage(
+    data: Sequence[str] | Warning | Exception | None = None,
+)
+```
+
+一组信息。
+
+用来封装多行`str`（信息）、单个的警告对象、或单个的异常对象。
+
+该类自动用于[`mproc.LineProcMirror`](../mproc/LineProcMirror.mdx)和[`host.LineHostMirror`](../host/LineHostMirror.mdx)。绝大多数情况下，用户不需要直接使用该类。
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|  参数  |                  类型                   | 必选 | <center>说明</center>                                              |
+| :----: | :-------------------------------------: | :--: | :----------------------------------------------------------------- |
+| `data` | `Sequence[str] \| Warning \| Exception` |      | 一组信息来源。该输入值会处理成一行或多行。处理后的信息可以序列化。 |
+
+## 方法 {#methods}
+
+### <IconObjType type="method"/> `serialize` {#-serialize}
+
+```python
+jdata: dict[str, Any] = gpm.serialize()
+```
+
+将该信息项序列化为JSON兼容的字典。
+
+#### 输出 {#returns}
+
+|  参数   |       类型       | <center>说明</center>                                                                    |
+| :-----: | :--------------: | :--------------------------------------------------------------------------------------- |
+| `jdata` | `dict[str, Any]` | 序列化后的字典。该字典可以由[`deserialize`](#-deserialize)方法逆变换为`GroupedMessage`。 |
+
+---
+
+### <IconObjType type="method"/> `deserialize` {#-deserialize}
+
+```python
+gpm: GroupedMessage = GroupedMessage.deserialize(jdata: dict[str, Any])
+```
+
+#### 输入 {#requires-1}
+
+|  参数   |       类型       |               必选                | <center>说明</center>                                      |
+| :-----: | :--------------: | :-------------------------------: | :--------------------------------------------------------- |
+| `jdata` | `dict[str, Any]` | <InlineIcon icon={vsiCheckIcon}/> | 序列化的字典。该字典JSON兼容，并且可以透过网络数据包传输。 |
+
+#### 输出 {#returns-1}
+
+| 参数  |       类型       | <center>说明</center>                                      |
+| :---: | :--------------: | :--------------------------------------------------------- |
+| `gpm` | `GroupedMessage` | 逆序列化后的对象。该对象可以透过`str(gpm)`格式化为字符串。 |
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 将错误信息的回溯捕获为一组信息 {#-catch-the-error-traceback-as-gruped-messages}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="use_grouped_messages.py"
+from syncstream.base import GroupedMessage
+
+try:
+   raise ImportError('A testing exception object.')
+except ImportError as error:
+   gpm = GroupedMessage(error)
+
+print(gpm)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+Traceback (most recent call last):
+  File "C:\Documents (no sync)\GitHub\sync-stream\alpha\test.py", line 4, in <module>
+    raise ImportError('A testing exception object.')
+ImportError: A testing exception object.
+```
+
+</TabItem>
+</Tabs>

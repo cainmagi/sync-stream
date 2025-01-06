@@ -1,0 +1,112 @@
+---
+id: StdoutWrapper
+title: StdoutWrapper
+sidebar_label: StdoutWrapper
+slug: /apis/webtools/StdoutWrapper
+description: A wrapper for ensuring that the stdout is always directed to the same position.
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="class" isPrivate={true} isContext={true} source="webtools.StdoutWrapper" />
+
+```python
+with syncstream.webtools.StdoutWrapper():
+    ...
+```
+
+A wrapper for ensuring that the stdout is always directed to the same position.
+
+:::danger
+
+This class was designed from scratch. However, its functionality has been fully covered
+by [`contextlib.redirect_stdout(...)`<IconExternalLink/>][link-restdout] and
+[`contextlib.redirect_stdout(...)`<IconExternalLink/>][link-restderr]. Therefore,
+users should not use this context in any case.
+
+This document is only used for archiving what was done in this implementation.
+
+:::
+
+## Arguments
+
+No argument is needed.
+
+## Example
+
+### <IconObjType type="term"/> Redirect stdout to buffer
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Better codes', value: 'better-codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="use_stdout_context.py"
+import sys
+import syncstream
+from syncstream.webtools import StdoutWrapper
+
+buffer = syncstream.LineBuffer(10)
+with StdoutWrapper():
+    sys.stdout = buffer
+    for i in range(20):
+        print(f'Message "{i:02d}".')
+    print('No line break.', end='')
+
+messages = buffer.read()
+for mitem in messages:
+    print(mitem)
+```
+
+</TabItem>
+
+<TabItem value="better-codes">
+
+```python showLineNumbers title="use_contextlib.py"
+from contextlib import redirect_stdout
+import syncstream
+
+buffer = syncstream.LineBuffer(10)
+with redirect_stdout(buffer):
+    for i in range(20):
+        print(f'Message "{i:02d}".')
+    print('No line break.', end='')
+
+messages = buffer.read()
+for mitem in messages:
+    print(mitem)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```shell
+Message "11".
+Message "12".
+Message "13".
+Message "14".
+Message "15".
+Message "16".
+Message "17".
+Message "18".
+Message "19".
+No line break.
+```
+
+</TabItem>
+</Tabs>
+
+[link-restdout]: https://docs.python.org/zh-cn/3/library/contextlib.html#contextlib.redirect_stdout
+[link-restderr]: https://docs.python.org/zh-cn/3/library/contextlib.html#contextlib.redirect_stderr

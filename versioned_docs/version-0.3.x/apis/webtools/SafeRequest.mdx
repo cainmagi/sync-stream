@@ -1,0 +1,77 @@
+---
+id: SafeRequest
+title: SafeRequest
+sidebar_label: SafeRequest
+slug: /apis/webtools/SafeRequest
+description: A wrapper for providing context for the urllib3.HTTPResponse.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar
+  type="class"
+  isPrivate={true}
+  isContext={true}
+  source="webtools.SafeRequest"
+/>
+
+```python
+with syncstream.webtools.SafeRequest(request: urllib3.HTTPResponse) as req:
+    req: urllib3.HTTPResponse
+```
+
+A wrapper for providing context for the `urllib3.HTTPResponse`.
+
+:::danger
+
+This is a private class. Should not be used by users.
+
+:::
+
+## Arguments
+
+| Argument  |          Type          |             Required              | <center>Description</center>                                                                                      |
+| :-------: | :--------------------: | :-------------------------------: | :---------------------------------------------------------------------------------------------------------------- |
+| `request` | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | The request to be wrapped. This wrapped request will be disconnected and released when exiting from this context. |
+
+## Example
+
+### <IconObjType type="term"/> Use context to manage connections
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="use_request_context.py"
+from urllib3.poolmanager import PoolManager
+from syncstream.webtools import SafeRequest
+
+
+pool = PoolManager()
+with SafeRequest(pool.request("get", "https://google.com")) as req:
+    print(req.status)
+pool.clear()
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+200
+```
+
+</TabItem>
+</Tabs>

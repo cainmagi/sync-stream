@@ -1,0 +1,77 @@
+---
+id: SafeRequest
+title: SafeRequest
+sidebar_label: SafeRequest
+slug: /apis/webtools/SafeRequest
+description: 支持上下文的urllib3.HTTPResponse的封装。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar
+  type="class"
+  isPrivate={true}
+  isContext={true}
+  source="webtools.SafeRequest"
+/>
+
+```python
+with syncstream.webtools.SafeRequest(request: urllib3.HTTPResponse) as req:
+    req: urllib3.HTTPResponse
+```
+
+支持上下文的`urllib3.HTTPResponse`的封装。
+
+:::danger
+
+这是私有类，用户不应使用它。
+
+:::
+
+## 参数 {#arguments}
+
+|   参数    |          类型          |               必选                | <center>说明</center>                                        |
+| :-------: | :--------------------: | :-------------------------------: | :----------------------------------------------------------- |
+| `request` | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | 要封装的请求。退出上下文时，被封装的请求将会自动断开并释放。 |
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 使用上下文管理连接 {#-use-context-to-manage-connections}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="use_request_context.py"
+from urllib3.poolmanager import PoolManager
+from syncstream.webtools import SafeRequest
+
+
+pool = PoolManager()
+with SafeRequest(pool.request("get", "https://google.com")) as req:
+    print(req.status)
+pool.clear()
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+200
+```
+
+</TabItem>
+</Tabs>

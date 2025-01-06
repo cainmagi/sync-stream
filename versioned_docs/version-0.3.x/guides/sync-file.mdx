@@ -1,0 +1,87 @@
+---
+id: sync-file
+title: Synchronize among files
+sidebar_label: Sync. among files
+slug: /sync-file
+description: A tutorial about synchronizing the message among programs.
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+The file-based synchronization is based on the package [`fasteners`<IconExternalLink/>][pypi-fasteners]. In this case, the buffer is implemented by shared log files. The synchronization is implemented by the file-based locks. When users need to synchornize the messages from different programs on the same device, it is sutiable to use [`LineFileBuffer`](../apis/file/LineFileBuffer.mdx).
+
+In the following example, we provide two scripts (`writer.py` and `reader.py`). The reader should be launched before the writer starts. Then the messages from the writer would be catched by the reader.
+
+<Tabs
+  defaultValue="writer"
+  values={[
+    { label: 'Writer', value: 'writer', },
+    { label: 'Reader', value: 'reader', },
+  ]
+}>
+
+<TabItem value="writer">
+
+```python showLineNumbers title="writer.py"
+import os
+import time
+from contextlib import redirect_stdout, redirect_stderr
+import syncstream
+
+os.makedirs('logs', exist_ok=True)  # Create the log folder.
+# highlight-next-line
+buffer = syncstream.LineFileBuffer('logs/message', maxlen=10, tmp_id=os.getpid())
+# highlight-next-line
+with redirect_stdout(buffer), redirect_stderr(buffer):
+    for i in range(10):
+        time.sleep(1.0)
+        print('Line', 'buffer', 'new', i, end='\n')
+buffer.new_line()  # A final signal
+```
+
+</TabItem>
+
+<TabItem value="reader">
+
+```python showLineNumbers title="reader.py"
+import os
+import shutil
+import time
+import syncstream
+
+# Initialization.
+shutil.rmtree('logs')
+os.makedirs('logs', exist_ok=True)
+# highlight-next-line
+buffer = syncstream.LineFileBuffer('logs/message', maxlen=10, tmp_id=os.getpid())
+
+while True:  # Wait until getting 10 messages.
+    time.sleep(1)
+    # highlight-next-line
+    messages = buffer.read()
+    if len(messages) >= 10:
+        break
+
+# Show results.
+for mitem in messages:
+    print(mitem)
+```
+
+</TabItem>
+
+</Tabs>
+
+In the above example, the writer and reader are launched by two different python programs. Both the reader and the writer do not know the running details from each other. The only synchronized thing is the messages shared by the files. The file locks could ensure that the programs would not cause synchronization issues.
+
+The same instance [`LineFileBuffer`](../apis/file/LineFileBuffer.mdx) is used for both the writer and the reader. Different from the [`LineBuffer`](../apis/mproc/LineBuffer.mdx) or [`LineProcBuffer`](../apis/mproc/LineProcBuffer.mdx), the reader need to call the method [`buffer.read()`](../apis/file/LineFileBuffer.mdx#-read) reapeatly. Each time the method is called, the records in the file would be iterated for once. The reader would keep scanning the file for every one second until 10 lines are collected.
+
+:::danger
+
+The only unsafe issue is the terminate of the program. Some of the lock files would be preserved after the program is finished. To avoid the interference from the previous lock files, we suggest to remove all lock files before the reader starts.
+
+:::
+
+[pypi-fasteners]:https://pypi.org/project/fasteners "fasteners"

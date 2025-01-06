@@ -1,0 +1,81 @@
+---
+id: is_end_line_break
+title: is_end_line_break
+sidebar_label: is_end_line_break
+slug: /apis/base/is_end_line_break
+description: Check whether the str ends with a line break.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import IconLink from "@site/src/components/IconLink";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="base.is_end_line_break" />
+
+```python
+flag: bool = syncstream.base.is_end_line_break(val_str: str)
+```
+
+A function used for checking whether the str ends with a line break.
+
+The checking is implemented by
+
+<IconLink href="https://docs.python.org/3/library/stdtypes.html#str.splitlines" />
+
+We use this function to fix the missing final line break problem of `str.splitlines`.
+
+## Arguments
+
+### Requires
+
+| Argument  | Type  |             Required              | <center>Description</center>           |
+| :-------: | :---: | :-------------------------------: | :------------------------------------- |
+| `val_str` | `str` | <InlineIcon icon={vsiCheckIcon}/> | The string that needs to be validated. |
+
+### Returns
+
+| Argument |  Type  | <center>Description</center>                            |
+| :------: | :----: | :------------------------------------------------------ |
+|  `flag`  | `bool` | If `True`, the validated string ends with a line break. |
+
+## Example
+
+### <IconObjType type="term"/> Check the line break
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="check_line_break.py"
+from syncstream.base import is_end_line_break
+
+print(is_end_line_break('no break'))
+print(is_end_line_break('middle\n break'))
+print(is_end_line_break('ends break\n'))
+print(is_end_line_break('ends break mac\r'))
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+False
+False
+True
+True
+```
+
+</TabItem>
+</Tabs>

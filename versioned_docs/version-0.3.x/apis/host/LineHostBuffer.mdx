@@ -1,0 +1,168 @@
+---
+id: LineHostBuffer
+title: LineHostBuffer
+sidebar_label: LineHostBuffer
+slug: /apis/host/LineHostBuffer
+description: The web service driven line-based buffer.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="host.LineHostBuffer" />
+
+```python
+hbuf = syncstream.host.LineHostBuffer(
+    api_route: str = "/sync-stream",
+    endpoint: str | None = None,
+    maxlen: int = 2,
+)
+```
+
+The host service provider for the line-based buffer.
+
+The rotating buffer with a maximal storage length. This buffer is the extended version of the basic `LineBuffer`. It is used in the case of multi-devices. It supports the one-host-multi-clients mode, and supports the syncholization by the web services. To learn how to use this buffer, see the [example](#example) on this page, or the [tutorial](../../guides/sync-host.mdx).
+
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.LineHostBuffer
+syncstream.host.LineHostBuffer
+```
+
+## Arguments
+
+### Requires
+
+|  Argument   |     Type      | Required | <center>Description</center>                                                                                                                                                                                     |
+| :---------: | :-----------: | :------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api_route` |     `str`     |          | The route path of the api. It has the same meaning of the parameter [`Api.add_resource(url)`<IconExternalLink/>][link-addresource].                                                                              |
+| `endpoint`  | `str \| None` |          | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [`Api.add_resource(endpoint)`<IconExternalLink/>][link-addresource]. |
+|  `maxlen`   |     `int`     |          | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen].                                                                                   |
+
+## Methods
+
+### <IconObjType type="method"/> `serve`
+
+```python
+hbuf.serve(api: flask_restful.Api)
+```
+
+Load the services to the flask app.
+
+#### Requires
+
+| Argument |                           Type                            |             Required              | <center>Description</center>                                                                                       |
+| :------: | :-------------------------------------------------------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------- |
+|  `api`   | [`flask_restful.Api`<IconExternalLink/>][link-restfulapi] | <InlineIcon icon={vsiCheckIcon}/> | The Flask `Api` object. All web services related to this `LineHostBuffer` would be registered to the `Api` object. |
+
+## Services
+
+Register the Flask app with this instance, the following services would be provided, where the **`bold`** arguments are required arguments.
+
+### <IconObjType type="service"/> `<api_route>`
+
+The basic APIs. They are used for maintaining the storage of the message items.
+
+| Method | <center>Requires</center>                                                                                                                                                                            | <center>Response</center>                                                                                                                              | <center>Description</center>                                                                                                                                                              |
+| :----: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  GET   | <ul><li>`n`: The number of messages that is required. If not set, would return the whole storage.</li></ul>                                                                                          | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: A list of returned messages.</li></ul> | Get the message items. Similar to [`LineBuffer.read()`](../mproc/LineBuffer.mdx#-read).                                                                                                   |
+|  POST  | <ul><li>**`type`**: The type of the message. Could be `str`, `error`, `warning`, or `close`.</li><li>`data`: A `dict` of message data from [`LineHostMirror`](../host/LineHostMirror.mdx).</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                              | Write the remote data into the storage. This method should not be used by users directly, because it is provided for the interaction with [`LineHostMirror`](../host/LineHostMirror.mdx). |
+| DELETE | <center>-</center>                                                                                                                                                                                   | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                              | Clear the storage, but the status of the buffer is not reset by this method.                                                                                                              |
+
+---
+
+### <IconObjType type="service"/> `<api_route>-state`
+
+The APIs used for maintaining the buffer status.
+
+| Method | <center>Requires</center>                                                                                                   | <center>Response</center>                                                                                                                                  | <center>Description</center>           |
+| :----: | :-------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------- |
+|  GET   | <ul><li>**`state`**: The name of the state to be read.</li></ul>                                                            | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: The value of the required state.</li></ul> | Get a specific state value.            |
+|  POST  | <ul><li>**`state`**: The name of the state to be written.</li><li>`value`: The value used for changing the state.</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Modify a specific state value.         |
+| DELETE | <center>-</center>                                                                                                          | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Reset the state to the default values. |
+
+The states are shared by different clients. Each time the clients interact with the host, they would use `GET` method to renew their states. Some states could be used for controlling the behaviors of the clients. For example, `POST` with `state=closed`, `value=true` serves the same funcionality of invoking [`LineProcBuffer.stop_all_mirrors()`](../mproc/LineProcBuffer.mdx#-stop_all_mirrors).
+
+## Example
+
+### <IconObjType type="term"/> Synchronize messages by web services
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="sync_by_web_services.py"
+import os
+import contextlib
+import multiprocessing
+import flask
+from flask_restful import Api
+from syncstream.host import LineHostMirror, LineHostBuffer
+
+
+def f(address):
+    buffer = LineHostMirror(address=address, timeout=5)
+    with contextlib.redirect_stdout(buffer):
+        print('example')
+    buffer.send_eof()
+
+
+app = flask.Flask(__name__)
+api = Api(app)
+hbuf = LineHostBuffer('/sync-stream', maxlen=10)
+hbuf.serve(api)
+
+
+@app.route('/test', methods=['GET'])
+def another_service():
+    address = 'http://localhost:5000/sync-stream'
+    with multiprocessing.Pool(4) as p:
+        p.map(f, tuple(address for _ in range(4)))
+    hbuf_items = hbuf.read()
+    return {'message': 'success', 'items': hbuf_items}, 200
+
+
+if __name__ == '__main__':
+    app.run(host='localhost', port=5000)  # Run the Flask service.
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+After the server is launched, use the following address to get the results:
+
+```html
+http://localhost:5000/test
+```
+
+The response should be
+
+```json
+{"items": ["example", "example", "example", "example"], "message": "success"}
+```
+
+</TabItem>
+</Tabs>
+
+[link-addresource]: https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource
+[link-restfulapi]: https://flask-restful.readthedocs.io/en/latest/api.html?highlight=api#id1
+[link-deque-maxlen]: https://docs.python.org/3/library/collections.html#collections.deque.maxlen

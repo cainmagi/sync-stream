@@ -1,0 +1,272 @@
+---
+id: LineHostMirror
+title: LineHostMirror
+sidebar_label: LineHostMirror
+slug: /apis/host/LineHostMirror
+description: The mirror for the web service driven line-based buffer.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="host.LineHostMirror" />
+
+```python
+buffer = syncstream.host.LineHostMirror(
+    address: str,
+    aggressive: bool = False,
+    timeout: int | None = None,
+)
+```
+
+The mirror for the host-safe line-based buffer.
+
+This mirror is the client of the services from [`LineHostBuffer`](./LineHostBuffer.mdx). It should be initialized independently, and would be used for managing the lines written to the buffer. Different from [`LineProcMirror`](../mproc/LineProcMirror.mdx), the independent mirror does not require shared queue.
+
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.LineHostMirror
+syncstream.host.LineHostMirror
+```
+
+## Arguments
+
+### Requires
+
+|   Argument   |     Type      |             Required              | <center>Description</center>                                                                                                                                                                                                         |
+| :----------: | :-----------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  `address`   |     `str`     | <InlineIcon icon={vsiCheckIcon}/> | The full url, including the API name of the [`LineHostBuffer`](./LineHostBuffer.mdx) services.                                                                                                                                       |
+| `aggressive` |    `bool`     |                                   | If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written. |
+|  `timeout`   | `int \| None` |                                   | The timeout of the web syncholizing events. If not set, the synchronization would block the current process.                                                                                                                         |
+
+## Methods
+
+### <IconObjType type="method"/> `clear`
+
+```python
+buffer.clear()
+```
+
+Clear the whole buffer.
+
+This method would clear the temporary buffer of the mirror. If the mirror works in the `aggresive` mode, the temporary buffer would not be used. In this case, this method would not exert any influences to the mirror.
+
+This method is thread-safe. Mirrors in different processes would not share the temporary buffer.
+
+---
+
+### <IconObjType type="method"/> `new_line`
+
+```python
+buffer.new_line()
+```
+
+Clear the current temporary buffer, and manually trigger a new line signal. If the current temporary buffer contains data, the data would be moved to the storage, and a new line would be created. If the current temporary buffer is already a new line, do nothing.
+
+This method is equivalent to
+
+```python
+if buffer.last_line.tell() > 0:
+    write('\n')
+```
+
+---
+
+### <IconObjType type="method"/> `flush`
+
+```python
+buffer.flush()
+```
+
+Flush the current written line stream (temporary buffer).
+
+---
+
+### <IconObjType type="method"/> `send_eof`
+
+```python
+buffer.send_eof()
+```
+
+Send the safely close signal.
+
+The signal should be used at the end of the sub-process. This method is used for informing the buffer that the sub-process has been finished safely.
+
+:::danger
+
+- Users should always use `send_eof()` or `send_error()` at the end of a sub-process. Otherwise, the temporary data may not be moved into the storage correctly.
+- Users should only invoke `send_eof()` or `send_error()` once for each sub-process. For example, if `send_error()` has been invoked, `send_eof()` should not be used. Sending more than one close signal from the same sub-process may cause fatal bugs.
+
+:::
+
+---
+
+### <IconObjType type="method"/> `send_error`
+
+```python
+buffer.send_error(error: Exception)
+```
+
+Send the exception object to the main buffer.
+
+Send the catched error object. This method should always be used in the try / except block. The error object would be captured as an item of the storage in the main buffer.
+
+:::danger
+
+See [`send_eof()`](#-send_eof).
+
+:::
+
+#### Requires
+
+| Argument |    Type     |             Required              | <center>Description</center>             |
+| :------: | :---------: | :-------------------------------: | :--------------------------------------- |
+| `error`  | `Exception` | <InlineIcon icon={vsiCheckIcon}/> | The exception object that would be sent. |
+
+---
+
+### <IconObjType type="method"/> `send_warning`
+
+```python
+buffer.send_warning(warning: Warning)
+```
+
+Send the standard warning object to the main buffer.
+
+Send the catched warning object. It is recommended that this method can be used when logging the warning objects. The warning object would be captured as an item of the storage in the main buffer.
+
+:::caution
+
+This method could only catch the warning object defined by the stdlib. Some different warning objects, like [`logging.warning`<IconExternalLink/>][link-logging-warning] messages would not be collected by this method.
+
+:::
+
+#### Requires
+
+| Argument  |   Type    |             Required              | <center>Description</center>           |
+| :-------: | :-------: | :-------------------------------: | :------------------------------------- |
+| `warning` | `Warning` | <InlineIcon icon={vsiCheckIcon}/> | The warning object that would be sent. |
+
+---
+
+### <IconObjType type="method"/> `send_data`
+
+```python
+buffer.send_data(data: str)
+```
+
+Send the data to the main buffer.
+
+This method would fire a POST service of the main buffer, and send the `str` data.
+
+This method is used by other methods implicitly, and should not be used by users.
+
+#### Requires
+
+| Argument | Type  |             Required              | <center>Description</center>            |
+| :------: | :---: | :-------------------------------: | :-------------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | An `str` to be sent to the main buffer. |
+
+---
+
+### <IconObjType type="method"/> `check_states`
+
+```python
+buffer.check_states()
+```
+
+Check the current buffer states.
+
+Currently, this method in only used for checking whether the service is closed.
+
+This method is used by other methods implicitly, and should not be used by users.
+
+---
+
+### <IconObjType type="method"/> `read`
+
+```python
+line: str = buffer.read()
+```
+
+This method would only read the current bufferred values in the mirror storage. If the property `aggressive` is `True`, the `read()` method would always return empty value.
+
+#### Returns
+
+| Argument | Type  | <center>Description</center>                                                                  |
+| :------: | :---: | :-------------------------------------------------------------------------------------------- |
+|  `line`  | `str` | Current storage of the mirror. The value in the storage has not been sent to the main buffer. |
+
+---
+
+### <IconObjType type="method"/> `write`
+
+```python
+n_bytes: int = buffer.write(data: str)
+```
+
+The writting method of the buffer. The source data is the same as that of a text-based IO. If `aggressive` is `True`, each call of `write()` would make the stream value sent to the main buffer. If not, each time when `data` contains a line break, the stream value would be sent to the main buffer.
+
+The method is thread-safe, but the message synchronization is host-safe.
+
+#### Requires
+
+| Argument | Type  |             Required              | <center>Description</center>                                           |
+| :------: | :---: | :-------------------------------: | :--------------------------------------------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | The written messages. The line breaks would be detected automatically. |
+
+#### Returns
+
+| Argument  | Type  | <center>Description</center>                                                                                   |
+| :-------: | :---: | :------------------------------------------------------------------------------------------------------------- |
+| `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
+
+## Properties
+
+### <IconObjType type="param"/> `aggressive`
+
+```python
+is_aggressive: bool = buffer.aggressive
+```
+
+The aggressive mode.
+
+This mode could only by configured by the initialization. If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written.
+
+---
+
+### <IconObjType type="param"/> `timeout`
+
+```python
+timeout: int = buffer.timeout
+```
+
+The timeout of the web syncholizing events. If not set, the synchronization would block the current process.
+
+---
+
+### <IconObjType type="param"/> `headers`
+
+```python
+headers: dict[str, str] = buffer.headers
+```
+
+The default headers of the web connections. These headers are used by each `POST` or `GET` methods.
+
+## Example
+
+See [`LineHostBuffer`](./LineHostBuffer.mdx#example).
+
+[link-logging-warning]: https://docs.python.org/3/library/logging.html#logging.Logger.warning

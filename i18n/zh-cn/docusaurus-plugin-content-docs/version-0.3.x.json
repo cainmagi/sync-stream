@@ -44,7 +44,7 @@
     "description": "The label for category webtools in sidebar apis"
   },
   "version.label": {
-    "message": "1.2.0",
-    "description": "The label for version current"
+    "message": "0.3.x",
+    "description": "The label for version 0.3.x"
   }
 }

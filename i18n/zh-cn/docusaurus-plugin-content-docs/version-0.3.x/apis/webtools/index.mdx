@@ -1,0 +1,34 @@
+---
+id: index
+title: webtools
+sidebar_label: webtools
+slug: /apis/webtools
+description: 用来实现网络服务的共享工具。
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="module" isPrivate={true} source="webtools" />
+
+用来实现网络服务的共享工具。该模块是私有的，且不应向用户开放。
+
+该模块的实现主要是基于[`urllib3`<IconExternalLink/>][link-urllib3]。
+
+## 类 {#classes}
+
+|                                            成员                                            | <center>说明</center>                        |
+| :----------------------------------------------------------------------------------------: | :------------------------------------------- |
+|   [<IconObjType type="class" hasText={true} text="StdoutWrapper"/>](./StdoutWrapper.mdx)   | 用来确保stdout总是重定向到同一位置的封装。   |
+| [<IconObjType type="class" hasText={true} text="SafePoolManager"/>](./SafePoolManager.mdx) | 支持上下文的`urllib3.PoolManager`的封装。    |
+|     [<IconObjType type="class" hasText={true} text="SafeRequest"/>](./SafeRequest.mdx)     | 支持上下文的`urllib3.HTTPResponse`的封装。   |
+
+## 函数 {#functions}
+
+|                                                 成员                                                  | <center>说明</center>    |
+| :---------------------------------------------------------------------------------------------------: | :----------------------- |
+|    [<IconObjType type="func" hasText={true} text="clean_http_manager"/>](./clean_http_manager.mdx)    | 用来清理http请求的回调。 |
+| [<IconObjType type="func" hasText={true} text="close_request_session"/>](./close_request_session.mdx) | 用来清理请求会话的回调。 |
+
+[link-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html

@@ -1,0 +1,195 @@
+---
+id: LineBuffer
+title: LineBuffer
+sidebar_label: LineBuffer
+slug: /apis/mproc/LineBuffer
+description: The basic line-based buffer handle.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="mproc.LineBuffer" />
+
+```python
+tbuf = syncstream.mproc.LineBuffer(maxlen: int = 20)
+```
+
+The basic line-based buffer handle.
+
+This buffer provides a rotating item stroage for the text-based stream. The text is stored not by length, but by lines. The maximal line number of the storage is limited.
+
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.LineBuffer
+syncstream.mproc.LineBuffer
+```
+
+## Arguments
+
+### Requires
+
+| Argument | Type  | Required | <center>Description</center>                                                                                                   |
+| :------: | :---: | :------: | :----------------------------------------------------------------------------------------------------------------------------- |
+| `maxlen` | `int` |          | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]. |
+
+## Methods
+
+### <IconObjType type="method"/> `clear`
+
+```python
+tbuf.clear()
+```
+
+Clear the whole buffer.
+
+This method would clear the storage and the last line stream of this buffer. However, it would not clear any mirrors or copies of this object. This method is thread-safe and should always success.
+
+---
+
+### <IconObjType type="method"/> `new_line`
+
+```python
+tbuf.new_line()
+```
+
+Clear the current temporary buffer, and manually trigger a new line signal. If the current temporary buffer contains data, the data would be moved to the storage, and a new line would be created. If the current temporary buffer is already a new line, do nothing.
+
+This method is equivalent to
+
+```python
+if tbuf.last_line.tell() > 0:
+    write('\n')
+```
+
+---
+
+### <IconObjType type="method"/> `flush`
+
+```python
+tbuf.flush()
+```
+
+Flush the current written line stream (temporary buffer).
+
+---
+
+### <IconObjType type="method"/> `parse_lines`
+
+```python
+tbuf.parse_lines(lines)
+```
+
+Parse the lines.
+
+This method would be triggered when the new lines are written by `write()` method. The default behavior is adding the item into the storage.
+
+Users could inherit this method and override it with their customized parsing method, like regular expression searching. The default behavior is implemented by:
+
+```python
+tbuf.storage.extend(lines: Sequence[str])
+```
+
+#### Requires
+
+| Argument |      Type       |             Required              | <center>Description</center>                                                                                                    |
+| :------: | :-------------: | :-------------------------------: | :------------------------------------------------------------------------------------------------------------------------------ |
+| `lines`  | `Sequence[str]` | <InlineIcon icon={vsiCheckIcon}/> | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
+
+---
+
+### <IconObjType type="method"/> `read`
+
+```python
+lines: Sequence[str] = tbuf.read(size: int | None = None)
+```
+
+Fetch the stored record items from the buffer. Using the `read()` method is thread-safe and would not influence the cursor of `write()` method.
+
+If the current written line is not blank, the `read()` method would regard it as the last record item.
+
+#### Requires
+
+| Argument |     Type      | Required | <center>Description</center>                                                                           |
+| :------: | :-----------: | :------: | :----------------------------------------------------------------------------------------------------- |
+|  `size`  | `int \| None` |          | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
+
+#### Returns
+
+| Argument |      Type       | <center>Description</center>                                                    |
+| :------: | :-------------: | :------------------------------------------------------------------------------ |
+| `lines`  | `Sequence[str]` | The returned messages. The messages have been already split by the line breaks. |
+
+---
+
+### <IconObjType type="method"/> `write`
+
+```python
+n_bytes: int = tbuf.write(data: str)
+```
+
+The writting method of the buffer. The source `data` is the same as that of a text-based IO. Each time when `data` contains a line break, a new record item would be pushed in the storage. The `write()` method is thread-safe.
+
+#### Requires
+
+| Argument | Type  |             Required              | <center>Description</center>                                           |
+| :------: | :---: | :-------------------------------: | :--------------------------------------------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | The written messages. The line breaks would be detected automatically. |
+
+#### Returns
+
+| Argument  | Type  | <center>Description</center>                                                                                   |
+| :-------: | :---: | :------------------------------------------------------------------------------------------------------------- |
+| `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
+
+## Example
+
+### <IconObjType type="term"/> Synchronize messages among threads
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="sync_among_threads.py"
+import contextlib
+from syncstream.mproc import LineBuffer
+
+tbuf = LineBuffer(5)
+
+with contextlib.redirect_stdout(tbuf):
+    for i in range(10):
+        print(i)
+
+print(tbuf.read())
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+('5', '6', '7', '8', '9')
+```
+
+</TabItem>
+</Tabs>
+
+[link-deque-maxlen]: https://docs.python.org/3/library/collections.html#collections.deque.maxlen

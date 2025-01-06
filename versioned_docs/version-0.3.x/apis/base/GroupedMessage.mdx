@@ -1,0 +1,112 @@
+---
+id: GroupedMessage
+title: GroupedMessage
+sidebar_label: GroupedMessage
+slug: /apis/base/GroupedMessage
+description: A group of messages.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" isPrivate={true} source="base.GroupedMessage" />
+
+```python
+gpm = syncstream.base.GroupedMessage(
+    data: Sequence[str] | Warning | Exception | None = None,
+)
+```
+
+A group of messages.
+
+Used for wrapping muliple `str` lines (info), a warning object, or an exception object.
+
+This class would be used by [`mproc.LineProcMirror`](../mproc/LineProcMirror.mdx) and [`host.LineHostMirror`](../host/LineHostMirror.mdx) automatically. In most cases, users do not need to use this class directly.
+
+## Arguments
+
+### Requires
+
+| Argument |                  Type                   | Required | <center>Description</center>                                                                                                              |
+| :------: | :-------------------------------------: | :------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
+|  `data`  | `Sequence[str] \| Warning \| Exception` |          | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
+
+## Methods
+
+### <IconObjType type="method"/> `serialize`
+
+```python
+jdata: dict[str, Any] = gpm.serialize()
+```
+
+Serialize this message item into a JSON compatible dict.
+
+#### Returns
+
+| Argument |       Type       | <center>Description</center>                                                                                                                |
+| :------: | :--------------: | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| `jdata`  | `dict[str, Any]` | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#-deserialize) method. |
+
+---
+
+### <IconObjType type="method"/> `deserialize`
+
+```python
+gpm: GroupedMessage = GroupedMessage.deserialize(jdata: dict[str, Any])
+```
+
+#### Requires
+
+| Argument |       Type       |             Required              | <center>Description</center>                                                                                 |
+| :------: | :--------------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------- |
+| `jdata`  | `dict[str, Any]` | <InlineIcon icon={vsiCheckIcon}/> | The serialized dictionary. This dictionary is JSON compatible, and could be transmitted by the web packages. |
+
+#### Returns
+
+| Argument |       Type       | <center>Description</center>                                                                |
+| :------: | :--------------: | :------------------------------------------------------------------------------------------ |
+|  `gpm`   | `GroupedMessage` | The deserialized object. This object could be converted to formatted strings by `str(gpm)`. |
+
+## Example
+
+### <IconObjType type="term"/> Catch the error traceback as gruped messages
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="use_grouped_messages.py"
+from syncstream.base import GroupedMessage
+
+try:
+   raise ImportError('A testing exception object.')
+except ImportError as error:
+   gpm = GroupedMessage(error)
+
+print(gpm)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+Traceback (most recent call last):
+  File "C:\Documents (no sync)\GitHub\sync-stream\alpha\test.py", line 4, in <module>
+    raise ImportError('A testing exception object.')
+ImportError: A testing exception object.
+```
+
+</TabItem>
+</Tabs>

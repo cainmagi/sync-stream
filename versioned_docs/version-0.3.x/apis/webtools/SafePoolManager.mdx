@@ -1,0 +1,73 @@
+---
+id: SafePoolManager
+title: SafePoolManager
+sidebar_label: SafePoolManager
+slug: /apis/webtools/SafePoolManager
+description: A wrapped urllib3.PoolManager with context supported.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import IconLink from "@site/src/components/IconLink";
+
+<APITopBar type="class" isPrivate={true} isContext={true} source="webtools.SafePoolManager" />
+
+```python
+with syncstream.webtools.SafePoolManager(
+    num_pools: int = 10,
+    headers: dict[str, str] | None = None,
+    **connection_pool_kw
+) as pool:
+    pool: SafePoolManager
+```
+
+A wrapped `urllib3.PoolManager` with context supported.
+
+:::danger
+
+This is a private class. Should not be used by users.
+
+:::
+
+## Arguments
+
+See
+
+<IconLink href="https://urllib3.readthedocs.io/en/stable/reference/urllib3.poolmanager.html" />
+
+## Example
+
+### <IconObjType type="term"/> Use context to manage connections
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="use_pool_context.py"
+from syncstream.webtools import SafePoolManager
+
+
+with SafePoolManager() as pool:
+    with pool.request("get", "https://google.com") as req:
+        # req is already managed by SafeRequest.
+        print(req.status)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+200
+```
+
+</TabItem>
+</Tabs>

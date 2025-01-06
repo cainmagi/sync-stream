@@ -1,0 +1,28 @@
+---
+id: clean_http_manager
+title: clean_http_manager
+sidebar_label: clean_http_manager
+slug: /apis/webtools/clean_http_manager
+description: 用来清理http请求的回调。
+---
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="webtools.clean_http_manager" />
+
+```python
+syncstream.webtools.clean_http_manager(http: urllib3.PoolManager)
+```
+
+用于终结器的回调函数。该函数用于清理所有的、不再需要保持连接的http请求。
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|  参数  |         类型          |               必选                | <center>说明</center> |
+| :----: | :-------------------: | :-------------------------------: | :-------------------- |
+| `http` | `urllib3.PoolManager` | <InlineIcon icon={vsiCheckIcon}/> | 要清理的连接池。      |

@@ -1,0 +1,261 @@
+---
+id: LineProcMirror
+title: LineProcMirror
+sidebar_label: LineProcMirror
+slug: /apis/mproc/LineProcMirror
+description: The mirror for the process-safe line-based buffer.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" isPrivate={true} source="mproc.LineProcMirror" />
+
+```python
+pbuf: syncstream.LineProcBuffer
+buffer = pbuf.mirror
+```
+
+The mirror for the process-safe line-based buffer.
+
+:::danger
+
+This mirror is initialized by [`LineProcBuffer`](./LineProcBuffer.mdx), and would be used for managing the lines written to the buffer. Users do not need, and should not use this class to initialize objects. Please always use [`pbuf.mirror`](./LineProcBuffer.mdx#-mirror) to get the mirror object.
+
+:::
+
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.LineProcMirror
+syncstream.mproc.LineProcMirror
+```
+
+## Arguments
+
+### Requires
+
+|   Argument    |           Type           | Required | <center>Description</center>                                                                                                                                                                                                                        |
+| :-----------: | :----------------------: | :------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  `q_maxsize`  |          `int`           |          | The maximal size of the queue. This value has the same meaning of [`queue.qsize`<IconExternalLink/>][link-queue-size].                                                                                                                              |
+| `aggressive`  |          `bool`          |          | If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written.                |
+|   `timeout`   |      `int \| None`       |          | The timeout configuration of the queue. This value has the same meaning of [`queue.put(timeout)`<IconExternalLink/>][link-queue-put].                                                                                                               |
+|   `_queue`    |     `Queue \| None`      |          | The queue used for communicating with the buffer. This object could be an instance of `multiprocessing.Queue()` or given by `multiprocessing.Manager()`. The queue object should be created by the [`LineProcBuffer`](./LineProcBuffer.mdx) object. |
+|   `_state`    | `dict[str, Any] \| None` |          | A shared state dictionary given by `multiprocessing.Manager()`. The dict object should be created by the [`LineProcBuffer`](./LineProcBuffer.mdx) object.                                                                                           |
+| `_state_lock` |      `Lock \| None`      |          | The reading / writing lock of the state dictionary given by `multiprocessing.Manager()`. The lock object should be created by the [`LineProcBuffer`](./LineProcBuffer.mdx) object.                                                                  |
+
+## Methods
+
+### <IconObjType type="method"/> `clear`
+
+```python
+buffer.clear()
+```
+
+Clear the whole buffer.
+
+This method would clear the temporary buffer of the mirror. If the mirror works in the `aggresive` mode, the temporary buffer would not be used. In this case,
+this method would not exert any influences to the mirror.
+
+This method is thread-safe. Mirrors in different processes would not share the temporary buffer. Note that the shared queue would not be cleared by this method.
+
+---
+
+### <IconObjType type="method"/> `new_line`
+
+```python
+buffer.new_line()
+```
+
+Clear the current temporary buffer, and manually trigger a new line signal. If the current temporary buffer contains data, the data would be moved to the storage, and a new line would be created. If the current temporary buffer is already a new line, do nothing.
+
+This method is equivalent to
+
+```python
+if buffer.last_line.tell() > 0:
+    write('\n')
+```
+
+---
+
+### <IconObjType type="method"/> `flush`
+
+```python
+buffer.flush()
+```
+
+Flush the current written line stream (temporary buffer).
+
+---
+
+### <IconObjType type="method"/> `send_eof`
+
+```python
+buffer.send_eof()
+```
+
+Send the safely close signal.
+
+The signal should be used at the end of the sub-process. This method is used for informing the buffer that the sub-process has been finished safely.
+
+:::danger
+
+- Users should always use `send_eof()` or `send_error()` at the end of a sub-process. Otherwise, a dead lock would be caused by the main thread (buffer).
+- Users should only invoke `send_eof()` or `send_error()` once for each sub-process. For example, if `send_error()` has been invoked, `send_eof()` should not be used. Sending more than one close signal from the same sub-process may cause fatal bugs.
+
+:::
+
+---
+
+### <IconObjType type="method"/> `send_error`
+
+```python
+buffer.send_error(error: Exception)
+```
+
+Send the exception object to the main buffer.
+
+Send the catched error object. This method should always be used in the try / except block. The error object would be captured as an item of the storage in the main buffer.
+
+:::danger
+
+See [`send_eof()`](#-send_eof).
+
+:::
+
+#### Requires
+
+| Argument |    Type     |             Required              | <center>Description</center>             |
+| :------: | :---------: | :-------------------------------: | :--------------------------------------- |
+| `error`  | `Exception` | <InlineIcon icon={vsiCheckIcon}/> | The exception object that would be sent. |
+
+---
+
+### <IconObjType type="method"/> `send_warning`
+
+```python
+buffer.send_warning(warning: Warning)
+```
+
+Send the standard warning object to the main buffer.
+
+Send the catched warning object. It is recommended that this method can be used when logging the warning objects. The warning object would be captured as an item of the storage in the main buffer.
+
+:::caution
+
+This method could only catch the warning object defined by the stdlib. Some different warning objects, like [`logging.warning`<IconExternalLink/>][link-logging-warning] messages would not be collected with correct configurations.
+
+:::
+
+#### Requires
+
+| Argument  |   Type    |             Required              | <center>Description</center>           |
+| :-------: | :-------: | :-------------------------------: | :------------------------------------- |
+| `warning` | `Warning` | <InlineIcon icon={vsiCheckIcon}/> | The warning object that would be sent. |
+
+---
+
+### <IconObjType type="method"/> `send_data`
+
+```python
+buffer.send_data(data: str)
+```
+
+Send the data to the main buffer.
+
+This method is equivalent to call the main buffer ([LineProcBuffer](./LineProcBuffer.mdx)) by the following method protected by process-safe synchronization:
+
+```python
+super(LineProcBuffer, pbuf).write(data)
+```
+
+This method is used by other methods implicitly, and should not be used by users.
+
+#### Requires
+
+| Argument | Type  |             Required              | <center>Description</center>         |
+| :------: | :---: | :-------------------------------: | :----------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | A str to be sent to the main buffer. |
+
+---
+
+### <IconObjType type="method"/> `read`
+
+```python
+line: str = buffer.read()
+```
+
+This method would only read the current bufferred values in the mirror storage. If the property `aggressive` is `True`, the `read()` method would always return empty value.
+
+#### Returns
+
+| Argument | Type  | <center>Description</center>                                                                  |
+| :------: | :---: | :-------------------------------------------------------------------------------------------- |
+|  `line`  | `str` | Current storage of the mirror. The value in the storage has not been sent to the main buffer. |
+
+---
+
+### <IconObjType type="method"/> `write`
+
+```python
+n_bytes: int = buffer.write(data: str)
+```
+
+The writting method of the buffer. The source data is the same as that of a text-based IO. If `aggressive` is `True`, each call of `write()` would make the stream value sent to the main buffer. If not, each time when `data` contains a line break, the stream value would be sent to the main buffer.
+
+The method is thread-safe.
+
+#### Requires
+
+| Argument | Type  |             Required              | <center>Description</center>                                           |
+| :------: | :---: | :-------------------------------: | :--------------------------------------------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | The written messages. The line breaks would be detected automatically. |
+
+#### Returns
+
+| Argument  | Type  | <center>Description</center>                                                                                   |
+| :-------: | :---: | :------------------------------------------------------------------------------------------------------------- |
+| `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
+
+## Properties
+
+### <IconObjType type="param"/> `aggressive`
+
+```python
+is_aggressive: bool = buffer.aggressive
+```
+
+The aggressive mode.
+
+This mode could only by configured by the initialization. If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written.
+
+---
+
+### <IconObjType type="param"/> `timeout`
+
+```python
+tiemout: int = buffer.timeout
+```
+
+The timeout configuration of the queue. This value has the same meaning of [`queue.put(timeout)`<IconExternalLink/>][link-queue-put].
+
+In current implementation, this value is always configured as `None`. However, users could change this value when using the mirror.
+
+## Example
+
+See [`LineProcBuffer`](./LineProcBuffer.mdx#example).
+
+[link-queue-size]: https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue.qsize
+[link-queue-put]: https://docs.python.org/3/library/multiprocessing.html#multiprocessing.Queue.put
+[link-logging-warning]: https://docs.python.org/3/library/logging.html#logging.Logger.warning

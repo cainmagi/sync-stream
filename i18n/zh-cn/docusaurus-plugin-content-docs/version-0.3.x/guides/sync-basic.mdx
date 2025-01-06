@@ -1,0 +1,51 @@
+---
+id: sync-basic
+title: 捕获标准输出（stdout）
+sidebar_label: 捕获stdout
+slug: /sync-basic
+description: 本包的基础用法。
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+下例展示了获取python的stdout和stderr的做法：
+
+```python showLineNumbers title="basic.py" 
+from contextlib import redirect_stdout, redirect_stderr
+import syncstream
+
+# 初始化缓存。
+# highlight-next-line
+buffer = syncstream.LineBuffer(10)
+
+# 使用contextlib重定向stdout和stderr。
+with redirect_stdout(buffer), redirect_stderr(buffer):
+    for i in range(20):
+        print('Message', f'"{i:02d}".')
+    print('Line break\nin middle.', end='')
+    print('No line break.', end='')
+
+# 检查结果。
+# highlight-next-line
+messages = buffer.read()
+for mitem in messages:
+    print(mitem)
+```
+
+定义缓存时，将缓存的最大行数设定为`10`：
+
+```python
+buffer = syncstream.LineBuffer(10)
+```
+
+该缓存实例可以传递给重定向上下文。在上下文内部，`print`函数会重定向到缓存上。每当检测到新行，就会在缓存中创建一条新的记录项。用来检测新行数的规则，和标准库中的[`str.splitlines`<IconExternalLink/>][link-splitlines]做法相同。
+
+捕获所有行之后，可以透过以下方式返回结果
+
+```python
+messages = buffer.read()
+```
+
+`messages`的各项均是`str`，其意义是上下文中所捕获的各行。
+
+[link-splitlines]: https://docs.python.org/zh-cn/3/library/stdtypes.html#str.splitlines

@@ -1,0 +1,36 @@
+---
+id: index
+title: webtools
+sidebar_label: webtools
+slug: /apis/webtools
+description: The shared utilities for web services.
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="module" isPrivate={true} source="webtools" />
+
+The shared utilities for web services. This module is private and should not be
+exposed to users.
+
+The implementation of this module is mainly based on
+[`urllib3`<IconExternalLink/>][link-urllib3].
+
+## Classes
+
+|                                           Member                                           | <center>Description</center>                                                    |
+| :----------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------ |
+|   [<IconObjType type="class" hasText={true} text="StdoutWrapper"/>](./StdoutWrapper.mdx)   | A wrapper for ensuring that the stdout is always directed to the same position. |
+| [<IconObjType type="class" hasText={true} text="SafePoolManager"/>](./SafePoolManager.mdx) | A wrapped `urllib3.PoolManager` with context supported.                         |
+|     [<IconObjType type="class" hasText={true} text="SafeRequest"/>](./SafeRequest.mdx)     | A wrapper for providing context for the `urllib3.HTTPResponse`.                 |
+
+## Functions
+
+|                                                Member                                                 | <center>Description</center>                  |
+| :---------------------------------------------------------------------------------------------------: | :-------------------------------------------- |
+|    [<IconObjType type="func" hasText={true} text="clean_http_manager"/>](./clean_http_manager.mdx)    | A callback for cleaning the http requests.    |
+| [<IconObjType type="func" hasText={true} text="close_request_session"/>](./close_request_session.mdx) | A callback for cleaning the request sessions. |
+
+[link-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html

@@ -1,0 +1,87 @@
+---
+id: sync-file
+title: 同步于文件之间
+sidebar_label: 文件同步
+slug: /sync-file
+description: 教程，展示了如何在程序之间同步信息。
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+文件同步基于包[`fasteners`<IconExternalLink/>][pypi-fasteners]。在此情况下，透过共享的日志（log）文件来是实现缓存，并通过文件锁实现同步。当用户需要在同一设备的不同程序之间进行信息同步，则建议使用[`LineFileBuffer`](../apis/file/LineFileBuffer.mdx)。
+
+下例提供了两个脚本（`writer.py`和`reader.py`）。读者（reader）需要在写者（writer）之前启动。接下来，所有来自writer的信息都会被reader捕获。
+
+<Tabs
+  defaultValue="writer"
+  values={[
+    { label: '写者（writer）', value: 'writer', },
+    { label: '读者（reader）', value: 'reader', },
+  ]
+}>
+
+<TabItem value="writer">
+
+```python showLineNumbers title="writer.py"
+import os
+import time
+from contextlib import redirect_stdout, redirect_stderr
+import syncstream
+
+os.makedirs('logs', exist_ok=True)  # 创建日志文件夹。
+# highlight-next-line
+buffer = syncstream.LineFileBuffer('logs/message', maxlen=10, tmp_id=os.getpid())
+# highlight-next-line
+with redirect_stdout(buffer), redirect_stderr(buffer):
+    for i in range(10):
+        time.sleep(1.0)
+        print('Line', 'buffer', 'new', i, end='\n')
+buffer.new_line()  # 终结信号。
+```
+
+</TabItem>
+
+<TabItem value="reader">
+
+```python showLineNumbers title="reader.py"
+import os
+import shutil
+import time
+import syncstream
+
+# 初始化。
+shutil.rmtree('logs')
+os.makedirs('logs', exist_ok=True)
+# highlight-next-line
+buffer = syncstream.LineFileBuffer('logs/message', maxlen=10, tmp_id=os.getpid())
+
+while True:  # 等待，直到获得10条信息。
+    time.sleep(1)
+    # highlight-next-line
+    messages = buffer.read()
+    if len(messages) >= 10:
+        break
+
+# 展示结果。
+for mitem in messages:
+    print(mitem)
+```
+
+</TabItem>
+
+</Tabs>
+
+在上例中，writer和reader是作为两个不同的python程序启动的。无论是reader还是writer，均不知道对方运行的细节。唯一实现同步的、就是透过文件共享的信息。文件锁确保了不同的程序不会引发同步故障。
+
+在writer和reader中，使用了同样的实例[`LineFileBuffer`](../apis/file/LineFileBuffer.mdx)。不同于[`LineBuffer`](../apis/mproc/LineBuffer.mdx)以及[`LineProcBuffer`](../apis/mproc/LineProcBuffer.mdx)，读者需要反复调用[`buffer.read()`](../apis/file/LineFileBuffer.mdx#-read)方法。每次调用该方法时，存在于文件中的记录就会被遍历一次。读者会持续在每秒扫描文件，直到收集到10行记录。
+
+:::danger
+
+唯一不安全的因素，是程序的突然中断。这会导致、程序退出时，部分锁文件仍然保留了下来。要避免旧的锁文件干扰程序，建议在运行reader之前，移除所有的锁文件。
+
+:::
+
+[pypi-fasteners]:https://pypi.org/project/fasteners "fasteners"

@@ -1,0 +1,273 @@
+---
+id: LineHostMirror
+title: LineHostMirror
+sidebar_label: LineHostMirror
+slug: /apis/host/LineHostMirror
+description: 网络服务缓存的镜像。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="host.LineHostMirror" />
+
+```python
+buffer = syncstream.host.LineHostMirror(
+    address: str,
+    aggressive: bool = False,
+    timeout: int | None = None,
+)
+```
+
+网络服务缓存的镜像。
+
+该镜像是针对[`LineHostBuffer`](./LineHostBuffer.mdx)所提供服务的客户端。要使用该镜像，需要独立地进行初始化，并将其用于处理要写入缓存的行。不同于[`LineProcMirror`](../mproc/LineProcMirror.mdx)，各个独立的mirror之间不存在一个共享的队列。
+
+## 别名 {#aliases}
+
+该类可以按以下方式之一获取
+
+```python
+import syncstream
+
+
+syncstream.LineHostMirror
+syncstream.host.LineHostMirror
+```
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|     参数     |     类型      |               必选                | <center>说明</center>                                                                                                                            |
+| :----------: | :-----------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+|  `address`   |     `str`     | <InlineIcon icon={vsiCheckIcon}/> | 完整 URL，包括[`LineHostBuffer`](./LineHostBuffer.mdx)服务的 API 名。                                                                            |
+| `aggressive` |    `bool`     |                                   | 若设为`True`，则启用积极模式，亦即是说，只要有新的数据写入该 mirror，就会立即传递给缓存。若设为`False`，则只会在新写一整行的时候、才传递给缓存。 |
+|  `timeout`   | `int \| None` |                                   | 网络同步事件的时限。若不设置，则执行同步操作将持续阻塞当前进程。                                                                                 |
+
+## 方法 {#methods}
+
+### <IconObjType type="method"/> `clear` {#-clear}
+
+```python
+buffer.clear()
+```
+
+清空整个缓存。
+
+该方法会清空mirror的临时缓存。若mirror按`aggresive`模式工作，则临时缓存不会用到。在此情形下，该方法将不会对mirror产生任何影响。
+
+该方法是线程安全的。且不同进程的镜像并不会共享相同的临时缓存。
+
+---
+
+### <IconObjType type="method"/> `new_line` {#-new_line}
+
+```python
+buffer.new_line()
+```
+
+清空当前的临时缓存，并人为地触发一个“新行”信号。若当前的临时缓存包含数据，则会先将数据移动到存储区，然后再创建新行。若当前的临时缓存的已经是新行，则不做任何处理。
+
+该方法等价于
+
+```python
+if buffer.last_line.tell() > 0:
+    write('\n')
+```
+
+---
+
+### <IconObjType type="method"/> `flush` {#-flush}
+
+```python
+buffer.flush()
+```
+
+刷新当前正在写入行的数据流（临时缓存）。
+
+---
+
+### <IconObjType type="method"/> `send_eof` {#-send_eof}
+
+```python
+buffer.send_eof()
+```
+
+发送安全关闭信号。
+
+应当在子进程的结尾使用该信号。该方法用来通知缓存子进程的工作已经安全完成。
+
+:::danger
+
+- 在每个子进程的结尾，应当总是使用`send_eof()`或`send_error()`。否则，临时缓存里的数据可能不会正确地移交到（远端的）存储区内。
+- 在每个子进程的结尾，应当只使用一次`send_eof()`或`send_error()`。例如，若调用过`send_error()`，则不应再调用`send_eof()`。从同一子进程发送超过一个关闭信号，可能引发严重故障。
+
+:::
+
+---
+
+### <IconObjType type="method"/> `send_error` {#-send_error}
+
+```python
+buffer.send_error(error: Exception)
+```
+
+向主缓存发送异常对象。
+
+发送缓存过的异常对象。该方法需要用于try / except块中。错误对象将会在主缓存中捕获为一条信息。
+
+:::danger
+
+参见[`send_eof()`](#-send_eof)。
+
+:::
+
+#### 输入 {#requires-1}
+
+|  参数   |    类型     |               必选                | <center>说明</center> |
+| :-----: | :---------: | :-------------------------------: | :-------------------- |
+| `error` | `Exception` | <InlineIcon icon={vsiCheckIcon}/> | 要发送的异常对象。    |
+
+---
+
+### <IconObjType type="method"/> `send_warning` {#-send_warning}
+
+```python
+buffer.send_warning(warning: Warning)
+```
+
+向主缓存发送标准警告对象。
+
+发送缓存过的警告对象。建议在每当需要写入警告日志时、使用该方法。警告对象将会在主缓存中捕获为一条信息。
+
+:::caution
+
+该方法只能捕获标准库定义的警告对象。某些不同的警告对象，例如[`logging.warning`<IconExternalLink/>][link-logging-warning]所写的warning信息，则无法被该方法收集。
+
+:::
+
+#### 输入 {#requires-2}
+
+|   参数    |   类型    |               必选                | <center>说明</center> |
+| :-------: | :-------: | :-------------------------------: | :-------------------- |
+| `warning` | `Warning` | <InlineIcon icon={vsiCheckIcon}/> | 要发送的警告对象。    |
+
+---
+
+### <IconObjType type="method"/> `send_data` {#-send_data}
+
+```python
+buffer.send_data(data: str)
+```
+
+向主缓存发送数据。
+
+该方法会触发主缓存的POST服务请求，并发送`str`数据。
+
+该方法被其他方法隐式调用，故用户不应使用该方法。
+
+#### 输入 {#requires-3}
+
+|  参数  | 类型  |               必选                | <center>说明</center>   |
+| :----: | :---: | :-------------------------------: | :---------------------- |
+| `data` | `str` | <InlineIcon icon={vsiCheckIcon}/> | 要发送到主缓存的`str`。 |
+
+---
+
+### <IconObjType type="method"/> `check_states` {#-check_states}
+
+```python
+buffer.check_states()
+```
+
+检查当前的缓存状态。
+
+目前，该方法只用来检查服务是否已关闭。
+
+该方法被其他方法隐式调用，故用户不应使用该方法。
+
+---
+
+### <IconObjType type="method"/> `read` {#-read}
+
+```python
+line: str = buffer.read()
+```
+
+该方法只会读取、当前保留在mirror的临时缓存内的数据。若属性`aggressive`为`True`，则`read()`方法将总是返回空值。
+
+#### 输出 {#returns}
+
+|  参数  | 类型  | <center>说明</center>                                            |
+| :----: | :---: | :--------------------------------------------------------------- |
+| `line` | `str` | 当前mirror的临时存储结果。在临时存储内的数据还没有发送到主缓存。 |
+
+---
+
+### <IconObjType type="method"/> `write` {#-write}
+
+```python
+n_bytes: int = buffer.write(data: str)
+```
+
+写缓存的方法。源数据的形式与文字IO的数据形式相同。若属性`aggressive`为`True`，每次调用`write()`时，都将会使得流内的数据发送到主缓存。否则，只在每当`data`包含断行符的时候、才会将流的数据发送到主缓存。
+
+该方法是线程安全的。但信息同步的过程是主机安全的。
+
+#### 输入 {#requires-4}
+
+|  参数  | 类型  |               必选                | <center>说明</center>                      |
+| :----: | :---: | :-------------------------------: | :----------------------------------------- |
+| `data` | `str` | <InlineIcon icon={vsiCheckIcon}/> | 要写入的信息。会自动检测其中包含的断行符。 |
+
+#### 输出 {#returns-1}
+
+|   参数    | 类型  | <center>说明</center>                              |
+| :-------: | :---: | :------------------------------------------------- |
+| `n_bytes` | `int` | 所要写入缓存的byte数目。该值直接从输入`data`计算。 |
+
+## 属性 {#properties}
+
+### <IconObjType type="param"/> `aggressive` {#-aggressive}
+
+```python
+is_aggressive: bool = buffer.aggressive
+```
+
+积极模式。
+
+该模式只能在初始化的时候设置。若设为`True`，则积极模式启用，mirror将会在每当收到新的数据时，将信息传递给主缓存。若设为`False`，则只会在新写一整行的时候、才传递给缓存。
+
+---
+
+### <IconObjType type="param"/> `timeout` {#-timeout}
+
+```python
+timeout: int = buffer.timeout
+```
+
+
+网络同步事件的时限。若不设置，则执行同步操作将持续阻塞当前进程。
+
+---
+
+### <IconObjType type="param"/> `headers` {#-headers}
+
+```python
+headers: dict[str, str] = buffer.headers
+```
+
+网络连接的默认请求头。这些头信息将会用于每个`POST`或`GET`方法中。
+
+## 范例 {#example}
+
+参见[`LineHostBuffer`](./LineHostBuffer.mdx#example)。
+
+[link-logging-warning]: https://docs.python.org/zh-cn/3/library/logging.html#logging.Logger.warning

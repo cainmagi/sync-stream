@@ -1,0 +1,33 @@
+---
+id: close_request_session
+title: close_request_session
+sidebar_label: close_request_session
+slug: /apis/webtools/close_request_session
+description: A callback for cleaning the request sessions.
+---
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar
+  type="func"
+  isPrivate={true}
+  source="webtools.close_request_session"
+/>
+
+```python
+syncstream.webtools.close_request_session(sess: urllib3.HTTPResponse)
+```
+
+A callback for the finializer, this function would be used for cleaning the requests
+session, if the connection does not need to exist.
+
+## Arguments
+
+### Requires
+
+| Argument |          Type          |             Required              | <center>Description</center>             |
+| :------: | :--------------------: | :-------------------------------: | :--------------------------------------- |
+|  `sess`  | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | The http session (request) to be closed. |

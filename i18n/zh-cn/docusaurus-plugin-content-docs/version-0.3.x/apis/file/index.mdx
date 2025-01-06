@@ -1,0 +1,23 @@
+---
+id: index
+title: file
+sidebar_label: file
+slug: /apis/file
+description: 文件信息同步，基于fasteners实现。
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="module" isPrivate={true} source="file" />
+
+该模块基于文件锁的实现包（[`fasteners`<IconExternalLink/>][link-fasteners]）。使用轮换的文件来记录多条信息。
+
+## 类 {#classes}
+
+|                                           成员                                           | <center>说明</center>              |
+| :--------------------------------------------------------------------------------------: | :--------------------------------- |
+| [<IconObjType type="class" hasText={true} text="LineFileBuffer"/>](./LineFileBuffer.mdx) | 文件驱动的、以行为单元的缓存句柄。 |
+
+[link-fasteners]: https://fasteners.readthedocs.io/en/latest/

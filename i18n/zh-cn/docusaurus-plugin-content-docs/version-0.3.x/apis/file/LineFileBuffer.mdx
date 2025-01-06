@@ -1,0 +1,223 @@
+---
+id: LineFileBuffer
+title: LineFileBuffer
+sidebar_label: LineFileBuffer
+slug: /apis/file/LineFileBuffer
+description: 文件驱动的、以行为单元的缓存句柄。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="file.LineFileBuffer" />
+
+```python
+fbuf = syncstream.file.LineFileBuffer(
+    file_path: str,
+    maxlen: int = 20,
+    tmp_id: str = "tmp",
+)
+```
+
+文件驱动的、以行为单元的缓存句柄。
+
+该缓存为文字流提供了一个轮换存储空间。文字的存储单位不是字符，而是行。存储空间的最大行数是有限的。每条记录将会存储为一个独立的文件。同步透过文件锁实现。
+
+加持了文件锁的句柄、可以共享在不同的进程之间，但这并不是推荐的做法。更好的处理方式，是在每个进程里（若有必要），独立地初始化各自的句柄。
+
+:::caution
+
+须知该句柄是进程安全、而非线程安全的。换言之，每个进程应当只维护一个**独立的**`LineFileBuffer`。该`LineFileBuffer`不宜在不同的线程、或不同的进程之间共享。
+
+:::
+
+## 别名 {#aliases}
+
+该类可以按以下方式之一获取
+
+```python
+import syncstream
+
+
+syncstream.LineFileBuffer
+syncstream.file.LineFileBuffer
+```
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|    参数     | 类型  |               必选                | <center>说明</center>                                                                                              |
+| :---------: | :---: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------- |
+| `file_path` | `str` | <InlineIcon icon={vsiCheckIcon}/> | 所存储记录的基路径，其指向的位置既包括了存储内容、又包含文件锁。文件的后缀名不会自动设置为`.log`。                 |
+|  `maxlen`   | `int` |                                   | 所记录行数的最大值。每行记录会保存为一个文件。                                                                     |
+|  `tmp_id`   | `str` |                                   | 临时文件的ID。对于每个进程，应当各自持有独立的ID。若不同的进程持有冲突的ID，则会导致不同进程的写入流之间相互干扰。 |
+
+## 方法 {#methods}
+
+### <IconObjType type="method"/> `clear` {#-clear}
+
+```python
+fbuf.clear()
+```
+
+清空整个缓存。
+
+该方法会搜索、并移除所有的日志文件，也包括临时文件，但不会移除锁文件。要使用该方法，典型的做法是只在主进程中清空文件。
+
+---
+
+### <IconObjType type="method"/> `new_line` {#-new_line}
+
+```python
+fbuf.new_line()
+```
+
+清空当前的临时缓存，并人为地触发一个“新行”信号。若当前的临时缓存包含数据，则会先将数据移动到存储区，然后再创建新行。若当前的临时缓存的已经是新行，则不做任何处理。
+
+该方法等价于
+
+```python
+if (last line is not empty):
+    write('\n')
+```
+
+---
+
+### <IconObjType type="method"/> `flush` {#-flush}
+
+```python
+fbuf.flush()
+```
+
+
+刷新当前正在写入行的数据流（临时缓存）。
+
+:::caution
+
+该方法不会产生任何实际效果，因为基于文件的缓存不需要刷新临时缓存。
+
+:::
+
+---
+
+### <IconObjType type="method"/> `parse_lines` {#-parse_lines}
+
+```python
+fbuf.parse_lines(lines: Sequence[str])
+```
+
+处理行。
+
+每次`write()`方法将要向缓存写入新行时，调用此方法。默认的行为是向日志文件写入行。
+
+用户自行定制形如“正则表达式搜索”的处理方法、并以此继承、重载该方法。该方法的默认行为透过以下私有方法实现：
+
+```python
+fbuf.__update_records(lines)
+```
+
+#### 输入 {#requires-1}
+
+|  参数   |      类型       |               必选                | <center>说明</center>                                                      |
+| :-----: | :-------------: | :-------------------------------: | :------------------------------------------------------------------------- |
+| `lines` | `Sequence[str]` | <InlineIcon icon={vsiCheckIcon}/> | 要写入日志文件的字符串序列。用户可以捕获任一行，并从中提取某种特定的信息。 |
+
+---
+
+### <IconObjType type="method"/> `read` {#-read}
+
+```python
+lines: Sequence[str] = fbuf.read(size: int | None = None)
+```
+
+从缓存中获取所存储的各项记录。`read()`方法是进程安全的，并且不会干扰`write()`方法的指针。
+
+若当前正在写入的行不为空，调用该方法时，则会将其视为最后一条记录。
+
+#### 输入 {#requires-2}
+
+|  参数  |     类型      | 必选 | <center>说明</center>                                                        |
+| :----: | :-----------: | :--: | :--------------------------------------------------------------------------- |
+| `size` | `int \| None` |      | 若设为`None`，则会返回整个存储区。若设为一个整数，则会返回最后`size`条信息。 |
+
+#### 输出 {#returns}
+
+|  参数   |      类型       | <center>说明</center>                      |
+| :-----: | :-------------: | :----------------------------------------- |
+| `lines` | `Sequence[str]` | 所返回的信息。这些信息已经按断行符分拆过。 |
+
+---
+
+### <IconObjType type="method"/> `write` {#-write}
+
+```python
+n_bytes: int = fbuf.write(data: str)
+```
+
+写缓存的方法。源数据的形式与文字IO的数据形式相同。每当`data`包含断行符时，会向存储区置入一条新的记录。`write()`方法是进程安全的。
+
+#### 输入 {#requires-3}
+
+|  参数  | 类型  |               必选                | <center>说明</center>                      |
+| :----: | :---: | :-------------------------------: | :----------------------------------------- |
+| `data` | `str` | <InlineIcon icon={vsiCheckIcon}/> | 要写入的信息。会自动检测其中包含的断行符。 |
+
+#### 输出 {#returns-1}
+
+|   参数    | 类型  | <center>说明</center>                              |
+| :-------: | :---: | :------------------------------------------------- |
+| `n_bytes` | `int` | 所要写入缓存的byte数目。该值直接从输入`data`计算。 |
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 在共享的日志文件之间同步信息 {#-synchronize-messages-by-shared-log-files}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="sync_by_files.py"
+import os
+import contextlib
+import multiprocessing
+from syncstream.file import LineFileBuffer
+
+
+def f(f_path, f_len=10):
+    fbuf = LineFileBuffer(f_path, maxlen=f_len, tmp_id=os.getpid())
+    with contextlib.redirect_stdout(fbuf):
+        print('example')
+    fbuf.new_line()
+
+
+if __name__ == '__main__':
+    f_path = os.path.join('logs', 'test_file')
+    f_len = 10
+    with multiprocessing.Pool(4) as p:
+        p.starmap(f, tuple((f_path, f_len) for _ in range(4)))
+    fbuf = LineFileBuffer(f_path, maxlen=f_len, tmp_id=os.getpid())
+    print(fbuf.read())
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+('example', 'example', 'example', 'example')
+```
+
+</TabItem>
+</Tabs>

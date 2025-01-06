@@ -1,0 +1,23 @@
+---
+id: index
+title: file
+sidebar_label: file
+slug: /apis/file
+description: The file-lock-based message synchronization, implemented based on fasteners.
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="module" isPrivate={true} source="file" />
+
+This module is based on the file-lock package ([`fasteners`<IconExternalLink/>][link-fasteners]). It uses rotating files to record the message items.
+
+## Classes
+
+|                                          Member                                          | <center>Description</center>              |
+| :--------------------------------------------------------------------------------------: | :---------------------------------------- |
+| [<IconObjType type="class" hasText={true} text="LineFileBuffer"/>](./LineFileBuffer.mdx) | The file-driven line-based buffer handle. |
+
+[link-fasteners]: https://fasteners.readthedocs.io/en/latest/

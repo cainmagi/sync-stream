@@ -1,0 +1,69 @@
+---
+id: installation
+title: 安装本项目的Python包
+sidebar_label: 安装
+slug: /installation
+description: 安装本项目的PyPI发布版。
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import DarkButton from "@site/src/components/DarkButton";
+import octInfo16 from "@iconify-icons/octicon/info-16";
+
+import {IconLinkInline} from "@site/src/components/IconLink";
+import {repoURL} from "@site/src/envs/variables";
+
+只需运行以下命令，即可安装模块包：
+
+```shell
+pip install syncstream
+```
+
+本包的基础功能不需要任何依赖项。它只支持`syncstream`的多线程和多进程版本。
+
+## 额外功能 {#extra-features}
+
+基础包不包含`file`和`host`模块。要安装这些功能，请追加以下可选依赖项：
+
+```shell
+pip install syncstream[option1,option2...]
+```
+
+|  选项  | <center>支持的功能</center>                                                                                                   |
+| :----: | :---------------------------------------------------------------------------------------------------------------------------- |
+| `file` | Install dependencies for the `file` module. The module provides `syncstream.LineFileBuffer`.                                  |
+| `host` | Install dependencies for the `host` module. The module provides `syncstream.LineHostBuffer`, and `syncstream.LineHostMirror`. |
+
+## 安装GitHub版本 {#install-the-github-version}
+
+在开发阶段，GitHub上的版本有可能比在PyPI发布的版本新。如果用户需要安装GitHub版本，请确保已经安装了[Git<IconExternalLink/>][link-git]。
+
+确保一些需要的软件都准备无虞后，运行下列命令安装开发者版本：
+
+```shell
+pip install git+https://github.com/cainmagi/sync-stream.git
+```
+
+## 运行测试 {#run-the-tests}
+
+要检查此项目是否兼容当前设备，请clone本项目并运行测试：
+
+```shell
+git clone https://github.com/cainmagi/sync-stream.git
+cd sync-stream
+pip install -r requirements.txt
+python -m pytest
+```
+
+本项目只兼容到`python>=3.7`版本。如果你发现你所使用的版本无法通过单元测试，请提交问题报告：
+
+<p>
+  {
+    <DarkButton to={repoURL("issues/new/choose")} icon={octInfo16}>
+      报告问题
+    </DarkButton>
+  }
+</p>
+
+[link-git]: https://git-scm.com/downloads
