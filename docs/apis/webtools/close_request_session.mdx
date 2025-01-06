@@ -6,7 +6,10 @@ slug: /apis/webtools/close_request_session
 description: A callback for cleaning the request sessions.
 ---
 
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
 import APITopBar from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar
   type="func"
@@ -25,6 +28,6 @@ session, if the connection does not need to exist.
 
 ### Requires
 
-| Argument |          Type          | <center>Description</center>             |
-| :------: | :--------------------: | :--------------------------------------- |
-|  `sess`  | `urllib3.HTTPResponse` | The http session (request) to be closed. |
+| Argument |          Type          |             Required              | <center>Description</center>             |
+| :------: | :--------------------: | :-------------------------------: | :--------------------------------------- |
+|  `sess`  | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | The http session (request) to be closed. |

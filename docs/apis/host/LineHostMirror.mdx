@@ -10,7 +10,10 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import IconExternalLink from "@theme/Icon/ExternalLink";
 
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" source="host.LineHostMirror" />
 
@@ -42,11 +45,11 @@ syncstream.host.LineHostMirror
 
 ### Requires
 
-|   Argument   |     Type      | <center>Description</center>                                                                                                                                                                                                         |
-| :----------: | :-----------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|  `address`   |     `str`     | The full url, including the API name of the [`LineHostBuffer`](./LineHostBuffer.mdx) services.                                                                                                                                       |
-| `aggressive` |    `bool`     | If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written. |
-|  `timeout`   | `int \| None` | The timeout of the web syncholizing events. If not set, the synchronization would block the current process.                                                                                                                         |
+|   Argument   |     Type      |             Required              | <center>Description</center>                                                                                                                                                                                                         |
+| :----------: | :-----------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  `address`   |     `str`     | <InlineIcon icon={vsiCheckIcon}/> | The full url, including the API name of the [`LineHostBuffer`](./LineHostBuffer.mdx) services.                                                                                                                                       |
+| `aggressive` |    `bool`     |                                   | If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written. |
+|  `timeout`   | `int \| None` |                                   | The timeout of the web syncholizing events. If not set, the synchronization would block the current process.                                                                                                                         |
 
 ## Methods
 
@@ -128,9 +131,9 @@ See [`send_eof()`](#-send_eof)
 
 #### Requires
 
-| Argument |    Type     | <center>Description</center>             |
-| :------: | :---------: | :--------------------------------------- |
-| `error`  | `Exception` | The exception object that would be sent. |
+| Argument |    Type     |             Required              | <center>Description</center>             |
+| :------: | :---------: | :-------------------------------: | :--------------------------------------- |
+| `error`  | `Exception` | <InlineIcon icon={vsiCheckIcon}/> | The exception object that would be sent. |
 
 ---
 
@@ -152,9 +155,9 @@ This method could only catch the warning object defined by the stdlib. Some diff
 
 #### Requires
 
-| Argument  |   Type    | <center>Description</center>           |
-| :-------: | :-------: | :------------------------------------- |
-| `warning` | `Warning` | The warning object that would be sent. |
+| Argument  |   Type    |             Required              | <center>Description</center>           |
+| :-------: | :-------: | :-------------------------------: | :------------------------------------- |
+| `warning` | `Warning` | <InlineIcon icon={vsiCheckIcon}/> | The warning object that would be sent. |
 
 ---
 
@@ -172,9 +175,9 @@ This method is used by other methods implicitly, and should not be used by users
 
 #### Requires
 
-| Argument | Type  | <center>Description</center>         |
-| :------: | :---: | :----------------------------------- |
-|  `data`  | `str` | A str to be sent to the main buffer. |
+| Argument | Type  |             Required              | <center>Description</center>         |
+| :------: | :---: | :-------------------------------: | :----------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | A str to be sent to the main buffer. |
 
 ---
 
@@ -220,9 +223,9 @@ The method is thread-safe, but the message synchronization is host-safe.
 
 #### Requires
 
-| Argument | Type  | <center>Description</center>                                           |
-| :------: | :---: | :--------------------------------------------------------------------- |
-|  `data`  | `str` | The written messages. The line breaks would be detected automatically. |
+| Argument | Type  |             Required              | <center>Description</center>                                           |
+| :------: | :---: | :-------------------------------: | :--------------------------------------------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | The written messages. The line breaks would be detected automatically. |
 
 #### Returns
 

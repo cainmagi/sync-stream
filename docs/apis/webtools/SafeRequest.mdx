@@ -9,7 +9,10 @@ description: A wrapper for providing context for the urllib3.HTTPResponse.
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar
   type="class"
@@ -33,9 +36,9 @@ This is a private class. Should not be used by users.
 
 ## Arguments
 
-| Argument  |          Type          | <center>Description</center>                                                                                      |
-| :-------: | :--------------------: | :---------------------------------------------------------------------------------------------------------------- |
-| `request` | `urllib3.HTTPResponse` | The reqeust to be wrapped. This wrapped request will be disconnected and released when exiting from this context. |
+| Argument  |          Type          |             Required              | <center>Description</center>                                                                                      |
+| :-------: | :--------------------: | :-------------------------------: | :---------------------------------------------------------------------------------------------------------------- |
+| `request` | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | The reqeust to be wrapped. This wrapped request will be disconnected and released when exiting from this context. |
 
 ## Example
 

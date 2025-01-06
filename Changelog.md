@@ -6,6 +6,10 @@
 
 ### 0.3.3 @ 01/06/2025
 
+#### :mega: New
+
+1. Add the `Required` column to the argument lists of all API documents.
+
 #### :wrench: Fix
 
 1. Fix: Correct typos in the whole document.

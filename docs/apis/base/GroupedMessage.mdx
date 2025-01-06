@@ -9,7 +9,10 @@ description: A group of messages.
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" isPrivate={true} source="base.GroupedMessage" />
 
@@ -29,9 +32,9 @@ This class would be used by [`mproc.LineProcMirror`](../mproc/LineProcMirror.mdx
 
 ### Requires
 
-| Argument |                     Type                     | <center>Description</center>                                                                                                              |
-| :------: | :------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
-|  `data`  | `Sequence[str]`, or `Warning` or `Exception` | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
+| Argument |                     Type                     | Required | <center>Description</center>                                                                                                              |
+| :------: | :------------------------------------------: | :------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
+|  `data`  | `Sequence[str]`, or `Warning` or `Exception` |          | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
 
 ## Methods
 
@@ -59,9 +62,9 @@ gpm: GroupedMessage = GroupedMessage.deserialize(jdata: dict[str, Any])
 
 #### Requires
 
-| Argument |  Type  | <center>Description</center>                                                                                 |
-| :------: | :----: | :----------------------------------------------------------------------------------------------------------- |
-| `jdata`  | `dict` | The serialized dictionary. This dictionary is JSON compatible, and could be transmitted by the web packages. |
+| Argument |  Type  |             Required              | <center>Description</center>                                                                                 |
+| :------: | :----: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------- |
+| `jdata`  | `dict` | <InlineIcon icon={vsiCheckIcon}/> | The serialized dictionary. This dictionary is JSON compatible, and could be transmitted by the web packages. |
 
 #### Returns
 

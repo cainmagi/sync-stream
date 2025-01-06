@@ -9,7 +9,10 @@ description: The file-driven line-based buffer handle.
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" source="file.LineFileBuffer" />
 
@@ -49,11 +52,11 @@ syncstream.file.LineFileBuffer
 
 ### Requires
 
-|  Argument   | Type  | <center>Description</center>                                                                                                                                                |
-| :---------: | :---: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | `str` | The basic path of the saved records, including the saved storage and the file locks. The file suffix would be automatically set as `.log`.                                  |
-|  `maxlen`   | `int` | The maximal number of records. Each record would be saved as one file.                                                                                                      |
-|  `tmp_id`   | `str` | The identifier for the temporary file. Each process should holds one unique id. A conflict id may cause the written flows from different processes to interrupt each other. |
+|  Argument   | Type  |             Required              | <center>Description</center>                                                                                                                                                |
+| :---------: | :---: | :-------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_path` | `str` | <InlineIcon icon={vsiCheckIcon}/> | The basic path of the saved records, including the saved storage and the file locks. The file suffix would be automatically set as `.log`.                                  |
+|  `maxlen`   | `int` |                                   | The maximal number of records. Each record would be saved as one file.                                                                                                      |
+|  `tmp_id`   | `str` |                                   | The identifier for the temporary file. Each process should holds one unique id. A conflict id may cause the written flows from different processes to interrupt each other. |
 
 ## Methods
 
@@ -120,9 +123,9 @@ fbuf.__update_records(lines)
 
 #### Requires
 
-| Argument |      Type       | <center>Description</center>                                                                                                      |
-| :------: | :-------------: | :-------------------------------------------------------------------------------------------------------------------------------- |
-| `lines`  | `Sequence[str]` | A sequence of strs to be written in the log files. Users could catch any line item, and extract any specific information from it. |
+| Argument |      Type       |             Required              | <center>Description</center>                                                                                                      |
+| :------: | :-------------: | :-------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------- |
+| `lines`  | `Sequence[str]` | <InlineIcon icon={vsiCheckIcon}/> | A sequence of strs to be written in the log files. Users could catch any line item, and extract any specific information from it. |
 
 ---
 
@@ -138,9 +141,9 @@ If the current written line is not blank, the `read()` method would regard it as
 
 #### Requires
 
-| Argument |     Type      | <center>Description</center>                                                                           |
-| :------: | :-----------: | :----------------------------------------------------------------------------------------------------- |
-|  `size`  | `int \| None` | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
+| Argument |     Type      | Required | <center>Description</center>                                                                             |
+| :------: | :-----------: | :------: | :------------------------------------------------------------------------------------------------------- |
+|  `size`  | `int \| None` |          | If set `None`, would return the whole storage. If set a int value, would return the latest `size` items. |
 
 #### Returns
 
@@ -160,9 +163,9 @@ The writting method of the buffer. The source data is the same as that of a text
 
 #### Requires
 
-| Argument | Type  | <center>Description</center>                                           |
-| :------: | :---: | :--------------------------------------------------------------------- |
-|  `data`  | `str` | The written messages. The line breaks would be detected automatically. |
+| Argument | Type  |             Required              | <center>Description</center>                                           |
+| :------: | :---: | :-------------------------------: | :--------------------------------------------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | The written messages. The line breaks would be detected automatically. |
 
 #### Returns
 

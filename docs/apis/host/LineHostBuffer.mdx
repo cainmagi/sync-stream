@@ -10,7 +10,10 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import IconExternalLink from "@theme/Icon/ExternalLink";
 
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" source="host.LineHostBuffer" />
 
@@ -42,11 +45,11 @@ syncstream.host.LineHostBuffer
 
 ### Requires
 
-|  Argument   |     Type      | <center>Description</center>                                                                                                                                                                                     |
-| :---------: | :-----------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api_route` |     `str`     | The route path of the api. It has the same meaning of the parameter [`Api.add_resource(url)`<IconExternalLink/>][link-addresource].                                                                              |
-| `endpoint`  | `str \| None` | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [`Api.add_resource(endpoint)`<IconExternalLink/>][link-addresource]. |
-|  `maxlen`   |     `int`     | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen].                                                                                   |
+|  Argument   |     Type      | Required | <center>Description</center>                                                                                                                                                                                     |
+| :---------: | :-----------: | :------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api_route` |     `str`     |          | The route path of the api. It has the same meaning of the parameter [`Api.add_resource(url)`<IconExternalLink/>][link-addresource].                                                                              |
+| `endpoint`  | `str \| None` |          | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [`Api.add_resource(endpoint)`<IconExternalLink/>][link-addresource]. |
+|  `maxlen`   |     `int`     |          | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen].                                                                                   |
 
 ## Methods
 
@@ -60,9 +63,9 @@ Load the services to the flask app.
 
 #### Requires
 
-| Argument |                           Type                            | <center>Description</center>                                                                                       |
-| :------: | :-------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------- |
-|  `api`   | [`flask_restful.Api`<IconExternalLink/>][link-restfulapi] | The Flask `Api` object. All web services related to this `LineHostBuffer` would be registered to the `Api` object. |
+| Argument |                           Type                            |             Required              | <center>Description</center>                                                                                       |
+| :------: | :-------------------------------------------------------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------- |
+|  `api`   | [`flask_restful.Api`<IconExternalLink/>][link-restfulapi] | <InlineIcon icon={vsiCheckIcon}/> | The Flask `Api` object. All web services related to this `LineHostBuffer` would be registered to the `Api` object. |
 
 ## Services
 

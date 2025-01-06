@@ -9,8 +9,11 @@ description: Check whether the str ends with a line break.
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import IconLink from "@site/src/components/IconLink";
+import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="func" isPrivate={true} source="base.is_end_line_break" />
 
@@ -30,9 +33,9 @@ We use this function to fix the missing final line break problem of `str.splitli
 
 ### Requires
 
-| Argument  | Type  | <center>Description</center>           |
-| :-------: | :---: | :------------------------------------- |
-| `val_str` | `str` | The string that needs to be validated. |
+| Argument  | Type  |             Required              | <center>Description</center>           |
+| :-------: | :---: | :-------------------------------: | :------------------------------------- |
+| `val_str` | `str` | <InlineIcon icon={vsiCheckIcon}/> | The string that needs to be validated. |
 
 ### Returns
 

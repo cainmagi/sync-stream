@@ -10,7 +10,10 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import IconExternalLink from "@theme/Icon/ExternalLink";
 
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="class" source="mproc.LineBuffer" />
 
@@ -38,9 +41,9 @@ syncstream.mproc.LineBuffer
 
 ### Requires
 
-| Argument | Type  | <center>Description</center>                                                                                                   |
-| :------: | :---: | :----------------------------------------------------------------------------------------------------------------------------- |
-| `maxlen` | `int` | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]. |
+| Argument | Type  | Required | <center>Description</center>                                                                                                   |
+| :------: | :---: | :------: | :----------------------------------------------------------------------------------------------------------------------------- |
+| `maxlen` | `int` |          | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]. |
 
 ## Methods
 
@@ -101,9 +104,9 @@ tbuf.storage.extend(lines: Sequence[str])
 
 #### Requires
 
-| Argument |      Type       | <center>Description</center>                                                                                                    |
-| :------: | :-------------: | :------------------------------------------------------------------------------------------------------------------------------ |
-| `lines`  | `Sequence[str]` | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
+| Argument |      Type       |             Required              | <center>Description</center>                                                                                                    |
+| :------: | :-------------: | :-------------------------------: | :------------------------------------------------------------------------------------------------------------------------------ |
+| `lines`  | `Sequence[str]` | <InlineIcon icon={vsiCheckIcon}/> | A sequence of strs to be written in the storage. Users could catch any line item, and extract any specific information from it. |
 
 ---
 
@@ -119,9 +122,9 @@ If the current written line is not blank, the `read()` method would regard it as
 
 #### Requires
 
-| Argument |     Type      | <center>Description</center>                                                                           |
-| :------: | :-----------: | :----------------------------------------------------------------------------------------------------- |
-|  `size`  | `int \| None` | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
+| Argument |     Type      | Required | <center>Description</center>                                                                           |
+| :------: | :-----------: | :------: | :----------------------------------------------------------------------------------------------------- |
+|  `size`  | `int \| None` |          | If set None, would return the whole storage. If set a int value, would return the latest `size` items. |
 
 #### Returns
 
@@ -141,9 +144,9 @@ The writting method of the buffer. The source `data` is the same as that of a te
 
 #### Requires
 
-| Argument | Type  | <center>Description</center>                                           |
-| :------: | :---: | :--------------------------------------------------------------------- |
-|  `data`  | `str` | The written messages. The line breaks would be detected automatically. |
+| Argument | Type  |             Required              | <center>Description</center>                                           |
+| :------: | :---: | :-------------------------------: | :--------------------------------------------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | The written messages. The line breaks would be detected automatically. |
 
 #### Returns
 

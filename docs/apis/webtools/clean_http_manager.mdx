@@ -6,7 +6,10 @@ slug: /apis/webtools/clean_http_manager
 description: A callback for cleaning the http requests.
 ---
 
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
 import APITopBar from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
 
 <APITopBar type="func" isPrivate={true} source="webtools.clean_http_manager" />
 
@@ -21,6 +24,6 @@ requests, if the connection does not need to exist.
 
 ### Requires
 
-| Argument |         Type          | <center>Description</center>       |
-| :------: | :-------------------: | :--------------------------------- |
-|  `http`  | `urllib3.PoolManager` | The connection ppol to be cleared. |
+| Argument |         Type          |             Required              | <center>Description</center>       |
+| :------: | :-------------------: | :-------------------------------: | :--------------------------------- |
+|  `http`  | `urllib3.PoolManager` | <InlineIcon icon={vsiCheckIcon}/> | The connection ppol to be cleared. |
