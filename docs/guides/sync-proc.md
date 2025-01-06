@@ -10,7 +10,7 @@ Synchronizing the messages from different sub-processes is not a easy task. Beca
 
 The following example catches the messages from 4 different processes:
 
-```python {9,18,22,24,26}
+```python showLineNumbers title="sync-proc.py"
 import multiprocessing
 from contextlib import redirect_stdout
 import syncstream
@@ -19,6 +19,7 @@ import syncstream
 def worker_process(buffer: syncstream.LineProcMirror):
     '''Define the workder_process'''
     try:
+        # highlight-next-line
         with redirect_stdout(buffer):
             print('Message', 'item')
     except Exception as err:
@@ -28,14 +29,18 @@ def worker_process(buffer: syncstream.LineProcMirror):
 
 
 if __name__ == '__main__':
+    # highlight-next-line
     pbuf = syncstream.LineProcBuffer(10)  # Initialization.
     with multiprocessing.Pool(4) as pool:
         pool.map_async(
             worker_process,
+            # highlight-next-line
             tuple(pbuf.mirror for _ in range(4))
         )  # Run 4 procs.
+        # highlight-next-line
         pbuf.wait()  # Wait the eof signals.
 
+    # highlight-next-line
     messages = pbuf.read()  # Get results.
     for mitem in messages:
         print(mitem)

@@ -25,23 +25,27 @@ In the following example, we provide two scripts (`client.py` and `host.py`). Th
 
 <TabItem value="client">
 
-```python {6,8,14,17} title="client.py"
+```python showLineNumbers title="client.py"
 from contextlib import redirect_stdout, redirect_stderr
 import requests
 import syncstream
 
 address = 'http://localhost:5000/sync-stream'
+# highlight-next-line
 buffer = syncstream.LineHostMirror(address=address)
 
+# highlight-next-line
 with redirect_stdout(buffer), redirect_stderr(buffer):
     for i in range(3):
         print('Message', f'"{i:02d}".')
     print('Line break\nin middle.', end='')
     print('No line break.', end='')
 
+# highlight-next-line
 buffer.send_eof()  # Send the final signal.
 
 # The following part could be split to another device.
+# highlight-next-line
 data = requests.get(address).json()['data']
 for mitem in data:
     print(mitem)
@@ -51,7 +55,7 @@ for mitem in data:
 
 <TabItem value="host">
 
-```python {8} title="host.py"
+```python showLineNumbers title="host.py"
 import flask
 from flask_restful import Api
 import syncstream
@@ -59,6 +63,7 @@ import syncstream
 app = flask.Flask('test')
 api = Api(app)
 
+# highlight-next-line
 syncstream.LineHostBuffer(api_route='/sync-stream', maxlen=10).serve(api)
 
 if __name__ == '__main__':

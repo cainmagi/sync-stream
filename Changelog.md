@@ -14,6 +14,10 @@
 
 1. Fix: Correct typos in the whole document.
 
+#### :floppy_disk: Change
+
+1. Optimize the format of codes.
+
 ### 0.3.3 @ 01/02/2025
 
 #### :mega: New

@@ -8,7 +8,7 @@ description: An advanced tutorial about using the buffer with derivation.
 
 In most cases, the synchornizer need to be derived for catching some special messages. For example, we may need to catch the progress of a running program. But we do not want to parse the text-based messages when reading the results. In this case, we could override the `parse_lines` method of the buffer. For example:
 
-```python {15,71}
+```python showLineNumbers title="derivation.py"
 import re
 import time
 import threading
@@ -23,6 +23,7 @@ except ImportError:
 import syncstream
 
 
+# highlight-next-line
 class CustomedBuffer(syncstream.LineProcBuffer):
     '''Customized buffer, used for catching the progress of a program.'''
 
@@ -79,6 +80,7 @@ if __name__ == '__main__':
             worker_process,
             tuple(pbuf.mirror for _ in range(1))
         )  # Run 4 procs.
+        # highlight-next-line
         # Move the wait method to the background.
         thd = threading.Thread(target=pbuf.wait, daemon=True)
         thd.start()

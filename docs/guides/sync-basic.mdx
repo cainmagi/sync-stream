@@ -10,11 +10,12 @@ import IconExternalLink from "@theme/Icon/ExternalLink";
 
 The following example catches the python stdout and stderr:
 
-```python {5,15}
+```python showLineNumbers title="basic.py" 
 from contextlib import redirect_stdout, redirect_stderr
 import syncstream
 
 # Initialize the buffer.
+# highlight-next-line
 buffer = syncstream.LineBuffer(10)
 
 # Use contextlib to redirect stdout and stderr.
@@ -25,6 +26,7 @@ with redirect_stdout(buffer), redirect_stderr(buffer):
     print('No line break.', end='')
 
 # Check the results
+# highlight-next-line
 messages = buffer.read()
 for mitem in messages:
     print(mitem)

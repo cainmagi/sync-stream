@@ -10,7 +10,7 @@ In most cases, we do not need this package for captureing the sub-thread's stdou
 
 The following example catches the messages from 4 different threads:
 
-```python {22,34-37}
+```python showLineNumbers title="sync-thread.py"
 import threading
 import time
 from contextlib import redirect_stdout
@@ -32,6 +32,7 @@ def worker_thread() -> None:
 
 def run_4_threads(buffer: syncstream.LineBuffer) -> None:
     '''Run 4 threads with stdout redicted.'''
+    # highlight-next-line
     with redirect_stdout(buffer):
         thd_pool = list()
         for _ in range(4):
@@ -44,10 +45,12 @@ def run_4_threads(buffer: syncstream.LineBuffer) -> None:
 
 
 if __name__ == '__main__':
+    # highlight-start
     tbuf = syncstream.LineBuffer(10)  # Initialization.
     run_4_threads(tbuf)  # Run 4 threads.
 
     messages = tbuf.read()  # Get results.
+    # highlight-end
     for mitem in messages:
         print(mitem)
 ```

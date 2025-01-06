@@ -31,6 +31,7 @@ while prog < 100:
     time.sleep(0.1)
     prog = pbuf.progress
     if prog > 10:
+        # highlight-next-line
         pbuf.stop_all_mirrors()
         break
 print('Progress is not 100%')
