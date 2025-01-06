@@ -125,7 +125,7 @@ Send the catched error object. This method should always be used in the try / ex
 
 :::danger
 
-See [`send_eof()`](#-send_eof)
+See [`send_eof()`](#-send_eof).
 
 :::
 
@@ -145,11 +145,11 @@ buffer.send_warning(warning: Warning)
 
 Send the standard warning object to the main buffer.
 
-Send the catched error object. This method should always be used in the try / except block. The warning object would be captured as an item of the storage in the main buffer.
+Send the catched warning object. It is recommended that this method can be used when logging the warning objects. The warning object would be captured as an item of the storage in the main buffer.
 
 :::caution
 
-This method could only catch the warning object defined by the stdlib. Some different warning objects, like [`logging.warning`<IconExternalLink/>][link-logging-warning] messages would not be collected with correct configurations.
+This method could only catch the warning object defined by the stdlib. Some different warning objects, like [`logging.warning`<IconExternalLink/>][link-logging-warning] messages would not be collected by this method.
 
 :::
 
@@ -175,9 +175,9 @@ This method is used by other methods implicitly, and should not be used by users
 
 #### Requires
 
-| Argument | Type  |             Required              | <center>Description</center>         |
-| :------: | :---: | :-------------------------------: | :----------------------------------- |
-|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | A str to be sent to the main buffer. |
+| Argument | Type  |             Required              | <center>Description</center>            |
+| :------: | :---: | :-------------------------------: | :-------------------------------------- |
+|  `data`  | `str` | <InlineIcon icon={vsiCheckIcon}/> | An `str` to be sent to the main buffer. |
 
 ---
 
@@ -244,8 +244,6 @@ is_aggressive: bool = buffer.aggressive
 The aggressive mode.
 
 This mode could only by configured by the initialization. If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written.
-
-In current implementation, this value is always configured as `False`.
 
 ---
 

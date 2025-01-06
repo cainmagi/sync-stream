@@ -12,7 +12,7 @@ We need to use the mirrors when using [`LineProcBuffer`](../apis/mproc/LineProcB
 ...
 thd = threading.Thread(target=pbuf.wait, daemon=True)
 thd.start()
-print('Start to wait')
+print('Start to wait.')
 while pbuf.progress < 100:
     time.sleep(0.1)
 print('Progress is 100%.')
@@ -25,7 +25,7 @@ To make sure that all sub-processes are finished safely, we need to use `thd.joi
 ```python
 thd = threading.Thread(target=pbuf.wait, daemon=True)
 thd.start()
-print('Start to wait')
+print('Start to wait.')
 prog = pbuf.progress
 while prog < 100:
     time.sleep(0.1)
@@ -34,7 +34,7 @@ while prog < 100:
         # highlight-next-line
         pbuf.stop_all_mirrors()
         break
-print('Progress is not 100%')
+print('Progress is not 100%.')
 thd.join()
 ```
 

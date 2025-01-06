@@ -31,7 +31,7 @@ def worker_thread() -> None:
 
 
 def run_4_threads(buffer: syncstream.LineBuffer) -> None:
-    '''Run 4 threads with stdout redicted.'''
+    '''Run 4 threads with stdout redirected.'''
     # highlight-next-line
     with redirect_stdout(buffer):
         thd_pool = list()

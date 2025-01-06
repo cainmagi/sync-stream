@@ -48,7 +48,7 @@ syncstream.mproc.LineProcMirror
 
 |   Argument    |           Type           | Required | <center>Description</center>                                                                                                                                                                                                                        |
 | :-----------: | :----------------------: | :------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|  `q_maxsize`  |          `int`           |          | The maximal size of the queue. This value has the same meaning of [`queue.qsize`<IconExternalLink/>][link-queue-size]                                                                                                                               |
+|  `q_maxsize`  |          `int`           |          | The maximal size of the queue. This value has the same meaning of [`queue.qsize`<IconExternalLink/>][link-queue-size].                                                                                                                              |
 | `aggressive`  |          `bool`          |          | If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written.                |
 |   `timeout`   |      `int \| None`       |          | The timeout configuration of the queue. This value has the same meaning of [`queue.put(timeout)`<IconExternalLink/>][link-queue-put].                                                                                                               |
 |   `_queue`    |     `Queue \| None`      |          | The queue used for communicating with the buffer. This object could be an instance of `multiprocessing.Queue()` or given by `multiprocessing.Manager()`. The queue object should be created by the [`LineProcBuffer`](./LineProcBuffer.mdx) object. |
@@ -130,7 +130,7 @@ Send the catched error object. This method should always be used in the try / ex
 
 :::danger
 
-See [`send_eof()`](#-send_eof)
+See [`send_eof()`](#-send_eof).
 
 :::
 
@@ -150,7 +150,7 @@ buffer.send_warning(warning: Warning)
 
 Send the standard warning object to the main buffer.
 
-Send the catched error object. This method should always be used in the try / except block. The warning object would be captured as an item of the storage in the main buffer.
+Send the catched warning object. It is recommended that this method can be used when logging the warning objects. The warning object would be captured as an item of the storage in the main buffer.
 
 :::caution
 
@@ -212,7 +212,9 @@ This method would only read the current bufferred values in the mirror storage. 
 n_bytes: int = buffer.write(data: str)
 ```
 
-The writting method of the buffer. The source `data` is the same as that of a text-based IO. Each time when `data` contains a line break, a new record item would be pushed in the storage. The `write()` method is thread-safe.
+The writting method of the buffer. The source data is the same as that of a text-based IO. If `aggressive` is `True`, each call of `write()` would make the stream value sent to the main buffer. If not, each time when `data` contains a line break, the stream value would be sent to the main buffer.
+
+The method is thread-safe.
 
 #### Requires
 
@@ -237,8 +239,6 @@ is_aggressive: bool = buffer.aggressive
 The aggressive mode.
 
 This mode could only by configured by the initialization. If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written.
-
-In current implementation, this value is always configured as `False`.
 
 ---
 

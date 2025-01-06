@@ -141,9 +141,9 @@ If the current written line is not blank, the `read()` method would regard it as
 
 #### Requires
 
-| Argument |     Type      | Required | <center>Description</center>                                                                             |
-| :------: | :-----------: | :------: | :------------------------------------------------------------------------------------------------------- |
-|  `size`  | `int \| None` |          | If set `None`, would return the whole storage. If set a int value, would return the latest `size` items. |
+| Argument |     Type      | Required | <center>Description</center>                                                                               |
+| :------: | :-----------: | :------: | :--------------------------------------------------------------------------------------------------------- |
+|  `size`  | `int \| None` |          | If set `None`, would return the whole storage. If set a `int` value, would return the latest `size` items. |
 
 #### Returns
 
@@ -187,7 +187,7 @@ The writting method of the buffer. The source data is the same as that of a text
 
 <TabItem value="codes">
 
-```python
+```python showLineNumbers title="sync_by_files.py"
 import os
 import contextlib
 import multiprocessing
@@ -214,7 +214,7 @@ if __name__ == '__main__':
 
 <TabItem value="results">
 
-```shell
+```python
 ('example', 'example', 'example', 'example')
 ```
 

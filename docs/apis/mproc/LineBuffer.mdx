@@ -168,7 +168,7 @@ The writting method of the buffer. The source `data` is the same as that of a te
 
 <TabItem value="codes">
 
-```python
+```python showLineNumbers title="sync_among_threads.py"
 import contextlib
 from syncstream.mproc import LineBuffer
 
@@ -185,7 +185,7 @@ print(tbuf.read())
 
 <TabItem value="results">
 
-```shell
+```python
 ('5', '6', '7', '8', '9')
 ```
 

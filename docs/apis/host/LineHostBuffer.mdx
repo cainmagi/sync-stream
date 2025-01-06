@@ -87,11 +87,11 @@ The basic APIs. They are used for maintaining the storage of the message items.
 
 The APIs used for maintaining the buffer status.
 
-| Method | <center>Requires</center>                                                                                                | <center>Response</center>                                                                                                                                  | <center>Description</center>           |
-| :----: | :----------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------- |
-|  GET   | <ul><li>**`state`**: The name of the state to be read.</li></ul>                                                         | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: The value of the required state.</li></ul> | Get a specific state value.            |
-|  POST  | <ul><li>**`state`**: The name of the state to be read.</li><li>`value`: The value used for changing the state.</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Modify a specific state value.         |
-| DELETE | <center>-</center>                                                                                                       | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Reset the state to the default values. |
+| Method | <center>Requires</center>                                                                                                   | <center>Response</center>                                                                                                                                  | <center>Description</center>           |
+| :----: | :-------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------- |
+|  GET   | <ul><li>**`state`**: The name of the state to be read.</li></ul>                                                            | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li><li>`data`: The value of the required state.</li></ul> | Get a specific state value.            |
+|  POST  | <ul><li>**`state`**: The name of the state to be written.</li><li>`value`: The value used for changing the state.</li></ul> | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Modify a specific state value.         |
+| DELETE | <center>-</center>                                                                                                          | <ul><li>`message`: The response text. If the results are valid, this value should be `success`.</li></ul>                                                  | Reset the state to the default values. |
 
 The states are shared by different clients. Each time the clients interact with the host, they would use `GET` method to renew their states. Some states could be used for controlling the behaviors of the clients. For example, `POST` with `state=closed`, `value=true` serves the same funcionality of invoking [`LineProcBuffer.stop_all_mirrors()`](../mproc/LineProcBuffer.mdx#-stop_all_mirrors).
 
@@ -109,7 +109,7 @@ The states are shared by different clients. Each time the clients interact with 
 
 <TabItem value="codes">
 
-```python
+```python showLineNumbers title="sync_by_web_services.py"
 import os
 import contextlib
 import multiprocessing

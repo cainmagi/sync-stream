@@ -32,9 +32,9 @@ This class would be used by [`mproc.LineProcMirror`](../mproc/LineProcMirror.mdx
 
 ### Requires
 
-| Argument |                     Type                     | Required | <center>Description</center>                                                                                                              |
-| :------: | :------------------------------------------: | :------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
-|  `data`  | `Sequence[str]`, or `Warning` or `Exception` |          | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
+| Argument |                  Type                   | Required | <center>Description</center>                                                                                                              |
+| :------: | :-------------------------------------: | :------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
+|  `data`  | `Sequence[str] \| Warning \| Exception` |          | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
 
 ## Methods
 
@@ -48,9 +48,9 @@ Serialize this message item into a JSON compatible dict.
 
 #### Returns
 
-| Argument |  Type  | <center>Description</center>                                                                                                                |
-| :------: | :----: | :------------------------------------------------------------------------------------------------------------------------------------------ |
-| `jdata`  | `dict` | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#-deserialize) method. |
+| Argument |       Type       | <center>Description</center>                                                                                                                |
+| :------: | :--------------: | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| `jdata`  | `dict[str, Any]` | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#-deserialize) method. |
 
 ---
 
@@ -62,9 +62,9 @@ gpm: GroupedMessage = GroupedMessage.deserialize(jdata: dict[str, Any])
 
 #### Requires
 
-| Argument |  Type  |             Required              | <center>Description</center>                                                                                 |
-| :------: | :----: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------- |
-| `jdata`  | `dict` | <InlineIcon icon={vsiCheckIcon}/> | The serialized dictionary. This dictionary is JSON compatible, and could be transmitted by the web packages. |
+| Argument |       Type       |             Required              | <center>Description</center>                                                                                 |
+| :------: | :--------------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------- |
+| `jdata`  | `dict[str, Any]` | <InlineIcon icon={vsiCheckIcon}/> | The serialized dictionary. This dictionary is JSON compatible, and could be transmitted by the web packages. |
 
 #### Returns
 
@@ -86,7 +86,7 @@ gpm: GroupedMessage = GroupedMessage.deserialize(jdata: dict[str, Any])
 
 <TabItem value="codes">
 
-```python
+```python showLineNumbers title="use_grouped_messages.py"
 from syncstream.base import GroupedMessage
 
 try:
@@ -101,7 +101,7 @@ print(gpm)
 
 <TabItem value="results">
 
-```shell
+```python
 Traceback (most recent call last):
   File "C:\Documents (no sync)\GitHub\sync-stream\alpha\test.py", line 4, in <module>
     raise ImportError('A testing exception object.')

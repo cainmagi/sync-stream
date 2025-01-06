@@ -20,6 +20,8 @@ with syncstream.webtools.StdoutWrapper():
     ...
 ```
 
+A wrapper for ensuring that the stdout is always directed to the same position.
+
 :::danger
 
 This class was designed from scratch. However, its functionality has been fully covered
@@ -30,8 +32,6 @@ users should not use this context in any case.
 This document is only used for archiving what was done in this implementation.
 
 :::
-
-A wrapper for ensuring that the stdout is always directed to the same position.
 
 ## Arguments
 
@@ -52,7 +52,7 @@ No argument is needed.
 
 <TabItem value="codes">
 
-```python
+```python showLineNumbers title="use_stdout_context.py"
 import sys
 import syncstream
 from syncstream.webtools import StdoutWrapper
@@ -73,7 +73,7 @@ for mitem in messages:
 
 <TabItem value="better-codes">
 
-```python
+```python showLineNumbers title="use_contextlib.py"
 from contextlib import redirect_stdout
 import syncstream
 

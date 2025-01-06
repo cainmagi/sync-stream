@@ -17,7 +17,7 @@ import syncstream
 
 
 def worker_process(buffer: syncstream.LineProcMirror):
-    '''Define the workder_process'''
+    '''Define the workder_process.'''
     try:
         # highlight-next-line
         with redirect_stdout(buffer):

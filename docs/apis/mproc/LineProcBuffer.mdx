@@ -43,7 +43,7 @@ syncstream.mproc.LineProcBuffer
 
 | Argument | Type  | Required | <center>Description</center>                                                                                                  |
 | :------: | :---: | :------: | :---------------------------------------------------------------------------------------------------------------------------- |
-| `maxlen` | `int` |          | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen] |
+| `maxlen` | `int` |          | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]. |
 
 ## Methods
 
@@ -218,7 +218,7 @@ Current living mirrors. The buffer should still need to receive message until `n
 
 <TabItem value="codes">
 
-```python
+```python showLineNumbers title="sync_among_processes.py"
 import contextlib
 import multiprocessing
 from syncstream.mproc import LineProcBuffer
@@ -242,7 +242,7 @@ if __name__ == '__main__':
 
 <TabItem value="results">
 
-```shell
+```python
 ('example', 'example', 'example', 'example')
 ```
 

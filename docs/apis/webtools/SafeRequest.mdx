@@ -38,7 +38,7 @@ This is a private class. Should not be used by users.
 
 | Argument  |          Type          |             Required              | <center>Description</center>                                                                                      |
 | :-------: | :--------------------: | :-------------------------------: | :---------------------------------------------------------------------------------------------------------------- |
-| `request` | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | The reqeust to be wrapped. This wrapped request will be disconnected and released when exiting from this context. |
+| `request` | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | The request to be wrapped. This wrapped request will be disconnected and released when exiting from this context. |
 
 ## Example
 
@@ -54,7 +54,7 @@ This is a private class. Should not be used by users.
 
 <TabItem value="codes">
 
-```python
+```python showLineNumbers title="use_request_context.py"
 from urllib3.poolmanager import PoolManager
 from syncstream.webtools import SafeRequest
 
@@ -69,7 +69,7 @@ pool.clear()
 
 <TabItem value="results">
 
-```shell
+```python
 200
 ```
 

@@ -59,7 +59,7 @@ class CustomedBuffer(syncstream.LineProcBuffer):
 
 
 def worker_process(buffer: syncstream.LineProcMirror):
-    '''Define the workder_process'''
+    '''Define the workder_process.'''
     try:
         with redirect_stdout(buffer):
             for i in range(10):
@@ -84,7 +84,7 @@ if __name__ == '__main__':
         # Move the wait method to the background.
         thd = threading.Thread(target=pbuf.wait, daemon=True)
         thd.start()
-        print('Start to wait')
+        print('Start to wait.')
         while pbuf.progress < 100:
             time.sleep(0.1)
         print('Progress is 100%.')
