@@ -1,0 +1,46 @@
+{
+  "sidebar.tutorial.category.Getting Started": {
+    "message": "初学者教程",
+    "description": "The label for category Getting Started in sidebar tutorial"
+  },
+  "sidebar.tutorial.category.Getting Started.link.generated-index.title": {
+    "message": "如何使用syncstream",
+    "description": "The generated-index page title for category Getting Started in sidebar tutorial"
+  },
+  "sidebar.tutorial.category.Getting Started.link.generated-index.description": {
+    "message": "syncstream的初学者教程。",
+    "description": "The generated-index page description for category Getting Started in sidebar tutorial"
+  },
+  "sidebar.tutorial.category.Advanced Usages": {
+    "message": "进阶用法",
+    "description": "The label for category Advanced Usages in sidebar tutorial"
+  },
+  "sidebar.tutorial.category.Advanced Usages.link.generated-index.title": {
+    "message": "进阶用法",
+    "description": "The generated-index page title for category Advanced Usages in sidebar tutorial"
+  },
+  "sidebar.tutorial.category.Advanced Usages.link.generated-index.description": {
+    "message": "展示如何定制syncstream行为的进阶教程。",
+    "description": "The generated-index page description for category Advanced Usages in sidebar tutorial"
+  },
+  "sidebar.apis.category.base": {
+    "message": "base",
+    "description": "The label for category base in sidebar apis"
+  },
+  "sidebar.apis.category.mproc": {
+    "message": "mproc",
+    "description": "The label for category mproc in sidebar apis"
+  },
+  "sidebar.apis.category.file": {
+    "message": "file",
+    "description": "The label for category file in sidebar apis"
+  },
+  "sidebar.apis.category.host": {
+    "message": "host",
+    "description": "The label for category host in sidebar apis"
+  },
+  "sidebar.apis.category.webtools": {
+    "message": "webtools",
+    "description": "The label for category webtools in sidebar apis"
+  }
+}

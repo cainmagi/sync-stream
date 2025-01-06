@@ -1,0 +1,73 @@
+---
+id: SafePoolManager
+title: SafePoolManager
+sidebar_label: SafePoolManager
+slug: /apis/webtools/SafePoolManager
+description: 支持上下文的urllib3.PoolManager的封装。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import IconLink from "@site/src/components/IconLink";
+
+<APITopBar type="class" isPrivate={true} isContext={true} source="webtools.SafePoolManager" />
+
+```python
+with syncstream.webtools.SafePoolManager(
+    num_pools: int = 10,
+    headers: dict[str, str] | None = None,
+    **connection_pool_kw
+) as pool:
+    pool: SafePoolManager
+```
+
+支持上下文的`urllib3.PoolManager`的封装。
+
+:::danger
+
+这是私有类，用户不应使用它。
+
+:::
+
+## 参数 {#arguments}
+
+参见
+
+<IconLink href="https://urllib3.readthedocs.io/en/stable/reference/urllib3.poolmanager.html" />
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 使用上下文管理连接 {#-use-context-to-manage-connections}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="use_pool_context.py"
+from syncstream.webtools import SafePoolManager
+
+
+with SafePoolManager() as pool:
+    with pool.request("get", "https://google.com") as req:
+        # req已经由SafeRequest管理了。
+        print(req.status)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+200
+```
+
+</TabItem>
+</Tabs>

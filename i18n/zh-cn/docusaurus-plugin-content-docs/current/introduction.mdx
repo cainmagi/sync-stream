@@ -1,0 +1,71 @@
+---
+id: introduction
+title: 简介
+description: SyncStream的简介。为不同的场景提供了四种工作模式。
+slug: /
+---
+
+import DarkButton from "@site/src/components/DarkButton";
+import {repoURL} from "@site/src/envs/variables";
+
+import octClock16 from "@iconify-icons/octicon/clock-16";
+import octLaw16 from "@iconify-icons/octicon/law-16";
+import octRepoForked16 from "@iconify-icons/octicon/repo-forked-16";
+import octShareAndroid16 from "@iconify-icons/octicon/share-android-16";
+
+本项目为信息同步而设计。具体来说，提供了不同的线程、进程、或主机之间的标准输出/标准错误（stdout/stderr）流同步。适用于以下场景：
+
+|      类       | <center>用法</center>                                                                                                                                                                                                                                                                                                                                                   |
+| :--------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|   `LineBuffer`   | 用在多线程场景下，且来自不同线程的信息（stdout）需要集中收集。                                                                                                                                                                              |
+| `LineProcBuffer` | 在主进程里使用`syncstream.LineProcBuffer`，并在子进程中使用`syncstream.LineProcMirror`：适用于在同一设备上不同子进程之间的信息同步。不同进程的stdout/stderr重定向到了`syncstream.LineProcMirror`，并且在`LineProcBuffer`收集到集中的信息。   |
+| `LineFileBuffer` | 适用于多进程（不必要是子进程）场景。这些进程可以部署在不同的设备上（包括跨平台设备），但所有的设备都需要有能力访问同一共享存储（shared disk）。在此情景下，信息透过文件锁共享。每个进程持有一个独立的、指向同一组log文件的`LineFileBuffer`。     |
+| `LineHostBuffer` | 在服务端使用`syncstream.LineHostBuffer`，并在客户端使用`syncstream.LineHostMirror`：适用于部署在不同设备上的不同进程，且这些进程无法访问同一存储设备。在此情形下，透过网络服务来同步信息。每个进程持有一个`LineHostMirror`，收集的结果集中在`LineHostBuffer`。 |
+
+## 相关材料 {#related-materials}
+
+更新手记：
+
+<p>
+  {
+    <DarkButton href={repoURL("blob/main/Changelog.md")} icon={octClock16}>
+      更新手记
+    </DarkButton>
+  }
+</p>
+
+本项目的许可证：
+
+<p>
+  {
+    <DarkButton href={repoURL("blob/main/LICENSE")} icon={octLaw16}>
+      MIT协议
+    </DarkButton>
+  }
+</p>
+
+合作与贡献指南：
+
+<p>
+  {
+    <DarkButton
+      href={repoURL("blob/main/CONTRIBUTING.md")}
+      icon={octRepoForked16}
+    >
+      贡献本项目
+    </DarkButton>
+  }
+</p>
+
+贡献者利用规约：
+
+<p>
+  {
+    <DarkButton
+      href={repoURL("blob/main/CODE_OF_CONDUCT.md")}
+      icon={octShareAndroid16}
+    >
+      利用规约
+    </DarkButton>
+  }
+</p>

@@ -15,7 +15,7 @@ const variables = {
   rawURL: "https://raw.githubusercontent.com/cainmagi/sync-stream",
   sourceVersion: {
     "0.3.x": "v0.3.3",
-    main: "main",
+    main: "v0.3.3",
   },
   sourceURIs: {
     "v0.3.3": {

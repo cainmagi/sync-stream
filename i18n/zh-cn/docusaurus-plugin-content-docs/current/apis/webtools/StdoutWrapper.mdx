@@ -1,0 +1,109 @@
+---
+id: StdoutWrapper
+title: StdoutWrapper
+sidebar_label: StdoutWrapper
+slug: /apis/webtools/StdoutWrapper
+description: 用来确保stdout总是重定向到同一位置的封装。
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="class" isPrivate={true} isContext={true} source="webtools.StdoutWrapper" />
+
+```python
+with syncstream.webtools.StdoutWrapper():
+    ...
+```
+
+用来确保stdout总是重定向到同一位置的封装。
+
+:::danger
+
+该类是从零实现的。然而，它的功能已经完全被[`contextlib.redirect_stdout(...)`<IconExternalLink/>][link-restdout]和[`contextlib.redirect_stdout(...)`<IconExternalLink/>][link-restderr]覆盖了。因此，用户不再应该使用该上下文。
+
+该文档只是用作备案，以记录该实现完成了哪些工作。
+
+:::
+
+## 参数 {#arguments}
+
+该类不提供初始化参数。
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 将stdout重定向到缓存 {#-redirect-stdout-to-buffer}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '更好的代码', value: 'better-codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="use_stdout_context.py"
+import sys
+import syncstream
+from syncstream.webtools import StdoutWrapper
+
+buffer = syncstream.LineBuffer(10)
+with StdoutWrapper():
+    sys.stdout = buffer
+    for i in range(20):
+        print(f'Message "{i:02d}".')
+    print('No line break.', end='')
+
+messages = buffer.read()
+for mitem in messages:
+    print(mitem)
+```
+
+</TabItem>
+
+<TabItem value="better-codes">
+
+```python showLineNumbers title="use_contextlib.py"
+from contextlib import redirect_stdout
+import syncstream
+
+buffer = syncstream.LineBuffer(10)
+with redirect_stdout(buffer):
+    for i in range(20):
+        print(f'Message "{i:02d}".')
+    print('No line break.', end='')
+
+messages = buffer.read()
+for mitem in messages:
+    print(mitem)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```shell
+Message "11".
+Message "12".
+Message "13".
+Message "14".
+Message "15".
+Message "16".
+Message "17".
+Message "18".
+Message "19".
+No line break.
+```
+
+</TabItem>
+</Tabs>
+
+[link-restdout]: https://docs.python.org/zh-cn/3/library/contextlib.html#contextlib.redirect_stdout
+[link-restderr]: https://docs.python.org/zh-cn/3/library/contextlib.html#contextlib.redirect_stderr

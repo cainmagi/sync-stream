@@ -1,0 +1,169 @@
+---
+id: LineHostBuffer
+title: LineHostBuffer
+sidebar_label: LineHostBuffer
+slug: /apis/host/LineHostBuffer
+description: 网络服务驱动的、以行为单元的缓存。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="host.LineHostBuffer" />
+
+```python
+hbuf = syncstream.host.LineHostBuffer(
+    api_route: str = "/sync-stream",
+    endpoint: str | None = None,
+    maxlen: int = 2,
+)
+```
+
+透过网络服务，实现并提供以行为单元的缓存。
+The host service provider for the line-based buffer.
+
+轮换缓存需要设置一个最大存储区长度。该缓存是基础缓存`LineBuffer`、针对多设备所设计的扩展版。其支持单服务端-多客户端模式，透过网络服务实现同步。要了解如何使用该缓存，可以查阅本页的[范例](#example)，或是[指南](../../guides/sync-host.mdx)。
+
+## 别名 {#aliases}
+
+该类可以按以下方式之一获取
+
+```python
+import syncstream
+
+
+syncstream.LineHostBuffer
+syncstream.host.LineHostBuffer
+```
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|    参数     |     类型      | 必选 | <center>说明</center>                                                                                                                                              |
+| :---------: | :-----------: | :--: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `api_route` |     `str`     |      | API 的路由路径。它的含义和[`Api.add_resource(url)`<IconExternalLink/>][link-addresource]的参数相同。                                                               |
+| `endpoint`  | `str \| None` |      | API 的 endpoint 名称。若设为`None`，则会从`api_route`推断 endpoint 名称。它的含义和[`Api.add_resource(endpoint)`<IconExternalLink/>][link-addresource]的参数相同。 |
+|  `maxlen`   |     `int`     |      | 所存储的最大行数。该值和[`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]的含义相同。                                                                         |
+
+## 方法 {#methods}
+
+### <IconObjType type="method"/> `serve` {#-serve}
+
+```python
+hbuf.serve(api: flask_restful.Api)
+```
+
+向Flask应用载入服务。
+
+#### 输入 {#requires-1}
+
+| 参数  |                           类型                            |               必选                | <center>说明</center>                                                            |
+| :---: | :-------------------------------------------------------: | :-------------------------------: | :------------------------------------------------------------------------------- |
+| `api` | [`flask_restful.Api`<IconExternalLink/>][link-restfulapi] | <InlineIcon icon={vsiCheckIcon}/> | Flask `Api`对象。所有与该`LineHostBuffer`关联的网络服务、都会注册到`Api`对象上。 |
+
+## 服务 {#services}
+
+向Flask应用注册本实例后，则会启用以下服务，其中**加粗**的参数是必需的。
+
+### <IconObjType type="service"/> `<api_route>` {#-api_route}
+
+基础API。使用它们来维护用来保存各条信息的存储区域。
+
+|  方法  | <center>输入</center>                                                                                                                                                       | <center>响应</center>                                                                                           | <center>描述</center>                                                                                                                  |
+| :----: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------- |
+|  GET   | <ul><li>`n`: 所要读取的信息条数。若不设置，返回整个存储区。</li></ul>                                                                                                       | <ul><li>`message`: 文字响应。若该结果有效，其值应当为`success`。</li><li>`data`: 返回信息构成的列表。</li></ul> | 获取多条信息。与[`LineBuffer.read()`](../mproc/LineBuffer.mdx#-read)相若。                                                             |
+|  POST  | <ul><li>**`type`**: 信息的类型。可以是`str`，`error`，`warning`，或`close`。</li><li>`data`: 从[`LineHostMirror`](../host/LineHostMirror.mdx)获取的信息数据字典。</li></ul> | <ul><li>`message`: 文字响应。若该结果有效，其值应当为`success`。</li></ul>                                      | 将来自远端的的数据写入存储。用户不应当直接使用该方法，这是因为该方法是为了和[`LineHostMirror`](../host/LineHostMirror.mdx)联动设计的。 |
+| DELETE | <center>-</center>                                                                                                                                                          | <ul><li>`message`: 文字响应。若该结果有效，其值应当为`success`。</li></ul>                                      | 清理存储区，但该方法不会重置缓存的状态。                                                                                               |
+
+---
+
+### <IconObjType type="service"/> `<api_route>-state` {#-api_route-state}
+
+用来维护缓存状态的API。
+
+|  方法  | <center>输入</center>                                                                 | <center>响应</center>                                                                                     | <center>描述</center>    |
+| :----: | :------------------------------------------------------------------------------------ | :-------------------------------------------------------------------------------------------------------- | :----------------------- |
+|  GET   | <ul><li>**`state`**: 要读取的状态名称。</li></ul>                                     | <ul><li>`message`: 文字响应。若该结果有效，其值应当为`success`。</li><li>`data`: 所需的状态值。</li></ul> | 获取某个特定的状态值。   |
+|  POST  | <ul><li>**`state`**: 要写入的状态名称。</li><li>`value`: 用来修改状态的值。</li></ul> | <ul><li>`message`: 文字响应。若该结果有效，其值应当为`success`。</li></ul>                                | 修改某个特定的状态值。   |
+| DELETE | <center>-</center>                                                                    | <ul><li>`message`: 文字响应。若该结果有效，其值应当为`success`。</li></ul>                                | 将全部状态重置为默认值。 |
+
+不同的客户端可以共享相同的状态。每次客户端和服务端互动时，客户端会使用`GET`方法来更新其状态。某些状态可以用来控制客户端的行为。例如，发送一个带有`state=closed`且`value=true`的`POST`，和调用[`LineProcBuffer.stop_all_mirrors()`](../mproc/LineProcBuffer.mdx#-stop_all_mirrors)具有相同的意义。
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 在网络服务之间同步信息 {#-synchronize-messages-by-web-services}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="sync_by_web_services.py"
+import os
+import contextlib
+import multiprocessing
+import flask
+from flask_restful import Api
+from syncstream.host import LineHostMirror, LineHostBuffer
+
+
+def f(address):
+    buffer = LineHostMirror(address=address, timeout=5)
+    with contextlib.redirect_stdout(buffer):
+        print('example')
+    buffer.send_eof()
+
+
+app = flask.Flask(__name__)
+api = Api(app)
+hbuf = LineHostBuffer('/sync-stream', maxlen=10)
+hbuf.serve(api)
+
+
+@app.route('/test', methods=['GET'])
+def another_service():
+    address = 'http://localhost:5000/sync-stream'
+    with multiprocessing.Pool(4) as p:
+        p.map(f, tuple(address for _ in range(4)))
+    hbuf_items = hbuf.read()
+    return {'message': 'success', 'items': hbuf_items}, 200
+
+
+if __name__ == '__main__':
+    app.run(host='localhost', port=5000)  # 运行Flask服务。
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+服务器启动后，使用如下地址获取结果：
+
+```html
+http://localhost:5000/test
+```
+
+响应为
+
+```json
+{"items": ["example", "example", "example", "example"], "message": "success"}
+```
+
+</TabItem>
+</Tabs>
+
+[link-addresource]: https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource
+[link-restfulapi]: https://flask-restful.readthedocs.io/en/latest/api.html?highlight=api#id1
+[link-deque-maxlen]: https://docs.python.org/zh-cn/3/library/collections.html#collections.deque.maxlen

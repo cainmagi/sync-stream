@@ -43,10 +43,10 @@ const config: Config = {
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
   // may want to replace "en" with "zh-Hans".
-  // i18n: {
-  //   defaultLocale: "en",
-  //   locales: ["en", "zh-cn"],
-  // },
+  i18n: {
+    defaultLocale: "en",
+    locales: ["en", "zh-cn"],
+  },
 
   presets: [
     [
@@ -122,10 +122,10 @@ const config: Config = {
         //     },
         //   ],
         // },
-        // {
-        //   type: "localeDropdown",
-        //   position: "right",
-        // },
+        {
+          type: "localeDropdown",
+          position: "right",
+        },
         {
           href: "https://github.com/cainmagi/sync-stream",
           position: "right",

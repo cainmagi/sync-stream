@@ -1,0 +1,195 @@
+---
+id: LineBuffer
+title: LineBuffer
+sidebar_label: LineBuffer
+slug: /apis/mproc/LineBuffer
+description: 基础的行缓存句柄。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="class" source="mproc.LineBuffer" />
+
+```python
+tbuf = syncstream.mproc.LineBuffer(maxlen: int = 20)
+```
+
+基础的行缓存句柄。
+
+该缓存为文字流提供了一个轮换存储空间。文字的存储单位不是字符，而是行。存储空间的最大行数是有限的。
+
+## 别名 {#aliases}
+
+该类可以按以下方式之一获取
+
+```python
+import syncstream
+
+
+syncstream.LineBuffer
+syncstream.mproc.LineBuffer
+```
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|   参数   | 类型  | 必选 | <center>说明</center>                                                                      |
+| :------: | :---: | :--: | :----------------------------------------------------------------------------------------- |
+| `maxlen` | `int` |      | 所存储的最大行数。该值和[`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]的含义相同。 |
+
+## 方法 {#methods}
+
+### <IconObjType type="method"/> `clear` {#-clear}
+
+```python
+tbuf.clear()
+```
+
+清空整个缓存。
+
+该方法会清空该缓存内的整个存储空间，以及当前正在写的最后一行的流。然而，该方法不会清空该缓存的任何镜像或拷贝。该方法是线程安全的，且应当永远可以成功执行。
+
+---
+
+### <IconObjType type="method"/> `new_line` {#-new_line}
+
+```python
+tbuf.new_line()
+```
+
+清空当前的临时缓存，并人为地触发一个“新行”信号。若当前的临时缓存包含数据，则会先将数据移动到存储区，然后再创建新行。若当前的临时缓存的已经是新行，则不做任何处理。
+
+该方法等价于
+
+```python
+if tbuf.last_line.tell() > 0:
+    write('\n')
+```
+
+---
+
+### <IconObjType type="method"/> `flush` {#-flush}
+
+```python
+tbuf.flush()
+```
+
+刷新当前正在写入行的数据流（临时缓存）。
+
+---
+
+### <IconObjType type="method"/> `parse_lines` {#-parse_lines}
+
+```python
+tbuf.parse_lines(lines)
+```
+
+处理行。
+
+每次`write()`方法将要向缓存写入新行时，调用此方法。默认的行为是向存储空间添加一条新的信息。
+
+用户自行定制形如“正则表达式搜索”的处理方法、并以此继承、重载该方法。该方法的默认行为透过以下私有方法实现：
+
+```python
+tbuf.storage.extend(lines: Sequence[str])
+```
+
+#### 输入 {#requires-1}
+
+| 参数 | 类型 | 必选 | <center>说明</center> |
+| :------: | :-------------: | :-------------------------------: | :------------------------------------------------------------------------------------------------------------------------------ |
+| `lines`  | `Sequence[str]` | <InlineIcon icon={vsiCheckIcon}/> | 要写入存储空间的字符串序列。用户可以捕获任一行，并从中提取某种特定的信息。 |
+
+---
+
+### <IconObjType type="method"/> `read` {#-read}
+
+```python
+lines: Sequence[str] = tbuf.read(size: int | None = None)
+```
+
+从缓存中获取所存储的各项记录。`read()`方法是线程安全的，并且不会干扰`write()`方法的指针。
+
+若当前正在写入的行不为空，调用该方法时，则会将其视为最后一条记录。
+
+#### 输入 {#requires-2}
+
+|  参数  |     类型      | 必选 | <center>说明</center>                                                        |
+| :----: | :-----------: | :--: | :--------------------------------------------------------------------------- |
+| `size` | `int \| None` |      | 若设为`None`，则会返回整个存储区。若设为一个整数，则会返回最后`size`条信息。 |
+
+#### 输出 {#returns}
+
+|  参数   |      类型       | <center>说明</center>                      |
+| :-----: | :-------------: | :----------------------------------------- |
+| `lines` | `Sequence[str]` | 所返回的信息。这些信息已经按断行符分拆过。 |
+
+---
+
+### <IconObjType type="method"/> `write` {#-write}
+
+```python
+n_bytes: int = tbuf.write(data: str)
+```
+
+写缓存的方法。源数据`data`的形式与文字IO的数据形式相同。每当`data`包含断行符时，会向存储区置入一条新的记录。`write()`方法是进程安全的。
+
+#### 输入 {#requires-3}
+
+|  参数  | 类型  |               必选                | <center>说明</center>                      |
+| :----: | :---: | :-------------------------------: | :----------------------------------------- |
+| `data` | `str` | <InlineIcon icon={vsiCheckIcon}/> | 要写入的信息。会自动检测其中包含的断行符。 |
+
+#### 输出 {#returns-1}
+
+|   参数    | 类型  | <center>说明</center>                              |
+| :-------: | :---: | :------------------------------------------------- |
+| `n_bytes` | `int` | 所要写入缓存的byte数目。该值直接从输入`data`计算。 |
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 在线程之间同步信息 {#-synchronize-messages-among-threads}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="sync_among_threads.py"
+import contextlib
+from syncstream.mproc import LineBuffer
+
+tbuf = LineBuffer(5)
+
+with contextlib.redirect_stdout(tbuf):
+    for i in range(10):
+        print(i)
+
+print(tbuf.read())
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+('5', '6', '7', '8', '9')
+```
+
+</TabItem>
+</Tabs>
+
+[link-deque-maxlen]: https://docs.python.org/zh-cn/3/library/collections.html#collections.deque.maxlen

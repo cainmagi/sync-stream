@@ -1,0 +1,56 @@
+---
+id: apis
+sidebar_label: 总览
+title: API总览
+description: 对所有API的总览。
+slug: /apis/
+---
+
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import ThemedImage from "@theme/ThemedImage";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="package" source="." />
+
+主要的API展示如下图：
+
+<ThemedImage
+  style={{maxWidth: "694.304px", height: "auto", maxHeight: "353px"}}
+  alt="Overview"
+  sources={{
+    light: useBaseUrl("/img/overview.svg"),
+    dark: useBaseUrl("/img/overview-dark.svg"),
+  }}
+/>
+
+以下模块是可选的。要安装它们，请在安装时添加对应参数。不同的参数可以一起使用。
+
+- `file`: 需要`pip install syncstream[file]`
+- `host`: 需要`pip install syncstream[host]`
+
+## 模块 {#modules}
+
+|                                           成员                                           | <center>说明</center>                                                                                                              |
+| :--------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------------------------------- |
+|     [<IconObjType type="module" hasText={true} text="base"/>](./apis/base/index.mdx)     | 用于不同模块的基本工具。                                                                                                           |
+|    [<IconObjType type="module" hasText={true} text="mproc"/>](./apis/mproc/index.mdx)    | 透过Python标准库实现的、线程和进程安全的信息同步。                                                                                 |
+|     [<IconObjType type="module" hasText={true} text="file"/>](./apis/file/index.mdx)     | 文件信息同步，基于[`fasteners`<IconExternalLink/>][link-fasteners]实现。                                                           |
+|     [<IconObjType type="module" hasText={true} text="host"/>](./apis/host/index.mdx)     | 网络服务信息同步，基于[`Flask-RESTful`<IconExternalLink/>][link-flask-restful]和[`urllib3`<IconExternalLink/>][link-urllib3]实现。 |
+| [<IconObjType type="module" hasText={true} text="webtools"/>](./apis/webtools/index.mdx) | 用来实现网络服务的共享工具。                                                                                                       |
+
+## 别名 {#aliases}
+
+|                               成员                               | <center>别名取自</center>                                            |
+| :--------------------------------------------------------------: | :------------------------------------------------------------------- |
+|   <IconObjType type="class" hasText={true} text="LineBuffer"/>   | [`syncstream.mproc.LineBuffer`](./apis/mproc/LineBuffer.mdx)         |
+| <IconObjType type="class" hasText={true} text="LineProcBuffer"/> | [`syncstream.mproc.LineProcBuffer`](./apis/mproc/LineProcBuffer.mdx) |
+| <IconObjType type="class" hasText={true} text="LineProcMirror"/> | [`syncstream.mproc.LineProcMirror`](./apis/mproc/LineProcMirror.mdx) |
+| <IconObjType type="class" hasText={true} text="LineFileBuffer"/> | [`syncstream.file.LineFileBuffer`](./apis/file/LineFileBuffer.mdx)   |
+| <IconObjType type="class" hasText={true} text="LineHostBuffer"/> | [`syncstream.host.LineHostBuffer`](./apis/host/LineHostBuffer.mdx)   |
+| <IconObjType type="class" hasText={true} text="LineHostMirror"/> | [`syncstream.host.LineHostMirror`](./apis/host/LineHostMirror.mdx)   |
+
+[link-fasteners]: https://fasteners.readthedocs.io/en/latest/
+[link-flask-restful]: https://flask-restful.readthedocs.io/en/latest/
+[link-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html

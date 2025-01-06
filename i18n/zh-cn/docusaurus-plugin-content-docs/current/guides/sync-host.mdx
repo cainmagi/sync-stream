@@ -1,0 +1,88 @@
+---
+id: sync-host
+title: 同步于设备之间
+sidebar_label: 设备同步
+slug: /sync-host
+description: 教程，展示了如何在设备之间同步信息。
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+某些情形下，需要在不同的设备之间同步信息。设备之间互相无法访问对方的文件系统，这使得需要使用网络服务来实现同步。基于[`flask`<IconExternalLink/>][doc-flask]和[`flask-restful`<IconExternalLink/>][doc-flask-restful]，本项目实现了[`LineHostBuffer`](../apis/host/LineHostBuffer.mdx)；基于[`urllib3`<IconExternalLink/>][doc-urllib3]，本项目实现了[`LineHostMirror`](../apis/host/LineHostMirror.mdx)。
+
+下例提供了两个脚本（`client.py`和`host.py`）。服务端（host）需要在客户端（client）之前启动。接下来，所有来自client的信息都会被host捕获。
+
+<Tabs
+  defaultValue="client"
+  values={[
+    { label: '客户端（Client）', value: 'client', },
+    { label: '服务端（Host）', value: 'host', },
+  ]
+}>
+
+<TabItem value="client">
+
+```python showLineNumbers title="client.py"
+from contextlib import redirect_stdout, redirect_stderr
+import requests
+import syncstream
+
+address = 'http://localhost:5000/sync-stream'
+# highlight-next-line
+buffer = syncstream.LineHostMirror(address=address)
+
+# highlight-next-line
+with redirect_stdout(buffer), redirect_stderr(buffer):
+    for i in range(3):
+        print('Message', f'"{i:02d}".')
+    print('Line break\nin middle.', end='')
+    print('No line break.', end='')
+
+# highlight-next-line
+buffer.send_eof()  # 发送终结信息。
+
+# 以下部分可以分离到另一台设备上。
+# highlight-next-line
+data = requests.get(address).json()['data']
+for mitem in data:
+    print(mitem)
+```
+
+</TabItem>
+
+<TabItem value="host">
+
+```python showLineNumbers title="host.py"
+import flask
+from flask_restful import Api
+import syncstream
+
+app = flask.Flask('test')
+api = Api(app)
+
+# highlight-next-line
+syncstream.LineHostBuffer(api_route='/sync-stream', maxlen=10).serve(api)
+
+if __name__ == '__main__':
+    app.run('localhost', port=5000)
+```
+
+</TabItem>
+
+</Tabs>
+
+缓存设计在服务侧。不过，用户并不需要针对服务端做任何处理。实例[`LineHostBuffer`](../apis/host/LineHostBuffer.mdx)仅仅用于为已经存在的Flask应用注册相应的API。在本例中，读写信息的过程都在`client.py`中完成。在第一部分，客户端的stdout和stderr都重定向到了远端。每次调用`print`时，信息就会推送到远端。所有信息都推送完毕后，会透过另一个请求来从远端获取结果。实际上，此处的读写操作可以分离到不同的脚本、甚至不同的设备上。
+
+:::caution
+
+某些包（例如[`pytest`<IconExternalLink/>][link-pytest]）可能会需要重定向stdout和stderr。当使用这些包时，`LineHostMirror`有可能无法成功将信息重定向到远端。
+
+:::
+
+[doc-flask]: https://flask.palletsprojects.com/en/ "Flask"
+[doc-flask-restful]: https://flask-restful.readthedocs.io/en/latest/index.html "Flask-RESTful"
+[doc-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html "urllib3"
+[link-pytest]: https://www.osgeo.cn/pytest/contents.html "pytest"

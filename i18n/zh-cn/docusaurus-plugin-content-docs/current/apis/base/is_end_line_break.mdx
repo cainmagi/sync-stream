@@ -1,0 +1,81 @@
+---
+id: is_end_line_break
+title: is_end_line_break
+sidebar_label: is_end_line_break
+slug: /apis/base/is_end_line_break
+description: 检查str是否由断行符收尾。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import IconLink from "@site/src/components/IconLink";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="base.is_end_line_break" />
+
+```python
+flag: bool = syncstream.base.is_end_line_break(val_str: str)
+```
+
+用来检查`str`是否由断行符收尾的函数。
+
+该检查透过以下工具实现
+
+<IconLink href="https://docs.python.org/3/library/stdtypes.html#str.splitlines" />
+
+该函数用于修复直接调用`str.splitlines`后被移去的结尾断行符信息。
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|   参数    | 类型  |               必选                | <center>说明</center> |
+| :-------: | :---: | :-------------------------------: | :-------------------- |
+| `val_str` | `str` | <InlineIcon icon={vsiCheckIcon}/> | 要验证的字符串。      |
+
+### 输出 {#returns}
+
+|  参数  |  类型  | <center>说明</center>                    |
+| :----: | :----: | :--------------------------------------- |
+| `flag` | `bool` | 若为`True`，则所验证的字符以断行符收尾。 |
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 检查断行 {#-check-the-line-break}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="check_line_break.py"
+from syncstream.base import is_end_line_break
+
+print(is_end_line_break('no break'))
+print(is_end_line_break('middle\n break'))
+print(is_end_line_break('ends break\n'))
+print(is_end_line_break('ends break mac\r'))
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+False
+False
+True
+True
+```
+
+</TabItem>
+</Tabs>

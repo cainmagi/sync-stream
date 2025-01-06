@@ -1,0 +1,32 @@
+---
+id: close_request_session
+title: close_request_session
+sidebar_label: close_request_session
+slug: /apis/webtools/close_request_session
+description: 用来清理请求会话的回调。
+---
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar
+  type="func"
+  isPrivate={true}
+  source="webtools.close_request_session"
+/>
+
+```python
+syncstream.webtools.close_request_session(sess: urllib3.HTTPResponse)
+```
+
+用于终结器的回调函数。该函数用于清理某个请求内、所有连接已断开的会话。
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|  参数  |          类型          |               必选                | <center>说明</center>      |
+| :----: | :--------------------: | :-------------------------------: | :------------------------- |
+| `sess` | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | 要关闭的http会话（请求）。 |

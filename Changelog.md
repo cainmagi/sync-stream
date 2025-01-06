@@ -9,6 +9,7 @@
 #### :mega: New
 
 1. Add the `Required` column to the argument lists of all API documents.
+2. Finalize the `zh-cn` document.
 
 #### :wrench: Fix
 
