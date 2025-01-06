@@ -36,7 +36,7 @@ In the definition of the buffer, we set the maximal number of catched lines as `
 buffer = syncstream.LineBuffer(10)
 ```
 
-The buffer could be passed to the redict context. Inside the context, the `print` function would be redirected to the buffer. Each time a new line is detected, a new record item would be created by the buffer. The rules for detecting the new lines are the same as those of [`str.splitlines`<IconExternalLink/>][link-splitlines] in the stdlib.
+The buffer instance could be passed to the redirect context. Inside the context, the `print` function would be redirected to the buffer. Each time a new line is detected, a new record item would be created by the buffer. The rules for detecting the new lines are the same as those of [`str.splitlines`<IconExternalLink/>][link-splitlines] in the stdlib.
 
 After catching all lines, the results could be returned by
 

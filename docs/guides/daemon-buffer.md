@@ -20,7 +20,7 @@ thd.join()
 ...
 ```
 
-To make sure that all sub-processes are finished safely, we need to use `thd.join` to force the `pbuf.wait` method finishes. However, in some cases, we need to terminate the sub-processes before they are finished. Use `terminate` method of the process is a possible solution. However, such kind of termination is not safe enough. A better way is to send a closing signal to the sub-processes. When each sub-process intends to write new messages, it needs to check the closing signal. If the closing signal is detected, a `StopIteration` exception would be raised. For example, if we change the above part like this:
+To make sure that all sub-processes are finished safely, we need to use `thd.join` to wait the `pbuf.wait` method finishes. However, in some cases, we need to terminate the sub-processes before they are finished. Use `terminate` method of the process is a possible solution. However, such kind of termination is not safe enough. A better way is to send a closing signal to the sub-processes. When each sub-process intends to write new messages, it needs to check the closing signal. If the closing signal is detected, a `StopIteration` exception would be raised. For example, if we change the above part like this:
 
 ```python
 thd = threading.Thread(target=pbuf.wait, daemon=True)
@@ -37,4 +37,4 @@ print('Progress is not 100%')
 thd.join()
 ```
 
-The sub-process would be terminated in advance. Consequently, the buffer would not be able to receive the finishing message from the sub-process. Instead, the `StopIteration` Exception would be catched.
+The sub-process would be terminated in advance. Consequently, the buffer would not be able to receive the finishing message from the sub-process. Instead, the `StopIteration` exceptions from the sub-processes would be catched.

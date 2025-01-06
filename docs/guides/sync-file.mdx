@@ -72,7 +72,7 @@ for mitem in messages:
 
 In the above example, the writer and reader are launched by two different python programs. Both the reader and the writer do not know the running details from each other. The only synchronized thing is the messages shared by the files. The file locks could ensure that the programs would not cause synchronization issues.
 
-The same instance [`LineFileBuffer`](../apis/file/LineFileBuffer.mdx) is used for both the writer and the reader. Different from the [`LineBuffer`](../apis/mproc/LineBuffer.mdx) or [`LineProcBuffer`](../apis/mproc/LineProcBuffer.mdx). The reader need to call the method [`buffer.read()`](../apis/file/LineFileBuffer.mdx#-read) reapeatly. Each time the method is called, the records in the file would be iterated for once. The reader would keep scanning the file for every one second until 10 lines are collected.
+The same instance [`LineFileBuffer`](../apis/file/LineFileBuffer.mdx) is used for both the writer and the reader. Different from the [`LineBuffer`](../apis/mproc/LineBuffer.mdx) or [`LineProcBuffer`](../apis/mproc/LineProcBuffer.mdx), the reader need to call the method [`buffer.read()`](../apis/file/LineFileBuffer.mdx#-read) reapeatly. Each time the method is called, the records in the file would be iterated for once. The reader would keep scanning the file for every one second until 10 lines are collected.
 
 :::danger
 

@@ -4,6 +4,12 @@
 
 ## CHANGELOG
 
+### 0.3.3 @ 01/06/2025
+
+#### :wrench: Fix
+
+1. Fix: Correct typos in the whole document.
+
 ### 0.3.3 @ 01/02/2025
 
 #### :mega: New
