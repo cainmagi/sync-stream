@@ -26,7 +26,6 @@ hbuf = syncstream.host.LineHostBuffer(
 ```
 
 透过网络服务，实现并提供以行为单元的缓存。
-The host service provider for the line-based buffer.
 
 轮换缓存需要设置一个最大存储区长度。该缓存是基础缓存`LineBuffer`、针对多设备所设计的扩展版。其支持单服务端-多客户端模式，透过网络服务实现同步。要了解如何使用该缓存，可以查阅本页的[范例](#example)，或是[指南](../../guides/sync-host.mdx)。
 

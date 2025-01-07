@@ -34,6 +34,8 @@ pip install syncstream[option1,option2...]
 | :----: | :------------------------------------------------------------------------------------------------- |
 | `file` | 安装`file`模块需要的依赖项。该模块提供了`syncstream.LineFileBuffer`。                              |
 | `host` | 安装`host`模块需要的依赖项。该模块提供了`syncstream.LineHostBuffer`和`syncstream.LineHostMirror`。 |
+| `test` | 安装用来运行测试的依赖项。                                                                         |
+| `dev`  | 安装开发者依赖项。                                                                                 |
 
 ## 安装GitHub版本 {#install-the-github-version}
 
@@ -52,7 +54,7 @@ pip install git+https://github.com/cainmagi/sync-stream.git
 ```shell
 git clone https://github.com/cainmagi/sync-stream.git
 cd sync-stream
-pip install -r requirements.txt
+pip install -r requirements.txt -r tests/requirements.txt -r requirements-file.txt -r requirements-host.txt
 python -m pytest
 ```
 

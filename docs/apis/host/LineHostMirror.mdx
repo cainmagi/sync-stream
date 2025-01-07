@@ -215,10 +215,16 @@ This method is used by other methods implicitly, and should not be used by users
 ### <IconObjType type="method"/> `read`
 
 ```python
-line: str = buffer.read()
+line: str = buffer.read(size: int | None = None)
 ```
 
 This method would only read the current bufferred values in the mirror storage. If the property `aggressive` is `True`, the `read()` method would always return empty value.
+
+#### Requires
+
+| Argument | Type  | Required | <center>Description</center>                                                                              |
+| :------: | :---: | :------: | :-------------------------------------------------------------------------------------------------------- |
+|  `size`  | `int` |          | If set `None`, would return the whole storage. If set an `int` value, would return the last `size` items. |
 
 #### Returns
 

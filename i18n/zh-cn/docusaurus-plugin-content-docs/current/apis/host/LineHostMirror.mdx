@@ -48,8 +48,8 @@ syncstream.host.LineHostMirror
 
 |     参数     |     类型      |               必选                | <center>说明</center>                                                                                                                            |
 | :----------: | :-----------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------- |
-|  `address`   |     `str`     | <InlineIcon icon={vsiCheckIcon}/> | 完整 URL，包括[`LineHostBuffer`](./LineHostBuffer.mdx)服务的 API 名。                                                                            |
-| `aggressive` |    `bool`     |                                   | 若设为`True`，则启用积极模式，亦即是说，只要有新的数据写入该 mirror，就会立即传递给缓存。若设为`False`，则只会在新写一整行的时候、才传递给缓存。 |
+|  `address`   |     `str`     | <InlineIcon icon={vsiCheckIcon}/> | 完整 URL，包括[`LineHostBuffer`](./LineHostBuffer.mdx)服务的API名。                                                                            |
+| `aggressive` |    `bool`     |                                   | 若设为`True`，则启用积极模式，亦即是说，只要有新的数据写入该mirror，就会立即传递给缓存。若设为`False`，则只会在新写一整行的时候、才传递给缓存。 |
 |  `timeout`   | `int \| None` |                                   | 网络同步事件的时限。若不设置，则执行同步操作将持续阻塞当前进程。                                                                                 |
 
 ## 方法 {#methods}
@@ -215,7 +215,7 @@ buffer.check_states()
 ### <IconObjType type="method"/> `read` {#-read}
 
 ```python
-line: str = buffer.read()
+line: str = buffer.read(size: int | None = None)
 ```
 
 该方法只会读取、当前保留在mirror的临时缓存内的数据。若属性`aggressive`为`True`，则`read()`方法将总是返回空值。

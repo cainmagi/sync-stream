@@ -34,6 +34,8 @@ pip install syncstream[option1,option2...]
 | :----: | :---------------------------------------------------------------------------------------------------------------------------- |
 | `file` | Install dependencies for the `file` module. The module provides `syncstream.LineFileBuffer`.                                  |
 | `host` | Install dependencies for the `host` module. The module provides `syncstream.LineHostBuffer`, and `syncstream.LineHostMirror`. |
+| `test` | Install dependencies for running tests.                                                                                       |
+| `dev`  | Install dependencies for developers.                                                                                          |
 
 ## Install the GitHub version
 
@@ -54,7 +56,7 @@ To verify whether the package is compatible with your device, please clone the p
 ```shell
 git clone https://github.com/cainmagi/sync-stream.git
 cd sync-stream
-pip install -r requirements.txt
+pip install -r requirements.txt -r tests/requirements.txt -r requirements-file.txt -r requirements-host.txt
 python -m pytest
 ```
 

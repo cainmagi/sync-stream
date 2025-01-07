@@ -16,6 +16,7 @@
 #### :wrench: Fix
 
 1. Fix: Correct typos in the legacy document `v0.3.3`.
+2. Fix: Correct typos in the whole document for all versions.
 
 #### :floppy_disk: Change
 

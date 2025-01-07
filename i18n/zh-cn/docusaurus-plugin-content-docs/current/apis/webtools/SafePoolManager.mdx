@@ -64,7 +64,7 @@ req: SafeRequest[urllib3.BaseHTTPResponse] = pool.request(
 
 该方法提供了原`urllib3`不曾提供的类型注解。其返回值是封装版本[`SafeRequest`](./SafeRequest.mdx)，用以提供进一步的上下文，而非一个简单的[`HTTPResponse`<IconExternalLink/>][link-httpresponse]对象。
 
-#### Requires {#-requires}
+#### 输入 {#-requires}
 
 |    Argument    |                                        Type                                         |             Required              | <center>Description</center>                                          |
 | :------------: | :---------------------------------------------------------------------------------: | :-------------------------------: | :-------------------------------------------------------------------- |
@@ -74,7 +74,7 @@ req: SafeRequest[urllib3.BaseHTTPResponse] = pool.request(
 |   `headers`    |                             `Mapping[str, str] \| None`                             |                                   | 请求的HTTP头。                                                       |
 | `**urlopen_kw` |                                          -                                          |                                   | 其他要传递给[`urlopen(...)`<IconExternalLink/>][link-urlopen]的参数。 |
 
-#### Returns {#-returns}
+#### 输出 {#-returns}
 
 | Argument |                             Type                             | <center>Description</center>                                                        |
 | :------: | :----------------------------------------------------------: | :---------------------------------------------------------------------------------- |
