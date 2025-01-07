@@ -20,6 +20,7 @@
 3. Fix: Remove the `flask-restful` in the newest document because it has been dropped.
 4. Fix: Correct the tag name in the source references.
 5. Fix: Add missing usages of the context in the API documents.
+6. Fix: Correct a wrong type definition in the tutorial for `v1.2.1`.
 
 #### :floppy_disk: Change
 

@@ -14,6 +14,8 @@ import time
 import threading
 import multiprocessing
 
+from typing import Union
+
 try:
     from typing import Sequence
 except ImportError:
@@ -39,13 +41,17 @@ class CustomedBuffer(syncstream.LineProcBuffer):
         with self.__info_lock:
             return self.__progress
 
-    def parse_lines(self, lines: Sequence[str]) -> None:
+    def parse_lines(
+        self, lines: Sequence[Union[str, syncstream.GroupedMessage]]
+    ) -> None:
         '''处理行
         每次将要向缓存写入新行时，调用此方法。
         重载此方法用来获取具有特定模式的有用信息。
         '''
         remained_lines = list()
         for line in lines:
+            if not isinstance(line, str):
+                continue
             # 捕获进度。
             res = self.__r_prog.fullmatch(line)
             if res is not None:
@@ -63,6 +69,7 @@ def worker_process(buffer: syncstream.LineProcMirror):
         for i in range(10):
             time.sleep(0.5)
             print('>>> Progress: {0:d}%.'.format(i * 10))
+        time.sleep(0.5)
         print('Message', 'item')
         print('>>> Progress: 100%.')
 
@@ -79,7 +86,11 @@ if __name__ == '__main__':
         thd = threading.Thread(target=pbuf.wait, daemon=True)
         thd.start()
         print('开始等待。')
+        prev_progress = 10
         while pbuf.progress < 100:
+            if pbuf.progress >= prev_progress:
+                print("进度达到{0}%。".format(prev_progress))
+                prev_progress += 10
             time.sleep(0.1)
         print('进度达到100%。')
         thd.join()

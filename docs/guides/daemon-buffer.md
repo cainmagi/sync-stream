@@ -14,6 +14,7 @@ thd = threading.Thread(target=pbuf.wait, daemon=True)
 thd.start()
 print('Start to wait.')
 while pbuf.progress < 100:
+    ...
     time.sleep(0.1)
 print('Progress is 100%.')
 thd.join()

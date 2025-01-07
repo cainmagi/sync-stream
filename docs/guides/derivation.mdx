@@ -14,6 +14,8 @@ import time
 import threading
 import multiprocessing
 
+from typing import Union
+
 try:
     from typing import Sequence
 except ImportError:
@@ -22,7 +24,6 @@ except ImportError:
 import syncstream
 
 
-# highlight-next-line
 class CustomedBuffer(syncstream.LineProcBuffer):
     '''Customized buffer, used for catching the progress of a program.'''
 
@@ -39,13 +40,17 @@ class CustomedBuffer(syncstream.LineProcBuffer):
         with self.__info_lock:
             return self.__progress
 
-    def parse_lines(self, lines: Sequence[str]) -> None:
+    def parse_lines(
+        self, lines: Sequence[Union[str, syncstream.GroupedMessage]]
+    ) -> None:
         '''Parse the lines
         This method would be triggered each time a new line is written to the buffer.
         The overriding method would catch the useful information from specific patterns.
         '''
         remained_lines = list()
         for line in lines:
+            if not isinstance(line, str):
+                continue
             # Catch the progress.
             res = self.__r_prog.fullmatch(line)
             if res is not None:
@@ -63,6 +68,7 @@ def worker_process(buffer: syncstream.LineProcMirror):
         for i in range(10):
             time.sleep(0.5)
             print('>>> Progress: {0:d}%.'.format(i * 10))
+        time.sleep(0.5)
         print('Message', 'item')
         print('>>> Progress: 100%.')
 
@@ -74,12 +80,15 @@ if __name__ == '__main__':
             worker_process,
             tuple(pbuf.mirror for _ in range(1))
         )  # Run 4 procs.
-        # highlight-next-line
         # Move the wait method to the background.
         thd = threading.Thread(target=pbuf.wait, daemon=True)
         thd.start()
         print('Start to wait.')
+        prev_progress = 10
         while pbuf.progress < 100:
+            if pbuf.progress >= prev_progress:
+                print("Progress >= {0}%.".format(prev_progress))
+                prev_progress += 10
             time.sleep(0.1)
         print('Progress is 100%.')
         thd.join()
