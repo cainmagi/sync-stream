@@ -20,6 +20,7 @@
 #### :floppy_disk: Change
 
 1. Add special configurations to the legacy document `v0.3.3`.
+2. Update the example codes in the `v1.2.1` to the new style.
 
 ### 0.3.3 @ 01/06/2025
 

@@ -13,7 +13,6 @@ The following example catches the messages from 4 different threads:
 ```python showLineNumbers title="sync-thread.py"
 import threading
 import time
-from contextlib import redirect_stdout
 import syncstream
 
 
@@ -33,7 +32,7 @@ def worker_thread() -> None:
 def run_4_threads(buffer: syncstream.LineBuffer) -> None:
     '''Run 4 threads with stdout redirected.'''
     # highlight-next-line
-    with redirect_stdout(buffer):
+    with buffer:
         thd_pool = list()
         for _ in range(4):
             thd = threading.Thread(target=worker_thread)

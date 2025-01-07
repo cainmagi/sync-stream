@@ -28,18 +28,16 @@ In the following example, we provide two scripts (`writer.py` and `reader.py`). 
 ```python showLineNumbers title="writer.py"
 import os
 import time
-from contextlib import redirect_stdout, redirect_stderr
 import syncstream
 
 os.makedirs('logs', exist_ok=True)  # Create the log folder.
 # highlight-next-line
 buffer = syncstream.LineFileBuffer('logs/message', maxlen=10, tmp_id=os.getpid())
 # highlight-next-line
-with redirect_stdout(buffer), redirect_stderr(buffer):
+with buffer:
     for i in range(10):
         time.sleep(1.0)
         print('Line', 'buffer', 'new', i, end='\n')
-buffer.new_line()  # A final signal
 ```
 
 </TabItem>

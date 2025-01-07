@@ -26,7 +26,6 @@ In the following example, we provide two scripts (`client.py` and `host.py`). Th
 <TabItem value="client">
 
 ```python showLineNumbers title="client.py"
-from contextlib import redirect_stdout, redirect_stderr
 import requests
 import syncstream
 
@@ -35,14 +34,11 @@ address = 'http://localhost:5000/sync-stream'
 buffer = syncstream.LineHostMirror(address=address)
 
 # highlight-next-line
-with redirect_stdout(buffer), redirect_stderr(buffer):
+with buffer:
     for i in range(3):
         print('Message', f'"{i:02d}".')
     print('Line break\nin middle.', end='')
     print('No line break.', end='')
-
-# highlight-next-line
-buffer.send_eof()  # Send the final signal.
 
 # The following part could be split to another device.
 # highlight-next-line

@@ -206,10 +206,8 @@ from syncstream.host import LineHostMirror, LineHostBuffer
 
 
 def f(address):
-    buffer = LineHostMirror(address=address, timeout=5)
-    with buffer:
+    with LineHostMirror(address=address, timeout=5):
         print('example')
-    buffer.send_eof()
 
 
 app = flask.Flask(__name__)

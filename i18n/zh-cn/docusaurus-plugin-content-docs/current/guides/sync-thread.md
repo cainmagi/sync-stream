@@ -13,7 +13,6 @@ description: 教程，展示了如何在线程之间同步信息。
 ```python showLineNumbers title="sync-thread.py"
 import threading
 import time
-from contextlib import redirect_stdout
 import syncstream
 
 
@@ -33,7 +32,7 @@ def worker_thread() -> None:
 def run_4_threads(buffer: syncstream.LineBuffer) -> None:
     '''在stdout重定向的情形下，运行四个线程。'''
     # highlight-next-line
-    with redirect_stdout(buffer):
+    with buffer:
         thd_pool = list()
         for _ in range(4):
             thd = threading.Thread(target=worker_thread)

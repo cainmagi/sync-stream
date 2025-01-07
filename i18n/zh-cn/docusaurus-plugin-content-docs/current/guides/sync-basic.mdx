@@ -11,15 +11,14 @@ import IconExternalLink from "@theme/Icon/ExternalLink";
 下例展示了获取python的stdout和stderr的做法：
 
 ```python showLineNumbers title="basic.py" 
-from contextlib import redirect_stdout, redirect_stderr
 import syncstream
 
 # 初始化缓存。
 # highlight-next-line
 buffer = syncstream.LineBuffer(10)
 
-# 使用contextlib重定向stdout和stderr。
-with redirect_stdout(buffer), redirect_stderr(buffer):
+# buffer本身就是一个提供了stdout/stderr重定向的上下文。
+with buffer:
     for i in range(20):
         print('Message', f'"{i:02d}".')
     print('Line break\nin middle.', end='')

@@ -13,7 +13,6 @@ import re
 import time
 import threading
 import multiprocessing
-from contextlib import redirect_stdout
 
 try:
     from typing import Sequence
@@ -60,17 +59,12 @@ class CustomedBuffer(syncstream.LineProcBuffer):
 
 def worker_process(buffer: syncstream.LineProcMirror):
     '''Define the workder_process.'''
-    try:
-        with redirect_stdout(buffer):
-            for i in range(10):
-                time.sleep(0.5)
-                print('>>> Progress: {0:d}%.'.format(i * 10))
-            print('Message', 'item')
-            print('>>> Progress: 100%.')
-    except Exception as err:
-        buffer.send_error(err)
-    else:
-        buffer.send_eof()
+    with buffer:
+        for i in range(10):
+            time.sleep(0.5)
+            print('>>> Progress: {0:d}%.'.format(i * 10))
+        print('Message', 'item')
+        print('>>> Progress: 100%.')
 
 
 if __name__ == '__main__':

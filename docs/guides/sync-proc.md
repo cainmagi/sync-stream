@@ -12,20 +12,14 @@ The following example catches the messages from 4 different processes:
 
 ```python showLineNumbers title="sync-proc.py"
 import multiprocessing
-from contextlib import redirect_stdout
 import syncstream
 
 
 def worker_process(buffer: syncstream.LineProcMirror):
     '''Define the workder_process.'''
-    try:
-        # highlight-next-line
-        with redirect_stdout(buffer):
-            print('Message', 'item')
-    except Exception as err:
-        buffer.send_error(err)
-    else:
-        buffer.send_eof()
+    # highlight-next-line
+    with buffer:
+        print('Message', 'item')
 
 
 if __name__ == '__main__':

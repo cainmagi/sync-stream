@@ -12,20 +12,14 @@ description: 教程，展示了如何在进程之间同步信息。
 
 ```python showLineNumbers title="sync-proc.py"
 import multiprocessing
-from contextlib import redirect_stdout
 import syncstream
 
 
 def worker_process(buffer: syncstream.LineProcMirror):
     '''定义workder_process。'''
-    try:
-        # highlight-next-line
-        with redirect_stdout(buffer):
-            print('Message', 'item')
-    except Exception as err:
-        buffer.send_error(err)
-    else:
-        buffer.send_eof()
+    # highlight-next-line
+    with buffer:
+        print('Message', 'item')
 
 
 if __name__ == '__main__':

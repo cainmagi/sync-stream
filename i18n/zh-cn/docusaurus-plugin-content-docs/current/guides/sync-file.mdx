@@ -28,18 +28,16 @@ import TabItem from '@theme/TabItem';
 ```python showLineNumbers title="writer.py"
 import os
 import time
-from contextlib import redirect_stdout, redirect_stderr
 import syncstream
 
 os.makedirs('logs', exist_ok=True)  # 创建日志文件夹。
 # highlight-next-line
 buffer = syncstream.LineFileBuffer('logs/message', maxlen=10, tmp_id=os.getpid())
 # highlight-next-line
-with redirect_stdout(buffer), redirect_stderr(buffer):
+with buffer:
     for i in range(10):
         time.sleep(1.0)
         print('Line', 'buffer', 'new', i, end='\n')
-buffer.new_line()  # 终结信号。
 ```
 
 </TabItem>

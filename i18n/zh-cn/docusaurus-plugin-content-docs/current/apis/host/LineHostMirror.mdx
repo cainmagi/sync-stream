@@ -435,7 +435,7 @@ if __name__ == "__main__":
 from syncstream import LineHostMirror
 
 
-with LineHostMirror('http://localhost:5000/sync-stream') as buffer:
+with LineHostMirror('http://localhost:5000/sync-stream'):
     print("test line 1")
     print("test line 2")
     print("test line 3")
