@@ -28,14 +28,14 @@ from importlib.util import _LazyModule as __LazyModule  # type: ignore
 
 from types import ModuleType
 
-from typing import Union, Optional, Any, Generic, TypeVar
+from typing import Union, Optional, Any, TypeVar
 
 try:
-    from typing import Sequence, Callable
-    from typing import List, Type
+    from typing import Sequence
+    from typing import List
 except ImportError:
-    from collections.abc import Sequence, Callable
-    from builtins import list as List, type as Type
+    from collections.abc import Sequence
+    from builtins import list as List
 from collections.abc import Sequence as _Sequence
 
 from typing_extensions import Literal, Never, TypeGuard, overload
@@ -51,7 +51,6 @@ __all__ = (
     "lazy_import",
     "get_lazy_attribute",
     "is_module_invalid",
-    "cached_property",
     "ModuleReplaceError",
 )
 
@@ -61,13 +60,6 @@ T = TypeVar("T")  # Any type.
 
 def cancel_type(data: Any) -> Any:
     return data
-
-
-class _Missing:
-    pass
-
-
-_missing = _Missing()
 
 
 class ModuleReplaceError(ImportError):
@@ -261,8 +253,14 @@ class _ModulePlaceholder(ModuleType):
 
     def __init__(self, name: str, doc: Optional[str] = None) -> None:
         """Initialization.
-        Arguments:
-            name: The module name. It will be passed to ModuleType.
+
+        Arguments
+        ---------
+        name: `str`
+            The module name. It will be passed to ModuleType.
+
+        doc: `str | None`
+            The docstring of the placeholder.
         """
         name = str(name)
         if doc is None:
@@ -274,22 +272,14 @@ class _ModulePlaceholder(ModuleType):
         else:
             doc = str(doc)
         super().__init__(name=name, doc=doc)
+        self.__file__ = None
+        self.__path__ = []
 
     def __repr__(self) -> str:
         """This repr is used for showing that this is a placeholder."""
         return "<ModulePlaceholder {name}>".format(
             name=object.__getattribute__(self, "__name__")
         )
-
-    @property
-    def __file__(self) -> None:
-        """The `file` attribute of this placeholder module is empty."""
-        return None
-
-    @property
-    def __path__(self) -> Sequence[str]:
-        """The `path` attribute of this placeholder module is empty."""
-        return tuple()
 
     @property
     def __all__(self) -> Sequence[str]:
@@ -315,6 +305,7 @@ class _ModulePlaceholder(ModuleType):
 
 class _LazyLoader(importlib.util.LazyLoader):
     """Private class: LazyLoader
+
     Used for providing lazy import.
     """
 
@@ -335,6 +326,7 @@ class _LazyLoader(importlib.util.LazyLoader):
 
     def exec_module(self, module: ModuleType) -> None:
         """Execute the module.
+
         This class will configure the properties of the module.
         """
         super().exec_module(module)
@@ -600,153 +592,3 @@ def is_module_invalid(module: ModuleType) -> TypeGuard[_ModulePlaceholder]:
         `True` only when the given module is a module placeholder.
     """
     return isinstance(module, _ModulePlaceholder)
-
-
-class cached_property(Generic[K, T], property):
-    """Decorator: Cached Property
-
-    Modified from
-    ```python
-    werkzeug.utils.cached_property
-    ```
-
-    A decorator that converts a function into a lazy property.  The
-    function wrapped is called the first time to retrieve the result
-    and then that calculated result is used the next time you access
-    the value::
-    ```python
-    class Foo(object):
-        @cached_property
-        def foo(self) -> int:
-            # calculate something important here
-            return self.__foo
-        @foo.setter
-        def foo(self, val: int) -> None:
-            self.__foo = val
-        @foo.deleter
-        def foo(self) -> None:
-            del self.__foo
-    ```
-
-    The class has to have a `__dict__` in order for this property to
-    work.
-    """
-
-    # implementation detail: this property is implemented as non-data
-    # descriptor.  non-data descriptors are only invoked if there is
-    # no entry with the same name in the instance's __dict__.
-    # this allows us to completely get rid of the access function call
-    # overhead.  If one choses to invoke __get__ by hand the property
-    # will still work as expected because the lookup logic is replicated
-    # in __get__ for manual invocation.
-
-    def __init__(
-        self,
-        fget: Optional[Callable[[K], T]] = None,
-        fset: Optional[Callable[[K, T], None]] = None,
-        fdel: Optional[Callable[[K], None]] = None,
-        doc: Optional[str] = None,
-        name: Optional[str] = None,
-    ) -> None:
-        """Initialization.
-
-        Arguments
-        ---------
-        Similar to the decorator `property`.
-        """
-        super().__init__(fget=fget, fset=fset, fdel=fdel, doc=doc)
-        name_ = (
-            name
-            or (self.fget.__name__ if self.fget is not None else None)
-            or (self.fset.__name__ if self.fset is not None else None)
-            or (self.fdel.__name__ if self.fdel is not None else None)
-        )
-        if name_ is None:
-            raise ValueError(
-                'utils: Need to specify "name" because the wrapped method '
-                "does not provide a valid name."
-            )
-        self.__name__ = name_
-
-    @classmethod
-    def from_property(
-        cls, prop: Union["cached_property", property]
-    ) -> "cached_property[K, T]":
-        """Convert an ordinary `property()` or a `cached_property()` instance
-        to a `cached_property()` instance.
-        Arguments:
-            prop: The property to be converted.
-        Returns:
-            #1: The converted `cached_property()`. This instance is different
-                from the input instance.
-        """
-        return cls(
-            fget=prop.fget,
-            fset=prop.fset,
-            fdel=prop.fdel,
-            doc=prop.__doc__,
-            name=getattr(prop, "name"),
-        )
-
-    def __get__(self, obj: K, objtype: Optional[Type[K]] = None):
-        """Extended __get__ method of the property.
-        This method will implement the fetching of the cached property.
-        """
-        if obj is None:
-            return self
-        self.__name__
-        value_: Union[T, _Missing] = obj.__dict__.get(self.__name__, _missing)
-        if isinstance(value_, _Missing):
-            value: T = super().__get__(obj, objtype)
-            obj.__dict__[self.__name__] = value
-        else:
-            value: T = value_
-        return value
-
-    def __set__(self, obj: K, value: T) -> None:
-        """Extended __set__ method of the property.
-        This method will implement the resetting of the cached property.
-        Running this method will cause the cached property to be cleared.
-        """
-        super().__set__(obj, value)
-        if self.__name__ in obj.__dict__:
-            obj.__dict__.pop(self.__name__)
-
-    def __delete__(self, obj: K) -> None:
-        """Extended __delete__ method of the property.
-        This method will implement the deleting of the cached property.
-        Running this method will cause the cached property to be cleared.
-        """
-        super().__delete__(obj)
-        if self.__name__ in obj.__dict__:
-            obj.__dict__.pop(self.__name__)
-
-    def getter(self, fget: Callable[[K], T]) -> "cached_property[K, T]":
-        """Descriptor to change the getter on a property."""
-        return self.__class__(
-            fget=fget,
-            fset=self.fset,
-            fdel=self.fdel,
-            name=self.__name__,
-            doc=self.__doc__,
-        )
-
-    def setter(self, fset: Callable[[K, T], None]) -> "cached_property[K, T]":
-        """Descriptor to change the setter on a property."""
-        return self.__class__(
-            fget=self.fget,
-            fset=fset,
-            fdel=self.fdel,
-            name=self.__name__,
-            doc=self.__doc__,
-        )
-
-    def deleter(self, fdel: Callable[[K], None]) -> "cached_property[K, T]":
-        """Descriptor to change the deleter on a property."""
-        return self.__class__(
-            fget=self.fget,
-            fset=self.fset,
-            fdel=fdel,
-            name=self.__name__,
-            doc=self.__doc__,
-        )

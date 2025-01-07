@@ -14,6 +14,7 @@
 #### :floppy_disk: Change
 
 1. Adjust the workflow configurations and use the new standard of PyPI publishing.
+2. Remove unused `utils.cached_property`.
 
 ### 1.2.0 @ 2/27/2024
 
