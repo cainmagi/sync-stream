@@ -25,6 +25,9 @@ import InlineIcon from "@site/src/components/InlineIcon";
 ```python
 pbuf: syncstream.LineProcBuffer
 buffer = pbuf.mirror
+
+with buffer:
+    ...
 ```
 
 进程安全缓存的镜像。

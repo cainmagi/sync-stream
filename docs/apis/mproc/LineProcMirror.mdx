@@ -25,6 +25,9 @@ import InlineIcon from "@site/src/components/InlineIcon";
 ```python
 pbuf: syncstream.LineProcBuffer
 buffer = pbuf.mirror
+
+with buffer:
+    ...
 ```
 
 The mirror for the process-safe line-based buffer.
