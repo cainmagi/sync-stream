@@ -1,0 +1,44 @@
+---
+id: SerializedMessage
+title: SerializedMessage
+sidebar_label: SerializedMessage
+slug: /apis/base/SerializedMessage
+description: The serialized message returned by GroupedMessage.
+---
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import InlineIcon from "@site/src/components/InlineIcon";
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="type" source="base.SerializedMessage" />
+
+```python
+SerializedMessage(
+    "/is_syncsdata": Literal[True],
+    "/type": Literal["GroupedMessage"],
+    type: Literal["str", "warning", "error"],
+    data: Sequence[str],
+)
+```
+
+`SerializedMessage` is a `TypedDict`.
+
+The serialized message is returned by [`GroupedMessage`](./GroupedMessage.mdx).
+
+This method is used for exchanging the messages in different modes, including:
+
+- multi-processing.
+- file
+- web-based exchanging.
+
+The messages are serialized as a JSON-compatible dictionary.
+
+## Keywords
+
+|     Keyword     |                 Type                 |             Required              | <center>Description</center>                                                                                          |
+| :-------------: | :----------------------------------: | :-------------------------------: | :-------------------------------------------------------------------------------------------------------------------- |
+| `/is_syncsdata` |           `Literal[True]`            | <InlineIcon icon={vsiCheckIcon}/> | Internal value. It is always `True`. Used for validating whether the provided data is from this `syncstream` package. |
+|     `/type`     |     `Literal["GroupedMessage"]`      | <InlineIcon icon={vsiCheckIcon}/> | Internal value. It is always `"GroupedMessage"`. Used for validating the type of the data.                            |
+|     `type`      | `Literal["str", "warning", "error"]` | <InlineIcon icon={vsiCheckIcon}/> | The type of the message data.                                                                                         |
+|     `data`      |           `Sequence[str]`            | <InlineIcon icon={vsiCheckIcon}/> | The message data content. It is always a sequence of strings.                                                         |

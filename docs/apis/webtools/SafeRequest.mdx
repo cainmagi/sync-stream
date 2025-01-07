@@ -3,11 +3,12 @@ id: SafeRequest
 title: SafeRequest
 sidebar_label: SafeRequest
 slug: /apis/webtools/SafeRequest
-description: A wrapper for providing context for the urllib3.HTTPResponse.
+description: A wrapper for providing context for the urllib3.BaseHTTPResponse.
 ---
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
 
 import vsiCheckIcon from "@iconify-icons/codicon/check";
 
@@ -22,11 +23,11 @@ import InlineIcon from "@site/src/components/InlineIcon";
 />
 
 ```python
-with syncstream.webtools.SafeRequest(request: urllib3.HTTPResponse) as req:
-    req: urllib3.HTTPResponse
+SafeRequest(request: urllib3.BaseHTTPResponse) as req:
+    req: urllib3.BaseHTTPResponse
 ```
 
-A wrapper for providing context for the `urllib3.HTTPResponse`.
+A wrapper for providing context for the [`urllib3.BaseHTTPResponse`<IconExternalLink/>][link-response].
 
 :::danger
 
@@ -36,9 +37,9 @@ This is a private class. Should not be used by users.
 
 ## Arguments
 
-| Argument  |          Type          |             Required              | <center>Description</center>                                                                                      |
-| :-------: | :--------------------: | :-------------------------------: | :---------------------------------------------------------------------------------------------------------------- |
-| `request` | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | The request to be wrapped. This wrapped request will be disconnected and released when exiting from this context. |
+| Argument  |            Type            |             Required              | <center>Description</center>                                                                                      |
+| :-------: | :------------------------: | :-------------------------------: | :---------------------------------------------------------------------------------------------------------------- |
+| `request` | `urllib3.BaseHTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | The request to be wrapped. This wrapped request will be disconnected and released when exiting from this context. |
 
 ## Example
 
@@ -75,3 +76,5 @@ pool.clear()
 
 </TabItem>
 </Tabs>
+
+[link-response]: https://urllib3.readthedocs.io/en/stable/reference/urllib3.response.html#urllib3.response.BaseHTTPResponse

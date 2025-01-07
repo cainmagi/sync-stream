@@ -1,0 +1,191 @@
+---
+id: lazy_import
+title: lazy_import
+sidebar_label: lazy_import
+slug: /apis/utils/lazy_import
+description: Perform the lazy import for a module.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import IconLink from "@site/src/components/IconLink";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="utils.lazy_import" />
+
+```python
+module: ModuleType = lazy_import(
+    name: str,
+    package: str | None = __pkg_name__,
+    required: bool = True,
+    dependencies: str | Sequence[str] | None = None,
+    rel_dependencies: ModuleType | Sequence[ModuleType] | None = None,
+)
+```
+
+Perform the lazy import for a module.
+
+The returned module will not be loaded until it is actually used.
+
+Modified from:
+
+<IconLink href="https://docs.python.org/3/library/importlib.html#implementing-lazy-imports" />
+
+## Arguments
+
+### Requires
+
+|      Argument      | Type  |             Required              | <center>Description</center>                                                                                                                                                                                                                                                                                                         |
+| :----------------: | :---: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|       `name`       | `str` | <InlineIcon icon={vsiCheckIcon}/> | The name of the module. It does not need to start with the `.` symbol.                                                                                                                                                                                                                                                               |
+|     `package`      | `str` |                                   | <p>The name of the package (anchor).</p><p>By default: will use the `__name__` of the pacakge where this `utils` module is placed. if `utils` is not placed as a sub-module, and `package` is not specified, will search `name` by absolute import.</p><p>If using `None`: will search `name` by absolute import.</p>                |
+|     `required`     | `str` |                                   | Whether to require the existence of the module. If not specified, will allow to load an empty module when the module is not found.                                                                                                                                                                                                   |
+|   `dependencies`   | `str` |                                   | <p>One or more depdencies for the module to be loaded.</p><p>If not specified, it means that the module does not need dependencies. If specified, the module is only loaded when all dependencies are detected. Otherwise, returns a module placeholder. The dependencies are module names following the abosolute import rules.</p> |
+| `rel_dependencies` | `str` |                                   | One or more relative dependencies. Each item is a module (can be lazy). If using `None`, will use an empty list.                                                                                                                                                                                                                  |
+
+### Returns
+
+| Argument |     Type     | <center>Description</center>                                    |
+| :------: | :----------: | :-------------------------------------------------------------- |
+| `module` | `ModuleType` | A lazy loaded module. It will be loaded when actually using it. |
+
+## Example
+
+### <IconObjType type="term"/> Load a module only when it is accessed
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="lazy_load.py"
+from typing import TYPE_CHECKING
+from syncstream import utils
+
+if TYPE_CHECKING:
+    import curses
+else:
+    curses = utils.lazy_import("curses", package=None)
+
+
+print(curses)  # Not loaded yet
+curses.error
+print(curses)  # Loaded
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+<LazyModule curses from "/usr/local/lib/python3.12/curses/__init__.py">
+<module 'curses' from '/usr/local/lib/python3.12/curses/__init__.py'>
+```
+
+</TabItem>
+</Tabs>
+
+### <IconObjType type="term"/> Load a module and specify some pre-requisition
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+Suppose that `numpy` is not installed.
+
+```python showLineNumbers title="lazy_load_with_reqs.py"
+from typing import TYPE_CHECKING
+from syncstream import utils
+
+if TYPE_CHECKING:
+    import curses
+else:
+    curses = utils.lazy_import("curses", package=None, dependencies=("numpy",))
+
+
+print(curses)
+curses.error
+print(curses)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+Traceback (most recent call last):
+  File "/workdir/alpha-test.py", line 7, in <module>
+    curses = utils.lazy_import("curses", package=None, dependencies=("numpy",))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workdir/syncstream/utils.py", line 567, in lazy_import
+    return _LazyImporter().lazy_import(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workdir/syncstream/utils.py", line 503, in lazy_import
+    return cls.create_module_placeholder(full_name=full_name, required=required)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workdir/syncstream/utils.py", line 445, in create_module_placeholder
+    raise ModuleNotFoundError(
+ModuleNotFoundError: utils: The required module to be lazily loaded is not found: curses
+```
+
+</TabItem>
+</Tabs>
+
+### <IconObjType type="term"/> Load an optional module and specify some pre-requisition
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+Suppose that `numpy` is not installed.
+
+```python showLineNumbers title="lazy_load_with_reqs_optional.py"
+from typing import TYPE_CHECKING
+from syncstream import utils
+
+if TYPE_CHECKING:
+    import curses
+else:
+    curses = utils.lazy_import(
+        "curses", package=None, dependencies=("numpy",), required=False
+    )
+
+
+print(curses)
+print(curses.__file__)
+print(curses)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+<ModulePlaceholder curses>
+None
+<ModulePlaceholder curses>
+```
+
+</TabItem>
+</Tabs>

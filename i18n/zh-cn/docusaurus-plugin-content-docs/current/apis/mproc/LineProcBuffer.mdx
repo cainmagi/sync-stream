@@ -18,7 +18,7 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="mproc.LineProcBuffer" />
 
 ```python
-pbuf = syncstream.mproc.LineProcBuffer(maxlen: int = 20)
+pbuf = LineProcBuffer(maxlen: int = 20)
 ```
 
 进程安全的行缓存。
@@ -38,8 +38,6 @@ syncstream.mproc.LineProcBuffer
 ```
 
 ## 参数 {#arguments}
-
-### 输入 {#requires}
 
 |   参数   | 类型  | 必选 | <center>说明</center>                                                                      |
 | :------: | :---: | :--: | :----------------------------------------------------------------------------------------- |
@@ -140,7 +138,7 @@ pbuf.parse_lines(lines: Sequence[str])
 pbuf.storage.extend(lines)
 ```
 
-#### 输入 {#requires-1}
+#### 输入 {#requires}
 
 |  参数   |      类型       |               必选                | <center>说明</center>                                                      |
 | :-----: | :-------------: | :-------------------------------: | :------------------------------------------------------------------------- |
@@ -158,7 +156,7 @@ lines: Sequence[str] = pbuf.read(size: int | None = None)
 
 若当前正在写入的行不为空，调用该方法时，则会将其视为最后一条记录。
 
-#### 输入 {#requires-2}
+#### 输入 {#requires-1}
 
 |  参数  |     类型      | 必选 | <center>说明</center>                                                        |
 | :----: | :-----------: | :--: | :--------------------------------------------------------------------------- |

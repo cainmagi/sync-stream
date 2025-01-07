@@ -17,7 +17,7 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="file.LineFileBuffer" />
 
 ```python
-fbuf = syncstream.file.LineFileBuffer(
+fbuf = LineFileBuffer(
     file_path: str,
     maxlen: int = 20,
     tmp_id: str = "tmp",
@@ -49,8 +49,6 @@ syncstream.file.LineFileBuffer
 ```
 
 ## 参数 {#arguments}
-
-### 输入 {#requires}
 
 |    参数     | 类型  |               必选                | <center>说明</center>                                                                                              |
 | :---------: | :---: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------- |
@@ -122,7 +120,7 @@ fbuf.parse_lines(lines: Sequence[str])
 fbuf.__update_records(lines)
 ```
 
-#### 输入 {#requires-1}
+#### 输入 {#requires}
 
 |  参数   |      类型       |               必选                | <center>说明</center>                                                      |
 | :-----: | :-------------: | :-------------------------------: | :------------------------------------------------------------------------- |
@@ -140,7 +138,7 @@ lines: Sequence[str] = fbuf.read(size: int | None = None)
 
 若当前正在写入的行不为空，调用该方法时，则会将其视为最后一条记录。
 
-#### 输入 {#requires-2}
+#### 输入 {#requires-1}
 
 |  参数  |     类型      | 必选 | <center>说明</center>                                                        |
 | :----: | :-----------: | :--: | :--------------------------------------------------------------------------- |
@@ -162,7 +160,7 @@ n_bytes: int = fbuf.write(data: str)
 
 写缓存的方法。源数据的形式与文字IO的数据形式相同。每当`data`包含断行符时，会向存储区置入一条新的记录。`write()`方法是进程安全的。
 
-#### 输入 {#requires-3}
+#### 输入 {#requires-2}
 
 |  参数  | 类型  |               必选                | <center>说明</center>                      |
 | :----: | :---: | :-------------------------------: | :----------------------------------------- |

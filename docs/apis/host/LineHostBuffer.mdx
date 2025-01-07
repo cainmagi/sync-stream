@@ -18,7 +18,7 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="host.LineHostBuffer" />
 
 ```python
-hbuf = syncstream.host.LineHostBuffer(
+hbuf = LineHostBuffer(
     api_route: str = "/sync-stream",
     endpoint: str | None = None,
     maxlen: int = 2,
@@ -42,8 +42,6 @@ syncstream.host.LineHostBuffer
 ```
 
 ## Arguments
-
-### Requires
 
 |  Argument   |     Type      | Required | <center>Description</center>                                                                                                                                                                                     |
 | :---------: | :-----------: | :------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

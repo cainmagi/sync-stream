@@ -1,0 +1,30 @@
+---
+id: index
+title: utils
+sidebar_label: utils
+slug: /apis/utils
+description: Extensions of the Python STL.
+---
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="module" isPrivate={true} source="utils" />
+
+Extensions of the Python STL. Currently this module provides:
+
+1. lazy_import: Lazy import of a Python module. It allows nested imports, i.e. a lazy-imported module containing other lazy-imported modules.
+
+## Classes
+
+|                                              Member                                              | <center>Description</center>                             |
+| :----------------------------------------------------------------------------------------------: | :------------------------------------------------------- |
+| [<IconObjType type="class" hasText={true} text="ModuleReplaceError"/>](./ModuleReplaceError.mdx) | Exception raised when replacing an existing lazy module. |
+
+## Functions
+
+|                                             Member                                              | <center>Description</center>                      |
+| :---------------------------------------------------------------------------------------------: | :------------------------------------------------ |
+|        [<IconObjType type="func" hasText={true} text="cancel_type"/>](./cancel_type.mdx)        | Remove the typehint of a value with a known type. |
+|        [<IconObjType type="func" hasText={true} text="lazy_import"/>](./lazy_import.mdx)        | Perform the lazy import for a module.             |
+| [<IconObjType type="func" hasText={true} text="get_lazy_attribute"/>](./get_lazy_attribute.mdx) | Get an attribute of a lazy module.                |
+|  [<IconObjType type="func" hasText={true} text="is_module_invalid"/>](./is_module_invalid.mdx)  | Check whether a lazy module is invalid.           |

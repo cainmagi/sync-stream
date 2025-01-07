@@ -17,7 +17,7 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="file.LineFileBuffer" />
 
 ```python
-fbuf = syncstream.file.LineFileBuffer(
+fbuf = LineFileBuffer(
     file_path: str,
     maxlen: int = 20,
     tmp_id: str = "tmp",
@@ -49,8 +49,6 @@ syncstream.file.LineFileBuffer
 ```
 
 ## Arguments
-
-### Requires
 
 |  Argument   | Type  |             Required              | <center>Description</center>                                                                                                                                                |
 | :---------: | :---: | :-------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

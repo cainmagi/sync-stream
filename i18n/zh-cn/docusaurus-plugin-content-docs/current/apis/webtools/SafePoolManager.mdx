@@ -8,14 +8,23 @@ description: 支持上下文的urllib3.PoolManager的封装。
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
 
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import IconLink from "@site/src/components/IconLink";
+import InlineIcon from "@site/src/components/InlineIcon";
 
-<APITopBar type="class" isPrivate={true} isContext={true} source="webtools.SafePoolManager" />
+<APITopBar
+  type="class"
+  isPrivate={true}
+  isContext={true}
+  source="webtools.SafePoolManager"
+/>
 
 ```python
-with syncstream.webtools.SafePoolManager(
+with SafePoolManager(
     num_pools: int = 10,
     headers: dict[str, str] | None = None,
     **connection_pool_kw
@@ -34,6 +43,48 @@ with syncstream.webtools.SafePoolManager(
 ## 参数 {#arguments}
 
 参见
+
+<IconLink href="https://urllib3.readthedocs.io/en/stable/reference/urllib3.poolmanager.html" />
+
+## 方法 {#methods}
+
+### <IconObjType type="method"/> `request` {#-request}
+
+```python
+req: SafeRequest[urllib3.BaseHTTPResponse] = pool.request(
+    method: MethodApproved,
+    url: str,
+    fields: Mapping[str, str | bytes | ReqFile] | None = None,
+    headers: Mapping[str, str] | None = None,
+    **urlopen_kw,
+)
+```
+
+修改过的`PoolManager.request(...)`。
+
+该方法提供了原`urllib3`不曾提供的类型注解。其返回值是封装版本[`SafeRequest`](./SafeRequest.mdx)，用以提供进一步的上下文，而非一个简单的[`HTTPResponse`<IconExternalLink/>][link-httpresponse]对象。
+
+#### Requires {#-requires}
+
+|    Argument    |                                        Type                                         |             Required              | <center>Description</center>                                          |
+| :------------: | :---------------------------------------------------------------------------------: | :-------------------------------: | :-------------------------------------------------------------------- |
+|    `method`    |                      [`MethodApproved`](./MethodApproved.mdx)                       | <InlineIcon icon={vsiCheckIcon}/> | 请求所用的HTTP方法。                                                  |
+|     `url`      |                                        `str`                                        | <InlineIcon icon={vsiCheckIcon}/> | 请求的目标URL。                                                       |
+|    `fields`    | <code>{`Mapping[str, str \| bytes \| `}[ReqFile](./ReqFile.mdx){`] \| None`}</code> |                                   | 要发送的多表单域，可以留空。                                          |
+|   `headers`    |                             `Mapping[str, str] \| None`                             |                                   | 请求的HTTP头。                                                       |
+| `**urlopen_kw` |                                          -                                          |                                   | 其他要传递给[`urlopen(...)`<IconExternalLink/>][link-urlopen]的参数。 |
+
+#### Returns {#-returns}
+
+| Argument |                             Type                             | <center>Description</center>                                                        |
+| :------: | :----------------------------------------------------------: | :---------------------------------------------------------------------------------- |
+|  `req`   | [`SafeRequest[urllib3.BaseHTTPResponse]`](./SafeRequest.mdx) | `SafeRequest`上下文对象。进入该上下文将提供该方法所返回的、被封装的`HTTPResponse`。 |
+
+---
+
+### <IconObjType type="method"/> 其他方法 {#-other-methods}
+
+其他方法参见
 
 <IconLink href="https://urllib3.readthedocs.io/en/stable/reference/urllib3.poolmanager.html" />
 
@@ -71,3 +122,6 @@ with SafePoolManager() as pool:
 
 </TabItem>
 </Tabs>
+
+[link-httpresponse]: https://urllib3.readthedocs.io/en/stable/reference/urllib3.response.html#urllib3.response.HTTPResponse
+[link-urlopen]: https://urllib3.readthedocs.io/en/stable/reference/urllib3.connectionpool.html#urllib3.HTTPConnectionPool.urlopen

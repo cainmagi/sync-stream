@@ -8,14 +8,23 @@ description: A wrapped urllib3.PoolManager with context supported.
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
 
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import IconLink from "@site/src/components/IconLink";
+import InlineIcon from "@site/src/components/InlineIcon";
 
-<APITopBar type="class" isPrivate={true} isContext={true} source="webtools.SafePoolManager" />
+<APITopBar
+  type="class"
+  isPrivate={true}
+  isContext={true}
+  source="webtools.SafePoolManager"
+/>
 
 ```python
-with syncstream.webtools.SafePoolManager(
+SafePoolManager(
     num_pools: int = 10,
     headers: dict[str, str] | None = None,
     **connection_pool_kw
@@ -34,6 +43,50 @@ This is a private class. Should not be used by users.
 ## Arguments
 
 See
+
+<IconLink href="https://urllib3.readthedocs.io/en/stable/reference/urllib3.poolmanager.html" />
+
+## Methods
+
+### <IconObjType type="method"/> `request`
+
+```python
+req: SafeRequest[urllib3.BaseHTTPResponse] = pool.request(
+    method: MethodApproved,
+    url: str,
+    fields: Mapping[str, str | bytes | ReqFile] | None = None,
+    headers: Mapping[str, str] | None = None,
+    **urlopen_kw,
+)
+```
+
+Modified version of the `PoolManager.request(...)`
+
+This method provide the typehints that are not available in the original
+`urllib3` pacakge. The returned value is a wrapped [`SafeRequest`](./SafeRequest.mdx)
+ready for used as a context, not simply an [`HTTPResponse`<IconExternalLink/>][link-httpresponse] object.
+
+#### Requires
+
+|    Argument    |                                        Type                                         |             Required              | <center>Description</center>                                                               |
+| :------------: | :---------------------------------------------------------------------------------: | :-------------------------------: | :----------------------------------------------------------------------------------------- |
+|    `method`    |                      [`MethodApproved`](./MethodApproved.mdx)                       | <InlineIcon icon={vsiCheckIcon}/> | The HTTP method of the request.                                                            |
+|     `url`      |                                        `str`                                        | <InlineIcon icon={vsiCheckIcon}/> | The target URL of this request.                                                            |
+|    `fields`    | <code>{`Mapping[str, str \| bytes \| `}[ReqFile](./ReqFile.mdx){`] \| None`}</code> |                                   | The multi-form fields to be sent, can be empty.                                            |
+|   `headers`    |                             `Mapping[str, str] \| None`                             |                                   | The HTTP headers of this request.                                                          |
+| `**urlopen_kw` |                                          -                                          |                                   | The other keywords will be forwarded to [`urlopen(...)`<IconExternalLink/>][link-urlopen]. |
+
+#### Returns
+
+| Argument |                             Type                             | <center>Description</center>                                                                                         |
+| :------: | :----------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------- |
+|  `req`   | [`SafeRequest[urllib3.BaseHTTPResponse]`](./SafeRequest.mdx) | A SafeRequest context object. Entering this context will provide the wrapped `HTTPResponse` returned by this method. |
+
+---
+
+### <IconObjType type="method"/> Other methods
+
+Other methods can be referred here:
 
 <IconLink href="https://urllib3.readthedocs.io/en/stable/reference/urllib3.poolmanager.html" />
 
@@ -71,3 +124,6 @@ with SafePoolManager() as pool:
 
 </TabItem>
 </Tabs>
+
+[link-httpresponse]: https://urllib3.readthedocs.io/en/stable/reference/urllib3.response.html#urllib3.response.HTTPResponse
+[link-urlopen]: https://urllib3.readthedocs.io/en/stable/reference/urllib3.connectionpool.html#urllib3.HTTPConnectionPool.urlopen

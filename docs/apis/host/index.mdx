@@ -10,7 +10,7 @@ import IconExternalLink from "@theme/Icon/ExternalLink";
 
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 
-<APITopBar type="module" isPrivate={true} source="host" />
+<APITopBar type="module" source="host" />
 
 This module is based on [`Flask-RESTful`<IconExternalLink/>][link-flask-restful] and [`urllib3`<IconExternalLink/>][link-urllib3]. The message is collected by a Flask service, and the stream is redirected to a web request handle.
 
@@ -20,6 +20,7 @@ This module is based on [`Flask-RESTful`<IconExternalLink/>][link-flask-restful]
 | :--------------------------------------------------------------------------------------: | :------------------------------------------------------- |
 | [<IconObjType type="class" hasText={true} text="LineHostMirror"/>](./LineHostMirror.mdx) | The mirror for the web service driven line-based buffer. |
 | [<IconObjType type="class" hasText={true} text="LineHostBuffer"/>](./LineHostBuffer.mdx) | The web service driven line-based buffer.                |
+| [<IconObjType type="class" hasText={true} text="LineHostBuffer"/>](./LineHostReader.mdx) | The reader for the host-service line-based buffer.       |
 
 [link-flask-restful]: https://flask-restful.readthedocs.io/en/latest/
 [link-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html

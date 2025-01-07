@@ -1,0 +1,32 @@
+---
+id: ReqLocApproved
+title: ReqLocApproved
+sidebar_label: ReqLocApproved
+slug: /apis/webtools/ReqLocApproved
+description: The literal notation of all possible request data locations.
+---
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="type" source="webtools.ReqLocApproved" />
+
+```python
+ReqLocApproved = Literal[
+    "args",  "body",  "fields",  "fields-form",  "headers",  "cookies"
+]
+```
+
+`ReqLocApproved` is a shortcut of a type literal.
+
+`ReqLocApproved` is the literal notation of all possible request data locations.
+
+Further more, here is a list of comments for these locations:
+
+|   Location    | <center>Description</center>                           |
+| :-----------: | :----------------------------------------------------- |
+|    `args`     | Always be in the query string.                         |
+|    `body`     | Usually be form.                                       |
+|   `fields`    | Currently only used for files.                         |
+| `fields-form` | A form that is put as a member of a field.             |
+|   `headers`   | Forwarded from headers directly.                       |
+|   `cookies`   | Special headers, need to be pretreated by cookie-jars. |

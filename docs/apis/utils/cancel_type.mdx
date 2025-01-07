@@ -1,0 +1,40 @@
+---
+id: cancel_type
+title: cancel_type
+sidebar_label: cancel_type
+slug: /apis/utils/cancel_type
+description: Remove the typehint of a value with a known type.
+---
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="utils.cancel_type" />
+
+```python
+_data: Any = cancel_type(data: Any)
+```
+
+Remove the typehint of a value with a known type.
+
+It is equivalent with
+
+```python
+_data = cast(Any, data)
+```
+
+## Arguments
+
+### Requires
+
+| Argument | Type  |             Required              | <center>Description</center>   |
+| :------: | :---: | :-------------------------------: | :----------------------------- |
+|  `data`  | `Any` | <InlineIcon icon={vsiCheckIcon}/> | A value that has any notation. |
+
+### Returns
+
+| Argument | Type  | <center>Description</center>                                   |
+| :------: | :---: | :------------------------------------------------------------- |
+| `_data`  | `Any` | The same input `data`, while the notation is replaced by `Any`. |

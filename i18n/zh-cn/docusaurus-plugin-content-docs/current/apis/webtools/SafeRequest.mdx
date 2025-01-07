@@ -3,11 +3,12 @@ id: SafeRequest
 title: SafeRequest
 sidebar_label: SafeRequest
 slug: /apis/webtools/SafeRequest
-description: 支持上下文的urllib3.HTTPResponse的封装。
+description: 支持上下文的urllib3.BaseHTTPResponse的封装。
 ---
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
 
 import vsiCheckIcon from "@iconify-icons/codicon/check";
 
@@ -22,11 +23,11 @@ import InlineIcon from "@site/src/components/InlineIcon";
 />
 
 ```python
-with syncstream.webtools.SafeRequest(request: urllib3.HTTPResponse) as req:
-    req: urllib3.HTTPResponse
+with SafeRequest(request: urllib3.BaseHTTPResponse) as req:
+    req: urllib3.BaseHTTPResponse
 ```
 
-支持上下文的`urllib3.HTTPResponse`的封装。
+支持上下文的[`urllib3.BaseHTTPResponse`<IconExternalLink/>][link-response]的封装。
 
 :::danger
 
@@ -36,9 +37,9 @@ with syncstream.webtools.SafeRequest(request: urllib3.HTTPResponse) as req:
 
 ## 参数 {#arguments}
 
-|   参数    |          类型          |               必选                | <center>说明</center>                                        |
-| :-------: | :--------------------: | :-------------------------------: | :----------------------------------------------------------- |
-| `request` | `urllib3.HTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | 要封装的请求。退出上下文时，被封装的请求将会自动断开并释放。 |
+|   参数    |            类型            |               必选                | <center>说明</center>                                        |
+| :-------: | :------------------------: | :-------------------------------: | :----------------------------------------------------------- |
+| `request` | `urllib3.BaseHTTPResponse` | <InlineIcon icon={vsiCheckIcon}/> | 要封装的请求。退出上下文时，被封装的请求将会自动断开并释放。 |
 
 ## 范例 {#example}
 
@@ -75,3 +76,5 @@ pool.clear()
 
 </TabItem>
 </Tabs>
+
+[link-response]: https://urllib3.readthedocs.io/en/stable/reference/urllib3.response.html#urllib3.response.BaseHTTPResponse

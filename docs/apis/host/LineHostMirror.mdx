@@ -18,7 +18,7 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="host.LineHostMirror" />
 
 ```python
-buffer = syncstream.host.LineHostMirror(
+buffer = LineHostMirror(
     address: str,
     aggressive: bool = False,
     timeout: int | None = None,
@@ -42,8 +42,6 @@ syncstream.host.LineHostMirror
 ```
 
 ## Arguments
-
-### Requires
 
 |   Argument   |     Type      |             Required              | <center>Description</center>                                                                                                                                                                                                         |
 | :----------: | :-----------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -244,16 +242,6 @@ is_aggressive: bool = buffer.aggressive
 The aggressive mode.
 
 This mode could only by configured by the initialization. If set `True`, the aggresive mode would be enabled, where the mirror would send messages to the buffer each time when new data is written. If `False`, the mirror would communicate with the buffer only when a new line is written.
-
----
-
-### <IconObjType type="param"/> `timeout`
-
-```python
-timeout: int = buffer.timeout
-```
-
-The timeout of the web syncholizing events. If not set, the synchronization would block the current process.
 
 ---
 

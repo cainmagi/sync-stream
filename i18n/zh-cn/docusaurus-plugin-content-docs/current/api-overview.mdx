@@ -39,17 +39,22 @@ import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 |     [<IconObjType type="module" hasText={true} text="file"/>](./apis/file/index.mdx)     | 文件信息同步，基于[`fasteners`<IconExternalLink/>][link-fasteners]实现。                                                           |
 |     [<IconObjType type="module" hasText={true} text="host"/>](./apis/host/index.mdx)     | 网络服务信息同步，基于[`Flask-RESTful`<IconExternalLink/>][link-flask-restful]和[`urllib3`<IconExternalLink/>][link-urllib3]实现。 |
 | [<IconObjType type="module" hasText={true} text="webtools"/>](./apis/webtools/index.mdx) | 用来实现网络服务的共享工具。                                                                                                       |
+|    [<IconObjType type="module" hasText={true} text="utils"/>](./apis/utils/index.mdx)    | Python标准库的一些扩展。                                                                                                           |
 
 ## 别名 {#aliases}
 
-|                               成员                               | <center>别名取自</center>                                            |
-| :--------------------------------------------------------------: | :------------------------------------------------------------------- |
-|   <IconObjType type="class" hasText={true} text="LineBuffer"/>   | [`syncstream.mproc.LineBuffer`](./apis/mproc/LineBuffer.mdx)         |
-| <IconObjType type="class" hasText={true} text="LineProcBuffer"/> | [`syncstream.mproc.LineProcBuffer`](./apis/mproc/LineProcBuffer.mdx) |
-| <IconObjType type="class" hasText={true} text="LineProcMirror"/> | [`syncstream.mproc.LineProcMirror`](./apis/mproc/LineProcMirror.mdx) |
-| <IconObjType type="class" hasText={true} text="LineFileBuffer"/> | [`syncstream.file.LineFileBuffer`](./apis/file/LineFileBuffer.mdx)   |
-| <IconObjType type="class" hasText={true} text="LineHostBuffer"/> | [`syncstream.host.LineHostBuffer`](./apis/host/LineHostBuffer.mdx)   |
-| <IconObjType type="class" hasText={true} text="LineHostMirror"/> | [`syncstream.host.LineHostMirror`](./apis/host/LineHostMirror.mdx)   |
+|                               成员                                | <center>别名取自</center>                                            |
+| :---------------------------------------------------------------: | :------------------------------------------------------------------- |
+| <IconObjType type="class" hasText={true} text="GroupedMessage"/>  | [`syncstream.base.GroupedMessage`](./apis/base/GroupedMessage.mdx)   |
+| <IconObjType type="class" hasText={true} text="redirect_stdout"/> | [`syncstream.base.redirect_stdout`](./apis/base/redirect_stdout.mdx) |
+| <IconObjType type="class" hasText={true} text="redirect_stderr"/> | [`syncstream.base.redirect_stderr`](./apis/base/redirect_stderr.mdx) |
+|   <IconObjType type="class" hasText={true} text="LineBuffer"/>    | [`syncstream.mproc.LineBuffer`](./apis/mproc/LineBuffer.mdx)         |
+| <IconObjType type="class" hasText={true} text="LineProcBuffer"/>  | [`syncstream.mproc.LineProcBuffer`](./apis/mproc/LineProcBuffer.mdx) |
+| <IconObjType type="class" hasText={true} text="LineProcMirror"/>  | [`syncstream.mproc.LineProcMirror`](./apis/mproc/LineProcMirror.mdx) |
+| <IconObjType type="class" hasText={true} text="LineFileBuffer"/>  | [`syncstream.file.LineFileBuffer`](./apis/file/LineFileBuffer.mdx)   |
+| <IconObjType type="class" hasText={true} text="LineHostBuffer"/>  | [`syncstream.host.LineHostBuffer`](./apis/host/LineHostBuffer.mdx)   |
+| <IconObjType type="class" hasText={true} text="LineHostMirror"/>  | [`syncstream.host.LineHostMirror`](./apis/host/LineHostMirror.mdx)   |
+| <IconObjType type="class" hasText={true} text="LineHostReader"/>  | [`syncstream.host.LineHostReader`](./apis/host/LineHostReader.mdx)   |
 
 [link-fasteners]: https://fasteners.readthedocs.io/en/latest/
 [link-flask-restful]: https://flask-restful.readthedocs.io/en/latest/

@@ -1,0 +1,125 @@
+---
+id: redirect_stderr
+title: redirect_stderr
+sidebar_label: redirect_stderr
+slug: /apis/base/redirect_stderr
+description: A wrapped version of contextlib.redirect_stderr.
+---
+
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar
+  type="class"
+  isPrivate={true}
+  isContext={true}
+  source="base.redirect_stderr"
+/>
+
+```python
+with redirect_stderr(target: SupportsWrite):
+    ...
+```
+
+A wrapped version of [`contextlib.redirect_stderr`<IconExternalLink/>][link-restderr].
+
+This context allows a `syncstream.LineBuffer` or its mirror to be configured as
+the redirect target without raising typehint errors.
+
+:::tip
+
+You do not need to use this context because a buffer like `LineBuffer` is already a context now.
+
+Because the buffer context will make both `stdout` and `stderr` redirected, you may want to use this context if you do not want to redirect `stdout`.
+
+:::
+
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.redirect_stderr
+syncstream.base.redirect_stderr
+```
+
+## Arguments
+
+| Argument |      Type       |             Required              | <center>Description</center>                     |
+| :------: | :-------------: | :-------------------------------: | :----------------------------------------------- |
+| `target` | `SupportsWrite` | <InlineIcon icon={vsiCheckIcon}/> | A writable buffer supporting the `write` method. |
+
+## Example
+
+### <IconObjType type="term"/> Redirect stderr to buffer
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Better codes', value: 'better-codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="use_this_function.py"
+import syncstream
+from syncstream.base import redirect_stderr
+
+
+buffer = syncstream.LineBuffer(10)
+with redirect_stderr(buffer):
+    try:
+        raise TypeError("test-error!")
+    except Exception as exc:
+        print(exc, file=buffer)
+
+messages = buffer.read()
+for mitem in messages:
+    print(mitem)
+```
+
+</TabItem>
+
+<TabItem value="better-codes">
+
+```python showLineNumbers title="use_buffer_context_directly.py"
+import syncstream
+
+
+buffer = syncstream.LineBuffer(10)
+with buffer:  # Both the stdout and stderr are catched.
+    try:
+        raise TypeError("test-error!")
+    except Exception as exc:
+        print(exc, file=buffer)
+
+messages = buffer.read()
+for mitem in messages:
+    print(mitem)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```shell
+test-error!
+```
+
+</TabItem>
+</Tabs>
+
+[link-restderr]: https://docs.python.org/zh-cn/3/library/contextlib.html#contextlib.redirect_stderr

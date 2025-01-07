@@ -17,8 +17,8 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" isPrivate={true} source="base.GroupedMessage" />
 
 ```python
-gpm = syncstream.base.GroupedMessage(
-    data: Sequence[str] | Warning | Exception | None = None,
+gpm = GroupedMessage(
+    data: Sequence[str] | Warning | BaseException | None = None,
 )
 ```
 
@@ -28,43 +28,57 @@ gpm = syncstream.base.GroupedMessage(
 
 该类自动用于[`mproc.LineProcMirror`](../mproc/LineProcMirror.mdx)和[`host.LineHostMirror`](../host/LineHostMirror.mdx)。绝大多数情况下，用户不需要直接使用该类。
 
+## 别名 {#aliases}
+
+该类可以按以下方式之一获取
+
+```python
+import syncstream
+
+
+syncstream.GroupedMessage
+syncstream.base.GroupedMessage
+```
+
 ## 参数 {#arguments}
 
-### 输入 {#requires}
-
-|  参数  |                  类型                   | 必选 | <center>说明</center>                                              |
-| :----: | :-------------------------------------: | :--: | :----------------------------------------------------------------- |
-| `data` | `Sequence[str] \| Warning \| Exception` |      | 一组信息来源。该输入值会处理成一行或多行。处理后的信息可以序列化。 |
+|  参数  |                    类型                     | 必选 | <center>说明</center>                                              |
+| :----: | :-----------------------------------------: | :--: | :----------------------------------------------------------------- |
+| `data` | `Sequence[str] \| Warning \| BaseException` |      | 一组信息来源。该输入值会处理成一行或多行。处理后的信息可以序列化。 |
 
 ## 方法 {#methods}
 
 ### <IconObjType type="method"/> `serialize` {#-serialize}
 
 ```python
-jdata: dict[str, Any] = gpm.serialize()
+jdata: SerializedMessage = gpm.serialize()
 ```
 
 将该信息项序列化为JSON兼容的字典。
 
 #### 输出 {#returns}
 
-|  参数   |       类型       | <center>说明</center>                                                                    |
-| :-----: | :--------------: | :--------------------------------------------------------------------------------------- |
-| `jdata` | `dict[str, Any]` | 序列化后的字典。该字典可以由[`deserialize`](#-deserialize)方法逆变换为`GroupedMessage`。 |
+|  参数   |                      类型                      | <center>说明</center>                                                                    |
+| :-----: | :--------------------------------------------: | :--------------------------------------------------------------------------------------- |
+| `jdata` | [`SerializedMessage`](./SerializedMessage.mdx) | 序列化后的字典。该字典可以由[`deserialize`](#-deserialize)方法逆变换为`GroupedMessage`。 |
 
 ---
 
 ### <IconObjType type="method"/> `deserialize` {#-deserialize}
 
 ```python
-gpm: GroupedMessage = GroupedMessage.deserialize(jdata: dict[str, Any])
+gpm: GroupedMessage = GroupedMessage.deserialize(
+    jdata: SerializedMessage | GroupedMessage
+)
 ```
 
-#### 输入 {#requires-1}
+将JSON兼容的字典逆序列化为该类的实例。
 
-|  参数   |       类型       |               必选                | <center>说明</center>                                      |
-| :-----: | :--------------: | :-------------------------------: | :--------------------------------------------------------- |
-| `jdata` | `dict[str, Any]` | <InlineIcon icon={vsiCheckIcon}/> | 序列化的字典。该字典JSON兼容，并且可以透过网络数据包传输。 |
+#### 输入 {#requires}
+
+|  参数   |                 类型                  |               必选                | <center>说明</center>                                                                                    |
+| :-----: | :-----------------------------------: | :-------------------------------: | :------------------------------------------------------------------------------------------------------- |
+| `jdata` | `SerializedMessage \| GroupedMessage` | <InlineIcon icon={vsiCheckIcon}/> | 序列化的字典。该字典 JSON 兼容，并且可以透过网络数据包传输。若该值不是序列化后的字典，则按原样返回该值。 |
 
 #### 输出 {#returns-1}
 

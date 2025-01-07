@@ -1,0 +1,86 @@
+---
+id: is_module_invalid
+title: is_module_invalid
+sidebar_label: is_module_invalid
+slug: /apis/utils/is_module_invalid
+description: Check whether a lazy module is invalid.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import IconLink from "@site/src/components/IconLink";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="utils.is_module_invalid" />
+
+```python
+flag: bool = is_module_invalid(module: ModuleType)
+```
+
+Check whether a lazy module is invalid.
+
+This function is designed for a specific reason. Because a lazy-loaded module is not loaded instantly, it may be possible that a lazy-loaded module is not installed. This function is mainly designed for verifying this case.
+
+## Arguments
+
+### Requires
+
+| Argument |     Type     |             Required              | <center>Description</center>                            |
+| :------: | :----------: | :-------------------------------: | :------------------------------------------------------ |
+| `module` | `ModuleType` | <InlineIcon icon={vsiCheckIcon}/> | Can be a lazy module, a module or a module placeholder. |
+
+### Returns
+
+| Argument |  Type  | <center>Description</center>                               |
+| :------: | :----: | :--------------------------------------------------------- |
+|  `flag`  | `bool` | `True` only when the given module is a module placeholder. |
+
+## Example
+
+### <IconObjType type="term"/> Load an optional module and verify that the module is not loaded
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+Suppose that `numpy` is not installed.
+
+```python showLineNumbers title="verify_a_module_placeholder.py"
+from typing import TYPE_CHECKING
+from syncstream import utils
+
+if TYPE_CHECKING:
+    import curses
+else:
+    curses = utils.lazy_import(
+        "curses", package=None, dependencies=("numpy",), required=False
+    )
+
+
+print(curses)
+print(utils.is_module_invalid(curses))
+print(curses)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+<ModulePlaceholder curses>
+True
+<ModulePlaceholder curses>
+```
+
+</TabItem>
+</Tabs>

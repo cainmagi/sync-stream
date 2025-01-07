@@ -1,0 +1,101 @@
+---
+id: get_lazy_attribute
+title: get_lazy_attribute
+sidebar_label: get_lazy_attribute
+slug: /apis/utils/get_lazy_attribute
+description: Get an attribute of a lazy module.
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="utils.get_lazy_attribute" />
+
+```python
+attr: Any | None = get_lazy_attribute(
+    module: ModuleType, attr: str, parent: str
+)
+```
+
+Get an attribute of a lazy module. This attribute will not be loaded if it
+is not accessed.
+
+If the provided module is invalid, will return `None`.
+
+:::danger
+
+Note that the attribute returned by this function needs to be a callable one. To be specific, this function is mainly designed for getting a lazy-loaded class from a lazy-loaded module.
+
+:::
+
+## Arguments
+
+### Requires
+
+| Argument |     Type     |             Required              | <center>Description</center>                                        |
+| :------: | :----------: | :-------------------------------: | :------------------------------------------------------------------ |
+| `module` | `ModuleType` | <InlineIcon icon={vsiCheckIcon}/> | The lazy module where the attribute will be accessed.               |
+|  `attr`  |    `str`     | <InlineIcon icon={vsiCheckIcon}/> | The attribute name used for locating the attribute.                 |
+| `parent` |    `str`     | <InlineIcon icon={vsiCheckIcon}/> | The name of the parent module where the attribute will be attached. |
+
+### Returns
+
+| Argument |     Type      | <center>Description</center>                                                                                                         |
+| :------: | :-----------: | :----------------------------------------------------------------------------------------------------------------------------------- |
+|  `attr`  | `Any \| None` | A lazy callable attribute. If it is not called, the attribtue will not be loaded. If the attribute cannot be located, return `None`. |
+
+## Example
+
+### <IconObjType type="term"/> Load a class only when it is accessed
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: 'Codes', value: 'codes', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="lazy_load_a_class.py"
+from typing import TYPE_CHECKING
+from syncstream import utils
+
+if TYPE_CHECKING:
+    import html
+    import html.parser as hparser
+    from html.parser import HTMLParser
+else:
+    html = utils.lazy_import("html", package=None)
+    hparser = utils.lazy_import("parser", package="html", dependencies=("html",))
+    HTMLParser = utils.get_lazy_attribute(hparser, "HTMLParser", __name__)
+
+
+print(html, hparser)
+print(HTMLParser)
+print(html, hparser)
+print(HTMLParser())
+print(html, hparser)
+
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+<LazyModule html from "/usr/local/lib/python3.12/html/__init__.py"> <LazyModule html.parser from "/usr/local/lib/python3.12/html/parser.py">
+<LazyAttribute HTMLParser from "html.parser">
+<LazyModule html from "/usr/local/lib/python3.12/html/__init__.py"> <LazyModule html.parser from "/usr/local/lib/python3.12/html/parser.py">
+<html.parser.HTMLParser object at 0x7f4416dfb380>
+<module 'html' from '/usr/local/lib/python3.12/html/__init__.py'> <module 'html.parser' from '/usr/local/lib/python3.12/html/parser.py'>
+```
+
+</TabItem>
+</Tabs>

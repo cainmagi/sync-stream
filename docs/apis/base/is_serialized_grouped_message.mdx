@@ -1,0 +1,38 @@
+---
+id: is_serialized_grouped_message
+title: is_serialized_grouped_message
+sidebar_label: is_serialized_grouped_message
+slug: /apis/base/is_serialized_grouped_message
+description: Determine whether obj is a serialized GroupedMessage.
+---
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar
+  type="func"
+  isPrivate={true}
+  source="base.is_serialized_grouped_message"
+/>
+
+```python
+flag: bool = is_serialized_grouped_message(obj: Any)
+```
+
+Determine whether `obj` is a serialized [`GroupedMessage`](./GroupedMessage.mdx).
+
+## Arguments
+
+### Requires
+
+| Argument | Type  |             Required              | <center>Description</center> |
+| :------: | :---: | :-------------------------------: | :--------------------------- |
+|  `obj`   | `Any` | <InlineIcon icon={vsiCheckIcon}/> | The object to be checked.    |
+
+### Returns
+
+| Argument |  Type  | <center>Description</center>                                       |
+| :------: | :----: | :----------------------------------------------------------------- |
+|  `flag`  | `bool` | `True` if `obj` is [`SerializedMessage`](./SerializedMessage.mdx). |

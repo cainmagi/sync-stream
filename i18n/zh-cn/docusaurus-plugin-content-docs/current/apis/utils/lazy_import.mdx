@@ -1,0 +1,191 @@
+---
+id: lazy_import
+title: lazy_import
+sidebar_label: lazy_import
+slug: /apis/utils/lazy_import
+description: 令某模块延迟加载。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import IconLink from "@site/src/components/IconLink";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="utils.lazy_import" />
+
+```python
+module: ModuleType = lazy_import(
+    name: str,
+    package: str | None = __pkg_name__,
+    required: bool = True,
+    dependencies: str | Sequence[str] | None = None,
+    rel_dependencies: ModuleType | Sequence[ModuleType] | None = None,
+)
+```
+
+令某模块延迟加载。
+
+所返回的模块、在实际使用到之前不会加载。
+
+修改自：
+
+<IconLink href="https://docs.python.org/zh-cn/3/library/importlib.html#implementing-lazy-imports" />
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|        参数        | 类型  |               必选                | <center>说明</center>                                                                                                                                                                                                            |
+| :----------------: | :---: | :-------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|       `name`       | `str` | <InlineIcon icon={vsiCheckIcon}/> | 模块名称。不需要以`.`开头。                                                                                                                                                                                                      |
+|     `package`      | `str` |                                   | <p>（锚）包的名称。</p><p>默认情况下，使用`utils`所在的包的`__name__`。若`utils`并未作为一个子模块放置，且`package`也并未设置，则会透过绝对导入搜索`name`。</p><p>若使用`None`，则会按绝对导入搜索`name`。</p>                   |
+|     `required`     | `str` |                                   | 是否要求模块必须存在。若未指定该值，则允许在模块未找到的情况下，返回一个空模块作为替代品。                                                                                                                                       |
+|   `dependencies`   | `str` |                                   | <p>所要加载模块的一个、或多个依赖项。</p><p>若并未指定，这表明模块的加载不需要依赖项。若指定，则仅在所指定的依赖项全都找到的情况下、才会加载模块。否则，返回模块占位符。此处的依赖项指的是可以按照绝对导入、导入的模块名称。</p> |
+| `rel_dependencies` | `str` |                                   | 一个或多个相对依赖项。每项值都需要是一个模块（可以是延迟加载模块）。若为`None`，则此处留空。                                                                                                                                     |
+
+### 输出 {#returns}
+
+|   参数   |     类型     | <center>说明</center>                        |
+| :------: | :----------: | :------------------------------------------- |
+| `module` | `ModuleType` | 延迟加载的模块。只会在实际使用它的时候加载。 |
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 只在访问到的时候加载模块 {#-load-a-module-only-when-it-is-accessed}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="lazy_load.py"
+from typing import TYPE_CHECKING
+from syncstream import utils
+
+if TYPE_CHECKING:
+    import curses
+else:
+    curses = utils.lazy_import("curses", package=None)
+
+
+print(curses)  # Not loaded yet
+curses.error
+print(curses)  # Loaded
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+<LazyModule curses from "/usr/local/lib/python3.12/curses/__init__.py">
+<module 'curses' from '/usr/local/lib/python3.12/curses/__init__.py'>
+```
+
+</TabItem>
+</Tabs>
+
+### <IconObjType type="term"/> 加载模块、并指派某些前提 {#-load-a-module-and-specify-some-pre-requisition}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+假设未安装`numpy`。
+
+```python showLineNumbers title="lazy_load_with_reqs.py"
+from typing import TYPE_CHECKING
+from syncstream import utils
+
+if TYPE_CHECKING:
+    import curses
+else:
+    curses = utils.lazy_import("curses", package=None, dependencies=("numpy",))
+
+
+print(curses)
+curses.error
+print(curses)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+Traceback (most recent call last):
+  File "/workdir/alpha-test.py", line 7, in <module>
+    curses = utils.lazy_import("curses", package=None, dependencies=("numpy",))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workdir/syncstream/utils.py", line 567, in lazy_import
+    return _LazyImporter().lazy_import(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workdir/syncstream/utils.py", line 503, in lazy_import
+    return cls.create_module_placeholder(full_name=full_name, required=required)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workdir/syncstream/utils.py", line 445, in create_module_placeholder
+    raise ModuleNotFoundError(
+ModuleNotFoundError: utils: The required module to be lazily loaded is not found: curses
+```
+
+</TabItem>
+</Tabs>
+
+### <IconObjType type="term"/> 加载可选模块、且带有某些前提 {#-load-an-optional-module-and-specify-some-pre-requisition}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+假设未安装`numpy`。
+
+```python showLineNumbers title="lazy_load_with_reqs_optional.py"
+from typing import TYPE_CHECKING
+from syncstream import utils
+
+if TYPE_CHECKING:
+    import curses
+else:
+    curses = utils.lazy_import(
+        "curses", package=None, dependencies=("numpy",), required=False
+    )
+
+
+print(curses)
+print(curses.__file__)
+print(curses)
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+<ModulePlaceholder curses>
+None
+<ModulePlaceholder curses>
+```
+
+</TabItem>
+</Tabs>

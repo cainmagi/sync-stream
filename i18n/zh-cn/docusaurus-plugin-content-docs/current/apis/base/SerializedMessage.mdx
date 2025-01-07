@@ -1,0 +1,44 @@
+---
+id: SerializedMessage
+title: SerializedMessage
+sidebar_label: SerializedMessage
+slug: /apis/base/SerializedMessage
+description: GroupedMessage所返回的序列化后的信息。
+---
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import InlineIcon from "@site/src/components/InlineIcon";
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="type" source="base.SerializedMessage" />
+
+```python
+SerializedMessage(
+    "/is_syncsdata": Literal[True],
+    "/type": Literal["GroupedMessage"],
+    type: Literal["str", "warning", "error"],
+    data: Sequence[str],
+)
+```
+
+`SerializedMessage`是`TypedDict`。
+
+所谓序列化后的信息，是返回自[`GroupedMessage`](./GroupedMessage.mdx)的。
+
+该方法用来在不同的模式下交换信息，这些模式包括：
+
+- 多进程；
+- 文件；
+- 网络交换。
+
+此处信息将会序列化为JSON兼容的字典。
+
+## 关键字 {#keywords}
+
+|     关键字      |                 类型                 |               必选                | <center>说明</center>                                                    |
+| :-------------: | :----------------------------------: | :-------------------------------: | :----------------------------------------------------------------------- |
+| `/is_syncsdata` |           `Literal[True]`            | <InlineIcon icon={vsiCheckIcon}/> | 内部值。总是为`True`。用该值来验证所提供的数据是否来自该包`syncstream`。 |
+|     `/type`     |     `Literal["GroupedMessage"]`      | <InlineIcon icon={vsiCheckIcon}/> | 内部值。总是为`"GroupedMessage"`。用该值来验证数据的类型。               |
+|     `type`      | `Literal["str", "warning", "error"]` | <InlineIcon icon={vsiCheckIcon}/> | 信息数据的类型。                                                         |
+|     `data`      |           `Sequence[str]`            | <InlineIcon icon={vsiCheckIcon}/> | 信息数据的内容。总是一组字符串。                                         |

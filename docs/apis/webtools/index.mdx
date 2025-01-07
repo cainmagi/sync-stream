@@ -20,11 +20,18 @@ The implementation of this module is mainly based on
 
 ## Classes
 
-|                                           Member                                           | <center>Description</center>                                                    |
-| :----------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------ |
-|   [<IconObjType type="class" hasText={true} text="StdoutWrapper"/>](./StdoutWrapper.mdx)   | A wrapper for ensuring that the stdout is always directed to the same position. |
-| [<IconObjType type="class" hasText={true} text="SafePoolManager"/>](./SafePoolManager.mdx) | A wrapped `urllib3.PoolManager` with context supported.                         |
-|     [<IconObjType type="class" hasText={true} text="SafeRequest"/>](./SafeRequest.mdx)     | A wrapper for providing context for the `urllib3.HTTPResponse`.                 |
+|                                           Member                                           | <center>Description</center>                                        |
+| :----------------------------------------------------------------------------------------: | :------------------------------------------------------------------ |
+| [<IconObjType type="class" hasText={true} text="SafePoolManager"/>](./SafePoolManager.mdx) | A wrapped `urllib3.PoolManager` with context supported.             |
+|     [<IconObjType type="class" hasText={true} text="SafeRequest"/>](./SafeRequest.mdx)     | A wrapper for providing context for the `urllib3.BaseHTTPResponse`. |
+
+## Typehints
+
+|                                         Member                                          | <center>Description</center>                                 |
+| :-------------------------------------------------------------------------------------: | :----------------------------------------------------------- |
+| [<IconObjType type="type" hasText={true} text="MethodApproved"/>](./MethodApproved.mdx) | The literal notation of all available HTTP methods.          |
+| [<IconObjType type="type" hasText={true} text="ReqLocApproved"/>](./ReqLocApproved.mdx) | The literal notation of all possible request data locations. |
+|        [<IconObjType type="type" hasText={true} text="ReqFile"/>](./ReqFile.mdx)        | The possible formats of the `fields` data in the request.    |
 
 ## Functions
 

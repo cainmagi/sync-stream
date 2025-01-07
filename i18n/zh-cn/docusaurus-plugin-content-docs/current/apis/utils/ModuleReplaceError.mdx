@@ -1,0 +1,25 @@
+---
+id: ModuleReplaceError
+title: ModuleReplaceError
+sidebar_label: ModuleReplaceError
+slug: /apis/utils/ModuleReplaceError
+description: 在替换某个已经存在的延迟加载模块时、触发的异常。
+---
+
+import APITopBar from "@site/src/components/APITopBar";
+
+<APITopBar
+  type="class"
+  isException={true}
+  isPrivate={true}
+  source="utils.ModuleReplaceError"
+/>
+
+```python
+class ModuleReplaceError(ImportError):
+    pass
+```
+
+在替换某个已经存在的延迟加载模块时、触发的异常。
+
+替换一个已经存在的延迟加载模块是不允许的，这是因为该行为会导致某个之前已经设置过的延迟加载模块、指向一个不再存在的“实际”模块。

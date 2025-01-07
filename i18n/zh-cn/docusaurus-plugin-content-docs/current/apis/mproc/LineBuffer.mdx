@@ -18,7 +18,7 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="mproc.LineBuffer" />
 
 ```python
-tbuf = syncstream.mproc.LineBuffer(maxlen: int = 20)
+tbuf = LineBuffer(maxlen: int = 20)
 ```
 
 基础的行缓存句柄。
@@ -38,8 +38,6 @@ syncstream.mproc.LineBuffer
 ```
 
 ## 参数 {#arguments}
-
-### 输入 {#requires}
 
 |   参数   | 类型  | 必选 | <center>说明</center>                                                                      |
 | :------: | :---: | :--: | :----------------------------------------------------------------------------------------- |
@@ -102,7 +100,7 @@ tbuf.parse_lines(lines)
 tbuf.storage.extend(lines: Sequence[str])
 ```
 
-#### 输入 {#requires-1}
+#### 输入 {#requires}
 
 | 参数 | 类型 | 必选 | <center>说明</center> |
 | :------: | :-------------: | :-------------------------------: | :------------------------------------------------------------------------------------------------------------------------------ |
@@ -120,7 +118,7 @@ lines: Sequence[str] = tbuf.read(size: int | None = None)
 
 若当前正在写入的行不为空，调用该方法时，则会将其视为最后一条记录。
 
-#### 输入 {#requires-2}
+#### 输入 {#requires-1}
 
 |  参数  |     类型      | 必选 | <center>说明</center>                                                        |
 | :----: | :-----------: | :--: | :--------------------------------------------------------------------------- |
@@ -142,7 +140,7 @@ n_bytes: int = tbuf.write(data: str)
 
 写缓存的方法。源数据`data`的形式与文字IO的数据形式相同。每当`data`包含断行符时，会向存储区置入一条新的记录。`write()`方法是进程安全的。
 
-#### 输入 {#requires-3}
+#### 输入 {#requires-2}
 
 |  参数  | 类型  |               必选                | <center>说明</center>                      |
 | :----: | :---: | :-------------------------------: | :----------------------------------------- |

@@ -1,0 +1,30 @@
+---
+id: index
+title: utils
+sidebar_label: utils
+slug: /apis/utils
+description: Python标准库的一些扩展。
+---
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="module" isPrivate={true} source="utils" />
+
+Python标准库的一些扩展。目前该模块包含：
+
+1. 延迟加载：针对某个Python模块的延迟加载，且允许嵌套导入，亦即是说，允许某个延迟加载的模块包含另一个延迟加载的模块。
+
+## 类 {#classes}
+
+|                                               成员                                               | <center>说明</center>                            |
+| :----------------------------------------------------------------------------------------------: | :----------------------------------------------- |
+| [<IconObjType type="class" hasText={true} text="ModuleReplaceError"/>](./ModuleReplaceError.mdx) | 在替换某个已经存在的延迟加载模块时、触发的异常。 |
+
+## 函数 {#functions}
+
+|                                              成员                                               | <center>说明</center>              |
+| :---------------------------------------------------------------------------------------------: | :--------------------------------- |
+|        [<IconObjType type="func" hasText={true} text="cancel_type"/>](./cancel_type.mdx)        | 移除某个具有已知类型值的类型标记。 |
+|        [<IconObjType type="func" hasText={true} text="lazy_import"/>](./lazy_import.mdx)        | 令某模块延迟加载。                 |
+| [<IconObjType type="func" hasText={true} text="get_lazy_attribute"/>](./get_lazy_attribute.mdx) | 获取某个延迟加载模块的属性。       |
+|  [<IconObjType type="func" hasText={true} text="is_module_invalid"/>](./is_module_invalid.mdx)  | 检查某个延迟加载模块是否无效。     |

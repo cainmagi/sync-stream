@@ -1,0 +1,27 @@
+---
+id: ModuleReplaceError
+title: ModuleReplaceError
+sidebar_label: ModuleReplaceError
+slug: /apis/utils/ModuleReplaceError
+description: Exception raised when replacing an existing lazy module.
+---
+
+import APITopBar from "@site/src/components/APITopBar";
+
+<APITopBar
+  type="class"
+  isException={true}
+  isPrivate={true}
+  source="utils.ModuleReplaceError"
+/>
+
+```python
+class ModuleReplaceError(ImportError):
+    pass
+```
+
+Exception raised when replacing an existing lazy module.
+
+Replacing an existing lazy module is not allowed, because this will cause
+the previously configured lazy module point to a not-existing "real"
+module.

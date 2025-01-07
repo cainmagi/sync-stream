@@ -8,18 +8,27 @@ description: The shared basic tools for different modules.
 
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 
-<APITopBar type="module" isPrivate={true} source="base" />
+<APITopBar type="module" source="base" />
 
 This module contains shared basic tools for different modules.
 
 ## Classes
 
-|                                          Member                                          | <center>Description</center> |
-| :--------------------------------------------------------------------------------------: | :--------------------------- |
-| [<IconObjType type="class" hasText={true} text="GroupedMessage"/>](./GroupedMessage.mdx) | A group of messages.         |
+|                                           Member                                           | <center>Description</center>                       |
+| :----------------------------------------------------------------------------------------: | :------------------------------------------------- |
+| [<IconObjType type="class" hasText={true} text="redirect_stdout"/>](./redirect_stdout.mdx) | A wrapped version of `contextlib.redirect_stdout`. |
+| [<IconObjType type="class" hasText={true} text="redirect_stderr"/>](./redirect_stderr.mdx) | A wrapped version of `contextlib.redirect_stderr`. |
+|  [<IconObjType type="class" hasText={true} text="GroupedMessage"/>](./GroupedMessage.mdx)  | A group of messages.                               |
+
+## Typehints
+
+|                                            Member                                             | <center>Description</center>                         |
+| :-------------------------------------------------------------------------------------------: | :--------------------------------------------------- |
+| [<IconObjType type="type" hasText={true} text="SerializedMessage"/>](./SerializedMessage.mdx) | The serialized message returned by `GroupedMessage`. |
 
 ## Functions
 
-|                                            Member                                             | <center>Description</center>                    |
-| :-------------------------------------------------------------------------------------------: | :---------------------------------------------- |
-| [<IconObjType type="func" hasText={true} text="is_end_line_break"/>](./is_end_line_break.mdx) | Check whether the `str` ends with a line break. |
+|                                                        Member                                                         | <center>Description</center>                              |
+| :-------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------- |
+|             [<IconObjType type="func" hasText={true} text="is_end_line_break"/>](./is_end_line_break.mdx)             | Check whether the `str` ends with a line break.           |
+| [<IconObjType type="func" hasText={true} text="is_serialized_grouped_message"/>](./is_serialized_grouped_message.mdx) | Determine whether `obj` is a serialized `GroupedMessage`. |

@@ -1,0 +1,38 @@
+---
+id: is_serialized_grouped_message
+title: is_serialized_grouped_message
+sidebar_label: is_serialized_grouped_message
+slug: /apis/base/is_serialized_grouped_message
+description: 检查obj是否是序列化后的GroupedMessage。
+---
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar
+  type="func"
+  isPrivate={true}
+  source="base.is_serialized_grouped_message"
+/>
+
+```python
+flag: bool = is_serialized_grouped_message(obj: Any)
+```
+
+检查`obj`是否是序列化后的[`GroupedMessage`](./GroupedMessage.mdx)。
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+| 参数  | 类型  |               必选                | <center>说明</center> |
+| :---: | :---: | :-------------------------------: | :-------------------- |
+| `obj` | `Any` | <InlineIcon icon={vsiCheckIcon}/> | 要检查的对象。        |
+
+### 输出 {#returns}
+
+|  参数  |  类型  | <center>说明</center>                                                             |
+| :----: | :----: | :-------------------------------------------------------------------------------- |
+| `flag` | `bool` | 当且仅当`obj`是[`SerializedMessage`](./SerializedMessage.mdx)的时候，返回`True`。 |

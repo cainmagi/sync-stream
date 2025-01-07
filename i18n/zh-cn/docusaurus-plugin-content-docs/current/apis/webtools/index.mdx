@@ -18,11 +18,18 @@ import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 
 ## 类 {#classes}
 
-|                                            成员                                            | <center>说明</center>                        |
-| :----------------------------------------------------------------------------------------: | :------------------------------------------- |
-|   [<IconObjType type="class" hasText={true} text="StdoutWrapper"/>](./StdoutWrapper.mdx)   | 用来确保stdout总是重定向到同一位置的封装。   |
-| [<IconObjType type="class" hasText={true} text="SafePoolManager"/>](./SafePoolManager.mdx) | 支持上下文的`urllib3.PoolManager`的封装。    |
-|     [<IconObjType type="class" hasText={true} text="SafeRequest"/>](./SafeRequest.mdx)     | 支持上下文的`urllib3.HTTPResponse`的封装。   |
+|                                            成员                                            | <center>说明</center>                          |
+| :----------------------------------------------------------------------------------------: | :--------------------------------------------- |
+| [<IconObjType type="class" hasText={true} text="SafePoolManager"/>](./SafePoolManager.mdx) | 支持上下文的`urllib3.PoolManager`的封装。      |
+|     [<IconObjType type="class" hasText={true} text="SafeRequest"/>](./SafeRequest.mdx)     | 支持上下文的`urllib3.BaseHTTPResponse`的封装。 |
+
+## 类型 {#typehints}
+
+|                                          成员                                           | <center>说明</center>                            |
+| :-------------------------------------------------------------------------------------: | :----------------------------------------------- |
+| [<IconObjType type="type" hasText={true} text="MethodApproved"/>](./MethodApproved.mdx) | 所有可用的HTTP方法的字面量注解。                 |
+| [<IconObjType type="type" hasText={true} text="ReqLocApproved"/>](./ReqLocApproved.mdx) | 所有可能的请求数据位置的字面量注解。             |
+|        [<IconObjType type="type" hasText={true} text="ReqFile"/>](./ReqFile.mdx)        | 请求的`fields`字段中，所含数据的可能使用的格式。 |
 
 ## 函数 {#functions}
 

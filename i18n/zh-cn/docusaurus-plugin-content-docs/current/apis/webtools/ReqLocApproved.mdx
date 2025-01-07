@@ -1,0 +1,32 @@
+---
+id: ReqLocApproved
+title: ReqLocApproved
+sidebar_label: ReqLocApproved
+slug: /apis/webtools/ReqLocApproved
+description: 所有可能的请求数据位置的字面量注解。
+---
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+
+<APITopBar type="type" source="webtools.ReqLocApproved" />
+
+```python
+ReqLocApproved = Literal[
+    "args",  "body",  "fields",  "fields-form",  "headers",  "cookies"
+]
+```
+
+`ReqLocApproved`是一个类型字面量的简写。
+
+`ReqLocApproved`是所有可能的请求数据位置的字面量注解。
+
+更详细的描述，参见下表对各个值的批注：
+
+|     位置      | <center>说明</center>                 |
+| :-----------: | :------------------------------------ |
+|    `args`     | 总是出现在检索字符串内。              |
+|    `body`     | 通常是表单。                          |
+|   `fields`    | 目前只用来传递文件。                  |
+| `fields-form` | 可以作为某个field成员的表单。         |
+|   `headers`   | 从头直接传递。                        |
+|   `cookies`   | 特殊的头，需要使用cookie-jars预处理。 |

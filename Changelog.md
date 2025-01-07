@@ -10,6 +10,7 @@
 
 1. Upgrade the document to the a new version `v1.2.1`.
 2. Add the reference link to the `SECURITY.md` for the future version.
+3. Add new API documents added in the new version `v1.2.1`.
 
 #### :wrench: Fix
 

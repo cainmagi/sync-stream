@@ -18,7 +18,7 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="host.LineHostMirror" />
 
 ```python
-buffer = syncstream.host.LineHostMirror(
+buffer = LineHostMirror(
     address: str,
     aggressive: bool = False,
     timeout: int | None = None,
@@ -42,8 +42,6 @@ syncstream.host.LineHostMirror
 ```
 
 ## 参数 {#arguments}
-
-### 输入 {#requires}
 
 |     参数     |     类型      |               必选                | <center>说明</center>                                                                                                                            |
 | :----------: | :-----------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -129,7 +127,7 @@ buffer.send_error(error: Exception)
 
 :::
 
-#### 输入 {#requires-1}
+#### 输入 {#requires}
 
 |  参数   |    类型     |               必选                | <center>说明</center> |
 | :-----: | :---------: | :-------------------------------: | :-------------------- |
@@ -153,7 +151,7 @@ buffer.send_warning(warning: Warning)
 
 :::
 
-#### 输入 {#requires-2}
+#### 输入 {#requires-1}
 
 |   参数    |   类型    |               必选                | <center>说明</center> |
 | :-------: | :-------: | :-------------------------------: | :-------------------- |
@@ -173,7 +171,7 @@ buffer.send_data(data: str)
 
 该方法被其他方法隐式调用，故用户不应使用该方法。
 
-#### 输入 {#requires-3}
+#### 输入 {#requires-2}
 
 |  参数  | 类型  |               必选                | <center>说明</center>   |
 | :----: | :---: | :-------------------------------: | :---------------------- |
@@ -221,7 +219,7 @@ n_bytes: int = buffer.write(data: str)
 
 该方法是线程安全的。但信息同步的过程是主机安全的。
 
-#### 输入 {#requires-4}
+#### 输入 {#requires-3}
 
 |  参数  | 类型  |               必选                | <center>说明</center>                      |
 | :----: | :---: | :-------------------------------: | :----------------------------------------- |
@@ -244,17 +242,6 @@ is_aggressive: bool = buffer.aggressive
 积极模式。
 
 该模式只能在初始化的时候设置。若设为`True`，则积极模式启用，mirror将会在每当收到新的数据时，将信息传递给主缓存。若设为`False`，则只会在新写一整行的时候、才传递给缓存。
-
----
-
-### <IconObjType type="param"/> `timeout` {#-timeout}
-
-```python
-timeout: int = buffer.timeout
-```
-
-
-网络同步事件的时限。若不设置，则执行同步操作将持续阻塞当前进程。
 
 ---
 

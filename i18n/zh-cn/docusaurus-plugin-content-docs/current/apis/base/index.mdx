@@ -8,18 +8,27 @@ description: 用于不同模块的基本工具。
 
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 
-<APITopBar type="module" isPrivate={true} source="base" />
+<APITopBar type="module" source="base" />
 
 该模块包含了在不同模块之间公用的基本工具。
 
 ## 类 {#classes}
 
-|                                           成员                                           | <center>说明</center> |
-| :--------------------------------------------------------------------------------------: | :-------------------- |
-| [<IconObjType type="class" hasText={true} text="GroupedMessage"/>](./GroupedMessage.mdx) | 一组信息。            |
+|                                            成员                                            | <center>说明</center>                            |
+| :----------------------------------------------------------------------------------------: | :----------------------------------------------- |
+| [<IconObjType type="class" hasText={true} text="redirect_stdout"/>](./redirect_stdout.mdx) | `contextlib.redirect_stdout`经过特殊封装的版本。 |
+| [<IconObjType type="class" hasText={true} text="redirect_stderr"/>](./redirect_stderr.mdx) | `contextlib.redirect_stderr`经过特殊封装的版本。 |
+|  [<IconObjType type="class" hasText={true} text="GroupedMessage"/>](./GroupedMessage.mdx)  | 一组信息。                                       |
+
+## 类型 {#typehints}
+
+|                                             成员                                              | <center>说明</center>                    |
+| :-------------------------------------------------------------------------------------------: | :--------------------------------------- |
+| [<IconObjType type="type" hasText={true} text="SerializedMessage"/>](./SerializedMessage.mdx) | `GroupedMessage`所返回的序列化后的信息。 |
 
 ## 函数 {#functions}
 
-|                                             成员                                              | <center>说明</center>       |
-| :-------------------------------------------------------------------------------------------: | :-------------------------- |
-| [<IconObjType type="func" hasText={true} text="is_end_line_break"/>](./is_end_line_break.mdx) | 检查`str`是否由断行符收尾。 |
+|                                                         成员                                                          | <center>说明</center>                       |
+| :-------------------------------------------------------------------------------------------------------------------: | :------------------------------------------ |
+|             [<IconObjType type="func" hasText={true} text="is_end_line_break"/>](./is_end_line_break.mdx)             | 检查`str`是否由断行符收尾。                 |
+| [<IconObjType type="func" hasText={true} text="is_serialized_grouped_message"/>](./is_serialized_grouped_message.mdx) | 检查`obj`是否是序列化后的`GroupedMessage`。 |

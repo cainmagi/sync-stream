@@ -1,0 +1,100 @@
+---
+id: get_lazy_attribute
+title: get_lazy_attribute
+sidebar_label: get_lazy_attribute
+slug: /apis/utils/get_lazy_attribute
+description: 获取某个延迟加载模块的属性。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="utils.get_lazy_attribute" />
+
+```python
+attr: Any | None = get_lazy_attribute(
+    module: ModuleType, attr: str, parent: str
+)
+```
+
+获取某个延迟加载模块的属性。该属性在实际用到之前不会加载。
+
+若所提供的模块本身无效，返回`None`。
+
+:::danger
+
+注意该函数所返回的属性需要是一个可调用（callable）值。准确来叔，该函数本来就是设计成用来获取某个延迟加载模块的延迟加载类。
+
+:::
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|   参数   |     类型     |               必选                | <center>说明</center>                      |
+| :------: | :----------: | :-------------------------------: | :----------------------------------------- |
+| `module` | `ModuleType` | <InlineIcon icon={vsiCheckIcon}/> | 所要获取属性的延迟加载模块。               |
+|  `attr`  |    `str`     | <InlineIcon icon={vsiCheckIcon}/> | 所要获取属性的属性名称。                   |
+| `parent` |    `str`     | <InlineIcon icon={vsiCheckIcon}/> | 所获得的属性将要添加到的目标父模块的名称。 |
+
+### 输出 {#returns}
+
+|  参数  |     类型      | <center>说明</center>                                                                            |
+| :----: | :-----------: | :----------------------------------------------------------------------------------------------- |
+| `attr` | `Any \| None` | 延迟加载的可调用属性。若该属性还未调用过，则该属性不会得到加载。若该属性无法检索到，返回`None`。 |
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 只在访问的时候加载某类 {#-load-a-class-only-when-it-is-accessed}
+
+<Tabs
+  defaultValue="codes"
+  values={[
+    { label: '代码', value: 'codes', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes">
+
+```python showLineNumbers title="lazy_load_a_class.py"
+from typing import TYPE_CHECKING
+from syncstream import utils
+
+if TYPE_CHECKING:
+    import html
+    import html.parser as hparser
+    from html.parser import HTMLParser
+else:
+    html = utils.lazy_import("html", package=None)
+    hparser = utils.lazy_import("parser", package="html", dependencies=("html",))
+    HTMLParser = utils.get_lazy_attribute(hparser, "HTMLParser", __name__)
+
+
+print(html, hparser)
+print(HTMLParser)
+print(html, hparser)
+print(HTMLParser())
+print(html, hparser)
+
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+<LazyModule html from "/usr/local/lib/python3.12/html/__init__.py"> <LazyModule html.parser from "/usr/local/lib/python3.12/html/parser.py">
+<LazyAttribute HTMLParser from "html.parser">
+<LazyModule html from "/usr/local/lib/python3.12/html/__init__.py"> <LazyModule html.parser from "/usr/local/lib/python3.12/html/parser.py">
+<html.parser.HTMLParser object at 0x7f4416dfb380>
+<module 'html' from '/usr/local/lib/python3.12/html/__init__.py'> <module 'html.parser' from '/usr/local/lib/python3.12/html/parser.py'>
+```
+
+</TabItem>
+</Tabs>

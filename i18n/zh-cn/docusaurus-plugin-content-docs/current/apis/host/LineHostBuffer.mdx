@@ -18,7 +18,7 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" source="host.LineHostBuffer" />
 
 ```python
-hbuf = syncstream.host.LineHostBuffer(
+hbuf = LineHostBuffer(
     api_route: str = "/sync-stream",
     endpoint: str | None = None,
     maxlen: int = 2,
@@ -44,8 +44,6 @@ syncstream.host.LineHostBuffer
 
 ## 参数 {#arguments}
 
-### 输入 {#requires}
-
 |    参数     |     类型      | 必选 | <center>说明</center>                                                                                                                                              |
 | :---------: | :-----------: | :--: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `api_route` |     `str`     |      | API 的路由路径。它的含义和[`Api.add_resource(url)`<IconExternalLink/>][link-addresource]的参数相同。                                                               |
@@ -62,7 +60,7 @@ hbuf.serve(api: flask_restful.Api)
 
 向Flask应用载入服务。
 
-#### 输入 {#requires-1}
+#### 输入 {#requires}
 
 | 参数  |                           类型                            |               必选                | <center>说明</center>                                                            |
 | :---: | :-------------------------------------------------------: | :-------------------------------: | :------------------------------------------------------------------------------- |

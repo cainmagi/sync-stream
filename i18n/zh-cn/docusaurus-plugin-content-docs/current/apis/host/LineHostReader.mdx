@@ -1,0 +1,269 @@
+---
+id: LineHostReader
+title: LineHostReader
+sidebar_label: LineHostReader
+slug: /apis/host/LineHostReader
+description: 用来读取网络服务缓存的读取器。
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+import IconExternalLink from "@theme/Icon/ExternalLink";
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar
+  type="class"
+  isContext={true}
+  isDecorator={true}
+  source="host.LineHostReader"
+/>
+
+```python
+reader = LineHostReader(
+    address: str, timeout: int | None = None,
+)
+
+with reader:
+    ...
+
+@reader
+def func(): ...
+```
+
+用来读取网络服务缓存([`host.LineHostBuffer`](./LineHostBuffer.mdx))的读取器。
+
+该类仅仅用作读取某个特定服务内容的方便API。其提供了用来读取缓存内容、和服务状态的功能，但不提供任何用来覆写缓存、或更新状态的功能。建议读者将该类的实例作为上下文使用，以便限定HTTP连接的作用域。
+
+## 别名 {#aliases}
+
+该类可以按以下方式之一获取
+
+```python
+import syncstream
+
+
+syncstream.LineHostReader
+syncstream.host.LineHostReader
+```
+
+## 参数 {#arguments}
+
+|   参数    |     类型      |               必选                | <center>说明</center>                                            |
+| :-------: | :-----------: | :-------------------------------: | :--------------------------------------------------------------- |
+| `address` |     `str`     | <InlineIcon icon={vsiCheckIcon}/> | `LineHostBuffer`的地址。将会从该特定的服务读取数据。             |
+| `timeout` | `int \| None` |                                   | 网络同步事件的时限。若不设置，则执行同步操作将持续阻塞当前进程。 |
+
+## 方法 {#methods}
+
+### <IconObjType type="method"/> `clear` {#-clear}
+
+```python
+flag: bool = reader.clear()
+```
+
+清空整个缓存。
+
+该方法会清空该缓存内的整个存储空间，以及当前正在写的最后一行的流。然而，该方法不会清空该缓存的任何镜像或拷贝。该方法是线程安全的，且应当永远可以成功执行。
+
+#### 输出 {#returns}
+
+|  参数  |  类型  | <center>说明</center>                                                                 |
+| :----: | :----: | :------------------------------------------------------------------------------------ |
+| `flag` | `bool` | 若删除成功，返回`True`。若删除遭到了拒绝，返回`False`。若服务端有任何异常，抛出错误。 |
+
+---
+
+### <IconObjType type="method"/> `reset_states` {#-reset_states}
+
+```python
+flag: bool = reader.reset_states()
+```
+
+重置缓存的状态。
+
+若需要复用缓存，则应当调用该方法。
+
+#### 输出 {#returns-1}
+
+|  参数  |  类型  | <center>说明</center>                                                                 |
+| :----: | :----: | :------------------------------------------------------------------------------------ |
+| `flag` | `bool` | 若重置成功，返回`True`。若重置遭到了拒绝，返回`False`。若服务端有任何异常，抛出错误。 |
+
+---
+
+### <IconObjType type="method"/> `stop_all_mirrors` {#-stop_all_mirrors}
+
+```python
+flag: bool = reader.stop_all_mirrors()
+```
+
+向所有的mirror发送中断信号。
+
+该操作用于安全中断进程。它并不能保证进程会立刻结束。针对每个mirror，在每次要写信息的时候，检查中断信号。
+
+若用户打算使用该方法，请确保在进程中捕获了`StopIteration`。该异常不会回送到缓存中。
+
+#### 输出 {#returns-2}
+
+|  参数  |  类型  | <center>说明</center>                                                                 |
+| :----: | :----: | :------------------------------------------------------------------------------------ |
+| `flag` | `bool` | 若中断成功，返回`True`。若中断遭到了拒绝，返回`False`。若服务端有任何异常，抛出错误。 |
+
+---
+
+### <IconObjType type="method"/> `read` {#-read}
+
+```python
+lines: tuple[str | GroupedMessage, ...] = reader.read(size: int | None = None)
+```
+
+读取信息。
+
+从缓存中获取所存储的各项记录。`read()`方法是线程安全的，并且不会干扰`write()`方法的指针。
+
+若当前正在写入的行不为空，调用该方法时，则会将其视为最后一条记录。
+
+#### 输入 {#requires}
+
+|  参数  |     类型      | 必选 | <center>说明</center>                                                        |
+| :----: | :-----------: | :--: | :--------------------------------------------------------------------------- |
+| `size` | `int \| None` |      | 若设为`None`，则会返回整个存储区。若设为一个整数，则会返回最后`size`条信息。 |
+
+#### 输出 {#returns-3}
+
+|  参数   |                类型                 | <center>说明</center>                              |
+| :-----: | :---------------------------------: | :------------------------------------------------- |
+| `lines` | `tuple[str \| GroupedMessage, ...]` | 所获取的多项记录信息。结果按照先入先出的顺序排序。 |
+
+## 属性 {#properties}
+
+### <IconObjType type="param"/> `headers` {#-headers}
+
+```python
+headers: ChainMap[str, str] = reader.headers
+```
+
+发送`GET`请求时，网络连接的默认请求头。
+
+---
+
+### <IconObjType type="param"/> `headers_post` {#-headers_post}
+
+```python
+headers_post: ChainMap[str, str] = reader.headers_post
+```
+
+发送`POST`请求时，网络连接的默认请求头。
+
+---
+
+### <IconObjType type="param"/> `maxlen` {#-maxlen}
+
+```python
+maxlen: int = reader.maxlen
+```
+
+获取缓存的最大长度。
+
+---
+
+### <IconObjType type="param"/> `closed` {#-closed}
+
+```python
+is_closed: bool = reader.closed
+```
+
+检查服务是否已经关闭。
+
+## 运算符 {#operators}
+
+### <IconObjType type="op"/> `__len__`
+
+```python
+n_buffer_items: int = len(reader)
+```
+
+获取缓存的当前长度。
+
+## 范例 {#example}
+
+### <IconObjType type="term"/> 使用reader读取服务器的数据和状态 {#-read-the-server-data-and-status-with-the-reader}
+
+<Tabs
+  defaultValue="codes-server"
+  values={[
+    { label: '代码（服务端）', value: 'codes-server', },
+    { label: '代码（使用上下文）', value: 'codes-ctx', },
+    { label: '代码（不使用上下文）', value: 'codes-noctx', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes-server">
+
+使用[`LineHostBuffer`](./LineHostBuffer.mdx)来启动一个带有空缓存的服务。
+
+```python showLineNumbers title="start_a_server.py"
+import flask
+import syncstream
+
+
+app = flask.Flask('test')
+syncstream.LineHostBuffer(api_route='/sync-stream', maxlen=10).serve(app)
+
+
+if __name__ == '__main__':
+    app.run('localhost', port=5000)
+```
+
+</TabItem>
+
+<TabItem value="codes-ctx">
+
+当[`LineHostBuffer`](./LineHostBuffer.mdx)正在运行时，可以使用以下代码来查询服务端的状态。
+
+```python showLineNumbers title="access_a_host_buffer_in_context.py"
+from syncstream import LineHostReader
+
+
+with LineHostReader('http://localhost:5000/sync-stream') as hreader:
+    n_maxlen = hreader.maxlen
+    is_closed = hreader.closed
+    print("States: maxlen={0}, closed={1}.".format(n_maxlen, is_closed))
+    if not is_closed:
+        print(hreader.read())
+```
+
+</TabItem>
+
+<TabItem value="codes-noctx">
+
+当然，也可以不在上下文内使用reader。在此情况下，每次使用服务时，都会建立一个临时的HTTP池、并且在用完后销毁。
+
+```python showLineNumbers title="access_a_host_buffer_outside_the_context.py"
+from syncstream import LineHostReader
+
+
+hreader = LineHostReader('http://localhost:5000/sync-stream')
+n_maxlen = hreader.maxlen
+is_closed = hreader.closed
+print("States: maxlen={0}, closed={1}.".format(n_maxlen, is_closed))
+if not is_closed:
+    print(hreader.read())
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+```python
+States: maxlen=10, closed=False.
+()
+```
+
+</TabItem>
+</Tabs>

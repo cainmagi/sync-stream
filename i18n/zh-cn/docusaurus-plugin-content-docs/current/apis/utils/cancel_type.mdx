@@ -1,0 +1,40 @@
+---
+id: cancel_type
+title: cancel_type
+sidebar_label: cancel_type
+slug: /apis/utils/cancel_type
+description: 移除某个具有已知类型值的类型标记。
+---
+
+import vsiCheckIcon from "@iconify-icons/codicon/check";
+
+import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
+import InlineIcon from "@site/src/components/InlineIcon";
+
+<APITopBar type="func" isPrivate={true} source="utils.cancel_type" />
+
+```python
+_data: Any = cancel_type(data: Any)
+```
+
+移除某个具有已知类型值的类型标记。
+
+这等价于
+
+```python
+_data = cast(Any, data)
+```
+
+## 参数 {#arguments}
+
+### 输入 {#requires}
+
+|  参数  | 类型  |               必选                | <center>说明</center>      |
+| :----: | :---: | :-------------------------------: | :------------------------- |
+| `data` | `Any` | <InlineIcon icon={vsiCheckIcon}/> | 某个具有任意类型标记的值。 |
+
+### 输出 {#returns}
+
+|  参数   | 类型  | <center>说明</center>                       |
+| :-----: | :---: | :------------------------------------------ |
+| `_data` | `Any` | 和输入值`data`相同，但类型标记替换为`Any`。 |

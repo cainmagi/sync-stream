@@ -17,8 +17,8 @@ import InlineIcon from "@site/src/components/InlineIcon";
 <APITopBar type="class" isPrivate={true} source="base.GroupedMessage" />
 
 ```python
-gpm = syncstream.base.GroupedMessage(
-    data: Sequence[str] | Warning | Exception | None = None,
+gpm = GroupedMessage(
+    data: Sequence[str] | Warning | BaseException | None = None,
 )
 ```
 
@@ -28,43 +28,57 @@ Used for wrapping muliple `str` lines (info), a warning object, or an exception 
 
 This class would be used by [`mproc.LineProcMirror`](../mproc/LineProcMirror.mdx) and [`host.LineHostMirror`](../host/LineHostMirror.mdx) automatically. In most cases, users do not need to use this class directly.
 
+## Aliases
+
+This class can be acquired by
+
+```python
+import syncstream
+
+
+syncstream.GroupedMessage
+syncstream.base.GroupedMessage
+```
+
 ## Arguments
 
-### Requires
-
-| Argument |                  Type                   | Required | <center>Description</center>                                                                                                              |
-| :------: | :-------------------------------------: | :------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
-|  `data`  | `Sequence[str] \| Warning \| Exception` |          | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
+| Argument |                    Type                     | Required | <center>Description</center>                                                                                                              |
+| :------: | :-----------------------------------------: | :------: | :---------------------------------------------------------------------------------------------------------------------------------------- |
+|  `data`  | `Sequence[str] \| Warning \| BaseException` |          | The grouped messages provider. The input value would be parsed as formatted lines. The parsed messages are compatible with serialization. |
 
 ## Methods
 
 ### <IconObjType type="method"/> `serialize`
 
 ```python
-jdata: dict[str, Any] = gpm.serialize()
+jdata: SerializedMessage = gpm.serialize()
 ```
 
 Serialize this message item into a JSON compatible dict.
 
 #### Returns
 
-| Argument |       Type       | <center>Description</center>                                                                                                                |
-| :------: | :--------------: | :------------------------------------------------------------------------------------------------------------------------------------------ |
-| `jdata`  | `dict[str, Any]` | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#-deserialize) method. |
+| Argument |                      Type                      | <center>Description</center>                                                                                                                |
+| :------: | :--------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------ |
+| `jdata`  | [`SerializedMessage`](./SerializedMessage.mdx) | The serialized dictionary. This dictionary could be converted back to `GroupedMessage` object by the [`deserialize`](#-deserialize) method. |
 
 ---
 
 ### <IconObjType type="method"/> `deserialize`
 
 ```python
-gpm: GroupedMessage = GroupedMessage.deserialize(jdata: dict[str, Any])
+gpm: GroupedMessage = GroupedMessage.deserialize(
+    jdata: SerializedMessage | GroupedMessage
+)
 ```
+
+Deserialize the JSON compatible dict into this object.
 
 #### Requires
 
-| Argument |       Type       |             Required              | <center>Description</center>                                                                                 |
-| :------: | :--------------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------- |
-| `jdata`  | `dict[str, Any]` | <InlineIcon icon={vsiCheckIcon}/> | The serialized dictionary. This dictionary is JSON compatible, and could be transmitted by the web packages. |
+| Argument |                 Type                  |             Required              | <center>Description</center>                                                                                                                                        |
+| :------: | :-----------------------------------: | :-------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `jdata`  | `SerializedMessage \| GroupedMessage` | <InlineIcon icon={vsiCheckIcon}/> | The serialized dictionary. This dictionary is JSON compatible, and could be transmitted by the web packages. If it is not a serialized dictionary, return as it is. |
 
 #### Returns
 
