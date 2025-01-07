@@ -24,7 +24,7 @@ of the built-in `property`, and thus allows totally the same usage of a
 import sys
 import importlib.abc
 import importlib.util
-from importlib.util import _LazyModule as __LazyModule  # type: ignore
+from importlib.util import _LazyModule as _imp_LazyModule  # type: ignore
 
 from types import ModuleType
 
@@ -71,7 +71,7 @@ class ModuleReplaceError(ImportError):
     """
 
 
-class _LazyModule(__LazyModule):
+class _LazyModule(_imp_LazyModule):
     """Private class: LazyModule
 
     Used for providing lazy import.
@@ -159,7 +159,9 @@ class _LazyModule(__LazyModule):
         load_deps = object.__getattribute__(self, "load_deps")
         if callable(load_deps):
             load_deps()
-        return super().__getattribute__(attr)
+        if self.__class__ is not _imp_LazyModule:
+            self.__class__ = _imp_LazyModule
+        return _imp_LazyModule.__getattribute__(self, attr)
 
 
 class _LazyAttribute:

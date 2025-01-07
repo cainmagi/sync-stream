@@ -15,6 +15,7 @@
 
 1. Fix: Correct docstrings and bad definitions of some APIs.
 2. Fix: Attempt to solve the lazy-load issue that only happens when using the workflow.
+3. Fix: Fix an issue caused by the change of `importlib.utils._LazyModule`. Use a hacking technique to bypass this issue.
 
 #### :floppy_disk: Change
 
