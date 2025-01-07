@@ -19,6 +19,7 @@
 
 1. Adjust the workflow configurations and use the new standard of PyPI publishing.
 2. Remove unused `utils.cached_property`.
+3. Adjust the package file list in `MANIFEST`.
 
 ### 1.2.0 @ 2/27/2024
 
