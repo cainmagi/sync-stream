@@ -134,7 +134,7 @@ class _LineBuffer(Generic[T]):
         """Whether the stream is readable. The stream is readable as long as the buffer
         is not closed.
 
-        If the stream is not readable, calling `read()` will raise an OSError.
+        If the stream is not readable, calling `read()` will raise an `OSError`.
         """
         with self.__last_line_lock:
             return not self.last_line.closed
@@ -269,9 +269,9 @@ class _LineBuffer(Generic[T]):
         Arguments
         ---------
         size: `int | None`
-            If set None, would return the whole storage.
+            If set `None`, would return the whole storage.
 
-            If set a int value, would return the last `size` items.
+            If set a `int` value, would return the last `size` items.
 
         Returns
         -------
@@ -372,7 +372,7 @@ class LineBuffer(_LineBuffer[str], contextlib.AbstractContextManager):
         self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
-        exc_traceback: types.TracebackType,
+        exc_traceback: Optional[types.TracebackType],
     ) -> None:
         """Exit the context, where stdout/stderr will be retrieved."""
         sys.stdout = self.__stdout
@@ -382,7 +382,7 @@ class LineBuffer(_LineBuffer[str], contextlib.AbstractContextManager):
         return None
 
 
-class LineProcMirror:
+class LineProcMirror(contextlib.AbstractContextManager):
     """The mirror for the process-safe line-based buffer.
 
     This mirror is initialized by `LineProcBuffer`, and would be used for managing the
@@ -461,7 +461,7 @@ class LineProcMirror:
         self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
-        exc_traceback: types.TracebackType,
+        exc_traceback: Optional[types.TracebackType],
     ) -> None:
         """Exit the context, where stdout/stderr will be retrieved."""
         sys.stdout = self.__stdout
@@ -526,7 +526,7 @@ class LineProcMirror:
         """Whether the stream is readable. The stream is readable as long as the buffer
         is not closed.
 
-        If the stream is not readable, calling `read()` will raise an OSError.
+        If the stream is not readable, calling `read()` will raise an `OSError`.
         """
         with self.__buffer_lock:
             return not self.__buffer.closed
@@ -674,9 +674,9 @@ class LineProcMirror:
         Arguments
         ---------
         size: `int | None`
-            If set None, would return the whole storage.
+            If set `None`, would return the whole storage.
 
-            If set a int value, would return the last `size` items.
+            If set a `int` value, would return the last `size` items.
         """
         if not self.readable():
             raise OSError("syncstream: The mirror cannot be read now.")
@@ -762,7 +762,6 @@ class LineProcBuffer(_LineBuffer[GroupedMessage]):
     def f(buffer) -> None:
         with buffer:
             print('example')
-        buffer.send_eof()
 
     if __name__ == '__main__':
         pbuf = LineProcBuffer(maxlen=10)

@@ -21,7 +21,7 @@ The implementation of this module is mainly based on `urllib3`.
 import sys
 import types
 
-from typing import Union, Optional, Generic, TypeVar
+from typing import Union, Optional, Any, Generic, TypeVar
 
 try:
     from typing import Mapping
@@ -39,9 +39,9 @@ if sys.version_info >= (3, 7):
     from urllib3._version import __version__ as urllib3_ver
 
     if version.parse(urllib3_ver) >= version.parse("2.0.0"):
-        from urllib3.response import BaseHTTPResponse as URLLIBResponse
+        from urllib3.response import BaseHTTPResponse as URLLIBResponse  # type: ignore
     else:
-        from urllib3.response import HTTPResponse as URLLIBResponse
+        from urllib3.response import HTTPResponse as URLLIBResponse  # type: ignore
 else:
     from urllib3.response import HTTPResponse as URLLIBResponse
 
@@ -88,7 +88,7 @@ class SafeRequest(Generic[_TResponse]):
         self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
-        exc_traceback: types.TracebackType,
+        exc_traceback: Optional[types.TracebackType],
     ):
         self.request.release_conn()
         self.request.close()
@@ -106,9 +106,10 @@ class SafePoolManager(PoolManager):
         self: Self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
-        exc_traceback: types.TracebackType,
-    ):
+        exc_traceback: Optional[types.TracebackType],
+    ) -> Literal[False]:
         self.clear()
+        return False
 
     def request(
         self: Self,
@@ -116,19 +117,33 @@ class SafePoolManager(PoolManager):
         url: str,
         fields: Optional[Mapping[str, Union[str, bytes, ReqFile]]] = None,
         headers: Optional[Mapping[str, str]] = None,
-        **urlopen_kw
+        **urlopen_kw: Any,
     ) -> SafeRequest[URLLIBResponse]:
         """Modified version of the `PoolManager.request(...)`
+
         This method provide the typehints that are not available in the original
         `urllib3` pacakge. The returned value is a wrapped `SafeRequest` ready for
         used as a context, not simply an `HTTPResponse` object.
-        Arguments:
-            method: The HTTP method of the request.
-            url: The target URL of this request.
-            fields: The multi-form fields to be sent, can be empty.
-            headers: The HTTP headers of this request.
-            **urlopen_kw: The other keywords will be forwarded to `urlopen(...)`.
-        Returns:
+
+        Arguments
+        ---------
+        method: `MethodApproved`
+            The HTTP method of the request.
+
+        url: `str`
+            The target URL of this request.
+
+        fields: `Mapping[str, str | bytes | ReqFile] | None`
+            The multi-form fields to be sent, can be empty.
+
+        headers: `Mapping[str, str] | None`
+            The HTTP headers of this request.
+
+        **urlopen_kw:
+            The other keywords will be forwarded to `urlopen(...)`.
+
+        Returns
+        -------
             #1: A SafeRequest context object. Entering this context will provide the
                 wrapped HTTPResponse returned by this method.
         """

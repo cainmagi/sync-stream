@@ -126,7 +126,7 @@ class LineHostMirror(contextlib.AbstractContextManager):
         self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
-        exc_traceback: types.TracebackType,
+        exc_traceback: Optional[types.TracebackType],
     ) -> None:
         """Exit the context, where stdout/stderr will be retrieved."""
         sys.stdout = self.__stdout
@@ -216,7 +216,7 @@ class LineHostMirror(contextlib.AbstractContextManager):
         """Whether the stream is readable. The stream is readable as long as the buffer
         is not closed.
 
-        If the stream is not readable, calling `read()` will raise an OSError.
+        If the stream is not readable, calling `read()` will raise an `OSError`.
         """
         with self.__buffer_lock:
             return not self.__buffer.closed
@@ -362,8 +362,10 @@ class LineHostMirror(contextlib.AbstractContextManager):
         This method is used by other methods implicitly, and should not be used by
         users.
 
-        Arguments:
-            data: a str to be sent to the main buffer.
+        Arguments
+        ---------
+        data: `str`
+            a str to be sent to the main buffer.
         """
         with self.__buffer_lock:
             if self.__buffer.closed:
@@ -504,7 +506,6 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
         buffer = LineHostMirror(address=address, timeout=5)
         with buffer:
             print('example')
-        buffer.send_eof()
 
     hbuf = LineHostBuffer('/sync-stream', maxlen=10)
     hbuf.serve(app)
@@ -572,9 +573,9 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
         Arguments
         ---------
         size: `int | None`
-            If set None, would return the whole storage.
+            If set `None`, would return the whole storage.
 
-            If set a int value, would return the last `size` items.
+            If set a `int` value, would return the last `size` items.
 
         Returns
         -------
@@ -593,8 +594,10 @@ class LineHostBuffer(_LineBuffer[GroupedMessage]):
         is received, the service would be triggered, and the thread-safe results would
         be saved.
 
-        Arguments:
-            api: an instance of the `flask_restful.Api`.
+        Arguments
+        ---------
+        app: `Flask`
+            an instance of the `flask.Flask`.
         """
         rself = self
         super_rself = super()
@@ -851,7 +854,7 @@ class LineHostReader(contextlib.ContextDecorator):
         self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
-        exc_traceback: types.TracebackType,
+        exc_traceback: Optional[types.TracebackType],
     ) -> None:
         """Exit the context, where the connection pool will be closed."""
         if self.__enter_stack > 0:
@@ -980,9 +983,9 @@ class LineHostReader(contextlib.ContextDecorator):
         Arguments
         ---------
         size: `int | None`
-            If set None, would return the whole storage.
+            If set `None`, would return the whole storage.
 
-            If set a int value, would return the last `size` items.
+            If set a `int` value, would return the last `size` items.
 
         Returns
         -------

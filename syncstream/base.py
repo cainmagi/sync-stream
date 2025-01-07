@@ -138,7 +138,7 @@ class redirect_stdout(contextlib.ContextDecorator, Generic[_RedirectTarget]):
         self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
-        exc_traceback: types.TracebackType,
+        exc_traceback: Optional[types.TracebackType],
     ):
         return self.__inner.__exit__(exc_type, exc_value, exc_traceback)
 
@@ -160,7 +160,7 @@ class redirect_stderr(contextlib.ContextDecorator, Generic[_RedirectTarget]):
         self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
-        exc_traceback: types.TracebackType,
+        exc_traceback: Optional[types.TracebackType],
     ):
         self.__inner.__exit__(exc_type, exc_value, exc_traceback)
 

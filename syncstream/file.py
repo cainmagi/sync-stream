@@ -128,7 +128,7 @@ class LineFileBuffer(contextlib.AbstractContextManager):
         self,
         exc_type: Optional[Type[BaseException]],
         exc_value: Optional[BaseException],
-        exc_traceback: types.TracebackType,
+        exc_traceback: Optional[types.TracebackType],
     ) -> None:
         """Exit the context, where stdout/stderr will be retrieved."""
         sys.stdout = self.__stdout
@@ -207,7 +207,7 @@ class LineFileBuffer(contextlib.AbstractContextManager):
         """Whether the stream is readable. The stream is readable as long as the buffer
         is not closed.
 
-        If the stream is not readable, calling `read()` will raise an OSError.
+        If the stream is not readable, calling `read()` will raise an `OSError`.
         """
         with self.__file_tmp_lock.read_lock(), self.__file_lock.read_lock():
             return not self.__closed
