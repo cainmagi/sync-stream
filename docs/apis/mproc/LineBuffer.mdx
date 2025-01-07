@@ -15,7 +15,7 @@ import vsiCheckIcon from "@iconify-icons/codicon/check";
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
-<APITopBar type="class" source="mproc.LineBuffer" />
+<APITopBar type="class" isContext={true} source="mproc.LineBuffer" />
 
 ```python
 tbuf = LineBuffer(maxlen: int = 20)
@@ -44,6 +44,16 @@ syncstream.mproc.LineBuffer
 | `maxlen` | `int` |          | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]. |
 
 ## Methods
+
+### <IconObjType type="method"/> `close`
+
+```python
+tbuf.close()
+```
+
+Close the IO. This method only takes effects once. The second call will do nothing.
+
+---
 
 ### <IconObjType type="method"/> `clear`
 
@@ -152,6 +162,130 @@ The writting method of the buffer. The source `data` is the same as that of a te
 | :-------: | :---: | :------------------------------------------------------------------------------------------------------------- |
 | `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
 
+---
+
+### <IconObjType type="method"/> `fileno`
+
+```python
+tbuf.fileno() -> Never
+```
+
+Return the file ID.
+
+This buffer will not use file ID, so this method will raise an `OSError`.
+
+---
+
+### <IconObjType type="method"/> `isatty`
+
+```python
+is_atty: False = tbuf.fileno()
+```
+
+Whether the stream is connected to terminal/TTY. Return `False`.
+
+#### Returns
+
+| Argument  |  Type  | <center>Description</center> |
+| :-------: | :----: | :--------------------------- |
+| `is_atty` | `bool` | Always `False`.              |
+
+---
+
+### <IconObjType type="method"/> `readable`
+
+```python
+is_readable: bool = tbuf.readable()
+```
+
+Whether the stream is readable. The stream is readable as long as the buffer
+is not closed.
+
+If the stream is not readable, calling `read()` will raise an `OSError`.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center>                                          |
+| :-----------: | :----: | :-------------------------------------------------------------------- |
+| `is_readable` | `bool` | Return `True` if the buffer is not closed. Otherwise, return `False`. |
+
+---
+
+### <IconObjType type="method"/> `writable`
+
+```python
+is_writable: bool = tbuf.writable()
+```
+
+Whether the stream is writable. The stream is writable as long as the buffer
+is not closed.
+
+If the stream is not writable, calling `write()` will raise an `OSError`.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center>                                          |
+| :-----------: | :----: | :-------------------------------------------------------------------- |
+| `is_writable` | `bool` | Return `True` if the buffer is not closed. Otherwise, return `False`. |
+
+---
+
+### <IconObjType type="method"/> `seekable`
+
+```python
+is_seekable: False = tbuf.seekable()
+```
+
+Whether the stream support random access. This buffer does not.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center> |
+| :-----------: | :----: | :--------------------------- |
+| `is_seekable` | `bool` | Always `False`.              |
+
+---
+
+### <IconObjType type="method"/> `seek`
+
+```python
+tbuf.seek() -> Never
+```
+
+Will raise an `OSError` since this buffer does not support random access.
+
+## Properties
+
+### <IconObjType type="param"/> `maxlen`
+
+```python
+maxlen: int | None = tbuf.maxlen
+```
+
+The maximal length (number of lines) of the buffer.
+
+When this value is `None`, it means that there is no maximal length limit.
+
+---
+
+### <IconObjType type="param"/> `closed`
+
+```python
+is_closed: bool = tbuf.closed
+```
+
+Check whether the buffer has been closed.
+
+## Operators
+
+### <IconObjType type="op"/> `__len__`
+
+```python
+n_buffer_items: int = len(tbuf)
+```
+
+Number of lines/items in the buffer.
+
 ## Example
 
 ### <IconObjType type="term"/> Synchronize messages among threads
@@ -168,11 +302,10 @@ The writting method of the buffer. The source `data` is the same as that of a te
 
 ```python showLineNumbers title="sync_among_threads.py"
 import contextlib
-from syncstream.mproc import LineBuffer
 
 tbuf = LineBuffer(5)
 
-with contextlib.redirect_stdout(tbuf):
+with tbuf:
     for i in range(10):
         print(i)
 

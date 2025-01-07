@@ -14,14 +14,17 @@ import vsiCheckIcon from "@iconify-icons/codicon/check";
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
-<APITopBar type="class" source="file.LineFileBuffer" />
+<APITopBar type="class" isContext={true} source="file.LineFileBuffer" />
 
 ```python
 fbuf = LineFileBuffer(
-    file_path: str,
+    file_path: str | os.PathLike,
     maxlen: int = 20,
     tmp_id: str = "tmp",
 )
+
+with fbuf:
+    ...
 ```
 
 文件驱动的、以行为单元的缓存句柄。
@@ -50,13 +53,29 @@ syncstream.file.LineFileBuffer
 
 ## 参数 {#arguments}
 
-|    参数     | 类型  |               必选                | <center>说明</center>                                                                                              |
-| :---------: | :---: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------- |
-| `file_path` | `str` | <InlineIcon icon={vsiCheckIcon}/> | 所存储记录的基路径，其指向的位置既包括了存储内容、又包含文件锁。文件的后缀名不会自动设置为`.log`。                 |
-|  `maxlen`   | `int` |                                   | 所记录行数的最大值。每行记录会保存为一个文件。                                                                     |
-|  `tmp_id`   | `str` |                                   | 临时文件的ID。对于每个进程，应当各自持有独立的ID。若不同的进程持有冲突的ID，则会导致不同进程的写入流之间相互干扰。 |
+|    参数     |         类型         |               必选                | <center>说明</center>                                                                                              |
+| :---------: | :------------------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------- |
+| `file_path` | `str \| os.PathLike` | <InlineIcon icon={vsiCheckIcon}/> | 所存储记录的基路径，其指向的位置既包括了存储内容、又包含文件锁。文件的后缀名不会自动设置为`.log`。                 |
+|  `maxlen`   |        `int`         |                                   | 所记录行数的最大值。每行记录会保存为一个文件。                                                                     |
+|  `tmp_id`   |        `str`         |                                   | 临时文件的ID。对于每个进程，应当各自持有独立的ID。若不同的进程持有冲突的ID，则会导致不同进程的写入流之间相互干扰。 |
 
 ## 方法 {#methods}
+
+### <IconObjType type="method"/> `close` {#-close}
+
+```python
+fbuf.close(exc: BaseException | None = None)
+```
+
+关闭 IO。该方法只会生效一次。第二次调用则无任何效果。
+
+#### 输入 {#requires}
+
+| 参数  |      类型       | 必选 | <center>说明</center>                                                     |
+| :---: | :-------------: | :--: | :------------------------------------------------------------------------ |
+| `exc` | `BaseException` |      | 若`exc`非`None`，则在关闭缓存前调用`send_exc()`。否则，调用`new_line()`。 |
+
+---
 
 ### <IconObjType type="method"/> `clear` {#-clear}
 
@@ -93,7 +112,6 @@ if (last line is not empty):
 fbuf.flush()
 ```
 
-
 刷新当前正在写入行的数据流（临时缓存）。
 
 :::caution
@@ -120,7 +138,7 @@ fbuf.parse_lines(lines: Sequence[str])
 fbuf.__update_records(lines)
 ```
 
-#### 输入 {#requires}
+#### 输入 {#requires-1}
 
 |  参数   |      类型       |               必选                | <center>说明</center>                                                      |
 | :-----: | :-------------: | :-------------------------------: | :------------------------------------------------------------------------- |
@@ -138,7 +156,7 @@ lines: Sequence[str] = fbuf.read(size: int | None = None)
 
 若当前正在写入的行不为空，调用该方法时，则会将其视为最后一条记录。
 
-#### 输入 {#requires-1}
+#### 输入 {#requires-2}
 
 |  参数  |     类型      | 必选 | <center>说明</center>                                                        |
 | :----: | :-----------: | :--: | :--------------------------------------------------------------------------- |
@@ -158,9 +176,9 @@ lines: Sequence[str] = fbuf.read(size: int | None = None)
 n_bytes: int = fbuf.write(data: str)
 ```
 
-写缓存的方法。源数据的形式与文字IO的数据形式相同。每当`data`包含断行符时，会向存储区置入一条新的记录。`write()`方法是进程安全的。
+写缓存的方法。源数据的形式与文字 IO 的数据形式相同。每当`data`包含断行符时，会向存储区置入一条新的记录。`write()`方法是进程安全的。
 
-#### 输入 {#requires-2}
+#### 输入 {#requires-3}
 
 |  参数  | 类型  |               必选                | <center>说明</center>                      |
 | :----: | :---: | :-------------------------------: | :----------------------------------------- |
@@ -171,6 +189,144 @@ n_bytes: int = fbuf.write(data: str)
 |   参数    | 类型  | <center>说明</center>                              |
 | :-------: | :---: | :------------------------------------------------- |
 | `n_bytes` | `int` | 所要写入缓存的byte数目。该值直接从输入`data`计算。 |
+
+---
+
+### <IconObjType type="method"/> `send_exc` {#-send_exc}
+
+```python
+fbuf.send_exc(exc: BaseException)
+```
+
+向记录中发送一个异常或警告对象。
+
+该对象将会和其回溯信息（traceback）一并作为长字符串写入记录中。即便这条记录中包含断行符，这整个对象的信息仍然被当作一条记录。
+
+#### 输入 {#requires-4}
+
+| 参数  |      类型       |               必选                | <center>说明</center>  |
+| :---: | :-------------: | :-------------------------------: | :--------------------- |
+| `exc` | `BaseException` | <InlineIcon icon={vsiCheckIcon}/> | 要写入记录的异常对象。 |
+
+---
+
+### <IconObjType type="method"/> `fileno` {#-fileno}
+
+```python
+fbuf.fileno() -> Never
+```
+
+返回文件 ID。
+
+由于该缓存不使用文件 ID，故而该方法会抛出`OSError`。
+
+---
+
+### <IconObjType type="method"/> `isatty` {#-isatty}
+
+```python
+is_atty: False = fbuf.fileno()
+```
+
+流是否连接到了终端/TTY 上。返回`False`。
+
+#### 输出 {#returns-2}
+
+|   参数    |  类型  | <center>说明</center> |
+| :-------: | :----: | :-------------------- |
+| `is_atty` | `bool` | 恒为`False`.          |
+
+---
+
+### <IconObjType type="method"/> `readable` {#-readable}
+
+```python
+is_readable: bool = fbuf.readable()
+```
+
+流是否可读。只要流还未关闭，其就是可读的。
+
+若流不再可读，调用`read()`会抛出`OSError`。
+
+#### 输出 {#returns-3}
+
+|     参数      |  类型  | <center>说明</center>                         |
+| :-----------: | :----: | :-------------------------------------------- |
+| `is_readable` | `bool` | 若缓存未关闭，返回`True`。否则，返回`False`。 |
+
+---
+
+### <IconObjType type="method"/> `writable` {#-writable}
+
+```python
+is_writable: bool = fbuf.writable()
+```
+
+流是否可写。只要流还未关闭，其就是可读的。
+
+若流不再可写，调用`read()`会抛出`OSError`。
+
+#### 输出 {#returns-4}
+
+|     参数      |  类型  | <center>说明</center>                         |
+| :-----------: | :----: | :-------------------------------------------- |
+| `is_writable` | `bool` | 若缓存未关闭，返回`True`。否则，返回`False`。 |
+
+---
+
+### <IconObjType type="method"/> `seekable` {#-seekable}
+
+```python
+is_seekable: False = fbuf.seekable()
+```
+
+流是否支持随机访问。该缓存不支持。
+
+#### 输出 {#returns-5}
+
+|     参数      |  类型  | <center>说明</center> |
+| :-----------: | :----: | :-------------------- |
+| `is_seekable` | `bool` | 恒为`False`。         |
+
+---
+
+### <IconObjType type="method"/> `seek` {#-seek}
+
+```python
+fbuf.seek() -> Never
+```
+
+由于缓存不支持随机访问，调用该方法会抛出`OSError`。
+
+## 属性 {#properties}
+
+### <IconObjType type="param"/> `maxlen` {#-maxlen}
+
+```python
+maxlen: int = fbuf.maxlen
+```
+
+缓存中的最大长度（即行数）。
+
+---
+
+### <IconObjType type="param"/> `closed` {#-closed}
+
+```python
+is_closed: bool = fbuf.closed
+```
+
+检查缓存是否已经被关闭。
+
+## 运算符 {#operators}
+
+### <IconObjType type="op"/> `__len__`
+
+```python
+n_buffer_items: int = len(fbuf)
+```
+
+缓存中的行/条目数。
 
 ## 范例 {#example}
 
@@ -188,20 +344,17 @@ n_bytes: int = fbuf.write(data: str)
 
 ```python showLineNumbers title="sync_by_files.py"
 import os
-import contextlib
 import multiprocessing
 from syncstream.file import LineFileBuffer
 
 
 def f(f_path, f_len=10):
-    fbuf = LineFileBuffer(f_path, maxlen=f_len, tmp_id=os.getpid())
-    with contextlib.redirect_stdout(fbuf):
-        print('example')
-    fbuf.new_line()
+    with LineFileBuffer(f_path, maxlen=f_len, tmp_id=os.getpid()):
+        print("example")
 
 
-if __name__ == '__main__':
-    f_path = os.path.join('logs', 'test_file')
+if __name__ == "__main__":
+    f_path = os.path.join("logs", "test_file")
     f_len = 10
     with multiprocessing.Pool(4) as p:
         p.starmap(f, tuple((f_path, f_len) for _ in range(4)))

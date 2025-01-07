@@ -15,7 +15,12 @@ import vsiCheckIcon from "@iconify-icons/codicon/check";
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
-<APITopBar type="class" isPrivate={true} source="mproc.LineProcMirror" />
+<APITopBar
+  type="class"
+  isPrivate={true}
+  isContext={true}
+  source="mproc.LineProcMirror"
+/>
 
 ```python
 pbuf: syncstream.LineProcBuffer
@@ -26,7 +31,7 @@ buffer = pbuf.mirror
 
 :::danger
 
-该mirror由[`LineProcBuffer`](./LineProcBuffer.mdx)初始化，且用于管理要写入到buffer的行数据。用户不需要、也不应使用该类来实例化对象。请总是使用[`pbuf.mirror`](./LineProcBuffer.mdx#-mirror)来获取mirror对象。
+该 mirror 由[`LineProcBuffer`](./LineProcBuffer.mdx)初始化，且用于管理要写入到 buffer 的行数据。用户不需要、也不应使用该类来实例化对象。请总是使用[`pbuf.mirror`](./LineProcBuffer.mdx#-mirror)来获取 mirror 对象。
 
 :::
 
@@ -47,13 +52,29 @@ syncstream.mproc.LineProcMirror
 |     参数      |           类型           | 必选 | <center>说明</center>                                                                                                                                      |
 | :-----------: | :----------------------: | :--: | :--------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |  `q_maxsize`  |          `int`           |      | 队列的最大长度。该值和[`queue.qsize`<IconExternalLink/>][link-queue-size]意义相同。                                                                        |
-| `aggressive`  |          `bool`          |      | 若设为`True`，则启用积极模式，亦即是说，只要有新的数据写入该mirror，就会立即传递给缓存。若设为`False`，则只会在新写一整行的时候、才传递给缓存。           |
+| `aggressive`  |          `bool`          |      | 若设为`True`，则启用积极模式，亦即是说，只要有新的数据写入该 mirror，就会立即传递给缓存。若设为`False`，则只会在新写一整行的时候、才传递给缓存。           |
 |   `timeout`   |      `int \| None`       |      | 网络同步事件的时限。该值和[`queue.put(timeout)`<IconExternalLink/>][link-queue-put]的参数意义一致。                                                        |
 |   `_queue`    |     `Queue \| None`      |      | 用来与缓存通信的队列。该对象是一个`multiprocessing.Queue()`、或由`multiprocessing.Manager()`给出。队列对象由[`LineProcBuffer`](./LineProcBuffer.mdx)构造。 |
 |   `_state`    | `dict[str, Any] \| None` |      | 由`multiprocessing.Manager()`给出的共享状态字典。该字典对象由 [`LineProcBuffer`](./LineProcBuffer.mdx)构造。                                               |
 | `_state_lock` |      `Lock \| None`      |      | 状态字典的读/写锁。由`multiprocessing.Manager()`给出。该锁对象由[`LineProcBuffer`](./LineProcBuffer.mdx)构造。                                             |
 
 ## 方法 {#methods}
+
+### <IconObjType type="method"/> `close` {#-close}
+
+```python
+buffer.close(exc: BaseException | None = None)
+```
+
+关闭 IO。该方法只会生效一次。第二次调用则无任何效果。
+
+#### 输入 {#requires}
+
+| 参数  |      类型       | 必选 | <center>说明</center>                                                       |
+| :---: | :-------------: | :--: | :-------------------------------------------------------------------------- |
+| `exc` | `BaseException` |      | 若`exc`非`None`，则在关闭缓存前调用`send_error()`。否则，调用`send_eof()`。 |
+
+---
 
 ### <IconObjType type="method"/> `clear` {#-clear}
 
@@ -63,7 +84,7 @@ buffer.clear()
 
 清空临时缓存。
 
-该方法会清空mirror的临时缓存。若mirror按`aggresive`模式工作，则临时缓存不会用到。在此情形下，该方法将不会对mirror产生任何影响。
+该方法会清空 mirror 的临时缓存。若 mirror 按`aggresive`模式工作，则临时缓存不会用到。在此情形下，该方法将不会对 mirror 产生任何影响。
 
 该方法是线程安全的。且不同进程的镜像并不会共享相同的临时缓存。且需要注意的是，该方法不会清空共享队列的内容。
 
@@ -118,12 +139,12 @@ buffer.send_eof()
 ### <IconObjType type="method"/> `send_error` {#-send_error}
 
 ```python
-buffer.send_error(error: Exception)
+buffer.send_error(error: BaseException)
 ```
 
 向主缓存发送异常对象。
 
-发送缓存过的异常对象。该方法需要用于try / except块中。错误对象将会在主缓存中捕获为一条信息。
+发送缓存过的异常对象。该方法需要用于 try / except 块中。错误对象将会在主缓存中捕获为一条信息。
 
 :::danger
 
@@ -131,11 +152,11 @@ buffer.send_error(error: Exception)
 
 :::
 
-#### 输入 {#requires}
+#### 输入 {#requires-1}
 
-|  参数   |    类型     |               必选                | <center>说明</center> |
-| :-----: | :---------: | :-------------------------------: | :-------------------- |
-| `error` | `Exception` | <InlineIcon icon={vsiCheckIcon}/> | 要发送的异常对象。    |
+|  参数   |      类型       |               必选                | <center>说明</center> |
+| :-----: | :-------------: | :-------------------------------: | :-------------------- |
+| `error` | `BaseException` | <InlineIcon icon={vsiCheckIcon}/> | 要发送的异常对象。    |
 
 ---
 
@@ -151,11 +172,11 @@ buffer.send_warning(warning: Warning)
 
 :::caution
 
-该方法只能捕获标准库定义的警告对象。某些不同的警告对象，例如[`logging.warning`<IconExternalLink/>][link-logging-warning]所写的warning信息，则无法被该方法收集。
+该方法只能捕获标准库定义的警告对象。某些不同的警告对象，例如[`logging.warning`<IconExternalLink/>][link-logging-warning]所写的 warning 信息，则无法被该方法收集。
 
 :::
 
-#### 输入 {#requires-1}
+#### 输入 {#requires-2}
 
 |   参数    |   类型    |               必选                | <center>说明</center> |
 | :-------: | :-------: | :-------------------------------: | :-------------------- |
@@ -179,7 +200,7 @@ super(LineProcBuffer, pbuf).write(data)
 
 该方法被其他方法隐式调用，故用户不应使用该方法。
 
-#### 输入 {#requires-2}
+#### 输入 {#requires-3}
 
 |  参数  | 类型  |               必选                | <center>说明</center>   |
 | :----: | :---: | :-------------------------------: | :---------------------- |
@@ -193,13 +214,13 @@ super(LineProcBuffer, pbuf).write(data)
 line: str = buffer.read()
 ```
 
-该方法只会读取、当前保留在mirror的临时缓存内的数据。若属性`aggressive`为`True`，则`read()`方法将总是返回空值。
+该方法只会读取、当前保留在 mirror 的临时缓存内的数据。若属性`aggressive`为`True`，则`read()`方法将总是返回空值。
 
 #### 输出 {#returns}
 
-|  参数  | 类型  | <center>说明</center>                                            |
-| :----: | :---: | :--------------------------------------------------------------- |
-| `line` | `str` | 当前mirror的临时存储结果。在临时存储内的数据还没有发送到主缓存。 |
+|  参数  | 类型  | <center>说明</center>                                              |
+| :----: | :---: | :----------------------------------------------------------------- |
+| `line` | `str` | 当前 mirror 的临时存储结果。在临时存储内的数据还没有发送到主缓存。 |
 
 ---
 
@@ -209,11 +230,11 @@ line: str = buffer.read()
 n_bytes: int = buffer.write(data: str)
 ```
 
-写缓存的方法。源数据的形式与文字IO的数据形式相同。若属性`aggressive`为`True`，每次调用`write()`时，都将会使得流内的数据发送到主缓存。否则，只在每当`data`包含断行符的时候、才会将流的数据发送到主缓存。
+写缓存的方法。源数据的形式与文字 IO 的数据形式相同。若属性`aggressive`为`True`，每次调用`write()`时，都将会使得流内的数据发送到主缓存。否则，只在每当`data`包含断行符的时候、才会将流的数据发送到主缓存。
 
 该方法是线程安全的。
 
-#### 输入 {#requires-3}
+#### 输入 {#requires-4}
 
 |  参数  | 类型  |               必选                | <center>说明</center>                      |
 | :----: | :---: | :-------------------------------: | :----------------------------------------- |
@@ -221,9 +242,99 @@ n_bytes: int = buffer.write(data: str)
 
 #### 输出 {#returns-1}
 
-|   参数    | 类型  | <center>说明</center>                              |
-| :-------: | :---: | :------------------------------------------------- |
-| `n_bytes` | `int` | 所要写入缓存的byte数目。该值直接从输入`data`计算。 |
+|   参数    | 类型  | <center>说明</center>                                |
+| :-------: | :---: | :--------------------------------------------------- |
+| `n_bytes` | `int` | 所要写入缓存的 byte 数目。该值直接从输入`data`计算。 |
+
+---
+
+### <IconObjType type="method"/> `fileno` {#-fileno}
+
+```python
+buffer.fileno() -> Never
+```
+
+返回文件 ID。
+
+由于该缓存不使用文件 ID，故而该方法会抛出`OSError`。
+
+---
+
+### <IconObjType type="method"/> `isatty` {#-isatty}
+
+```python
+is_atty: False = buffer.fileno()
+```
+
+流是否连接到了终端/TTY 上。返回`False`。
+
+#### 输出 {#returns-2}
+
+|   参数    |  类型  | <center>说明</center> |
+| :-------: | :----: | :-------------------- |
+| `is_atty` | `bool` | 恒为`False`.          |
+
+---
+
+### <IconObjType type="method"/> `readable` {#-readable}
+
+```python
+is_readable: bool = buffer.readable()
+```
+
+流是否可读。只要流还未关闭，其就是可读的。
+
+若流不再可读，调用`read()`会抛出`OSError`。
+
+#### 输出 {#returns-3}
+
+|     参数      |  类型  | <center>说明</center>                         |
+| :-----------: | :----: | :-------------------------------------------- |
+| `is_readable` | `bool` | 若缓存未关闭，返回`True`。否则，返回`False`。 |
+
+---
+
+### <IconObjType type="method"/> `writable` {#-writable}
+
+```python
+is_writable: bool = buffer.writable()
+```
+
+流是否可写。只要流还未关闭，其就是可读的。
+
+若流不再可写，调用`read()`会抛出`OSError`。
+
+#### 输出 {#returns-4}
+
+|     参数      |  类型  | <center>说明</center>                         |
+| :-----------: | :----: | :-------------------------------------------- |
+| `is_writable` | `bool` | 若缓存未关闭，返回`True`。否则，返回`False`。 |
+
+---
+
+### <IconObjType type="method"/> `seekable` {#-seekable}
+
+```python
+is_seekable: False = buffer.seekable()
+```
+
+流是否支持随机访问。该缓存不支持。
+
+#### 输出 {#returns-5}
+
+|     参数      |  类型  | <center>说明</center> |
+| :-----------: | :----: | :-------------------- |
+| `is_seekable` | `bool` | 恒为`False`。         |
+
+---
+
+### <IconObjType type="method"/> `seek` {#-seek}
+
+```python
+buffer.seek() -> Never
+```
+
+由于缓存不支持随机访问，调用该方法会抛出`OSError`。
 
 ## 属性 {#properties}
 
@@ -235,7 +346,7 @@ is_aggressive: bool = buffer.aggressive
 
 积极模式。
 
-该模式只能在初始化的时候设置。若设为`True`，则积极模式启用，mirror将会在每当收到新的数据时，将信息传递给主缓存。若设为`False`，则只会在新写一整行的时候、才传递给缓存。
+该模式只能在初始化的时候设置。若设为`True`，则积极模式启用，mirror 将会在每当收到新的数据时，将信息传递给主缓存。若设为`False`，则只会在新写一整行的时候、才传递给缓存。
 
 ---
 
@@ -247,11 +358,21 @@ tiemout: int = buffer.timeout
 
 设置给队列的时限。该值和[`queue.put(timeout)`<IconExternalLink/>][link-queue-put]的参数意义一致。
 
-在当前实现中，该值总是设置为`None`，但用户使用mirror时，可以修改该值。
+在当前实现中，该值总是设置为`None`，但用户使用 mirror 时，可以修改该值。
+
+---
+
+### <IconObjType type="param"/> `closed` {#-closed}
+
+```python
+is_closed: bool = buffer.closed
+```
+
+检查缓存是否已经被关闭。
 
 ## 范例 {#example}
 
-See [`LineProcBuffer`](./LineProcBuffer.mdx#example).
+参见[`LineProcBuffer`](./LineProcBuffer.mdx#example)。
 
 [link-queue-size]: https://docs.python.org/zh-cn/3/library/multiprocessing.html#multiprocessing.Queue.qsize
 [link-queue-put]: https://docs.python.org/zh-cn/3/library/multiprocessing.html#multiprocessing.Queue.put

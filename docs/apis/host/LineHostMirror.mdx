@@ -15,7 +15,7 @@ import vsiCheckIcon from "@iconify-icons/codicon/check";
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
-<APITopBar type="class" source="host.LineHostMirror" />
+<APITopBar type="class" isContext={true} source="host.LineHostMirror" />
 
 ```python
 buffer = LineHostMirror(
@@ -23,6 +23,9 @@ buffer = LineHostMirror(
     aggressive: bool = False,
     timeout: int | None = None,
 )
+
+with buffer:
+    ...
 ```
 
 The mirror for the host-safe line-based buffer.
@@ -50,6 +53,22 @@ syncstream.host.LineHostMirror
 |  `timeout`   | `int \| None` |                                   | The timeout of the web syncholizing events. If not set, the synchronization would block the current process.                                                                                                                         |
 
 ## Methods
+
+### <IconObjType type="method"/> `close`
+
+```python
+buffer.close(exc: BaseException | None = None)
+```
+
+Close the IO. This method only takes effects once. The second call will do nothing.
+
+#### Requires
+
+| Argument |      Type       | Required | <center>Description</center>                                                                              |
+| :------: | :-------------: | :------: | :-------------------------------------------------------------------------------------------------------- |
+|  `exc`   | `BaseException` |          | If `exc` is not `None`, will call `send_error()` before closing the buffer. Otherwise, call `send_eof()`. |
+
+---
 
 ### <IconObjType type="method"/> `clear`
 
@@ -114,7 +133,7 @@ The signal should be used at the end of the sub-process. This method is used for
 ### <IconObjType type="method"/> `send_error`
 
 ```python
-buffer.send_error(error: Exception)
+buffer.send_error(error: BaseException)
 ```
 
 Send the exception object to the main buffer.
@@ -129,9 +148,9 @@ See [`send_eof()`](#-send_eof).
 
 #### Requires
 
-| Argument |    Type     |             Required              | <center>Description</center>             |
-| :------: | :---------: | :-------------------------------: | :--------------------------------------- |
-| `error`  | `Exception` | <InlineIcon icon={vsiCheckIcon}/> | The exception object that would be sent. |
+| Argument |      Type       |             Required              | <center>Description</center>             |
+| :------: | :-------------: | :-------------------------------: | :--------------------------------------- |
+| `error`  | `BaseException` | <InlineIcon icon={vsiCheckIcon}/> | The exception object that would be sent. |
 
 ---
 
@@ -231,6 +250,98 @@ The method is thread-safe, but the message synchronization is host-safe.
 | :-------: | :---: | :------------------------------------------------------------------------------------------------------------- |
 | `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
 
+---
+
+### <IconObjType type="method"/> `fileno`
+
+```python
+buffer.fileno() -> Never
+```
+
+Return the file ID.
+
+This buffer will not use file ID, so this method will raise an `OSError`.
+
+---
+
+### <IconObjType type="method"/> `isatty`
+
+```python
+is_atty: False = buffer.fileno()
+```
+
+Whether the stream is connected to terminal/TTY. Return `False`.
+
+#### Returns
+
+| Argument  |  Type  | <center>Description</center> |
+| :-------: | :----: | :--------------------------- |
+| `is_atty` | `bool` | Always `False`.              |
+
+---
+
+### <IconObjType type="method"/> `readable`
+
+```python
+is_readable: bool = buffer.readable()
+```
+
+Whether the stream is readable. The stream is readable as long as the buffer
+is not closed.
+
+If the stream is not readable, calling `read()` will raise an `OSError`.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center>                                          |
+| :-----------: | :----: | :-------------------------------------------------------------------- |
+| `is_readable` | `bool` | Return `True` if the buffer is not closed. Otherwise, return `False`. |
+
+---
+
+### <IconObjType type="method"/> `writable`
+
+```python
+is_writable: bool = buffer.writable()
+```
+
+Whether the stream is writable. The stream is writable as long as the buffer
+is not closed.
+
+If the stream is not writable, calling `write()` will raise an `OSError`.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center>                                          |
+| :-----------: | :----: | :-------------------------------------------------------------------- |
+| `is_writable` | `bool` | Return `True` if the buffer is not closed. Otherwise, return `False`. |
+
+---
+
+### <IconObjType type="method"/> `seekable`
+
+```python
+is_seekable: False = buffer.seekable()
+```
+
+Whether the stream support random access. This buffer does not.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center> |
+| :-----------: | :----: | :--------------------------- |
+| `is_seekable` | `bool` | Always `False`.              |
+
+---
+
+### <IconObjType type="method"/> `seek`
+
+```python
+buffer.seek() -> Never
+```
+
+Will raise an `OSError` since this buffer does not support random access.
+
 ## Properties
 
 ### <IconObjType type="param"/> `aggressive`
@@ -248,13 +359,104 @@ This mode could only by configured by the initialization. If set `True`, the agg
 ### <IconObjType type="param"/> `headers`
 
 ```python
-headers: dict[str, str] = buffer.headers
+headers: ChainMap[str, str] = buffer.headers
 ```
 
-The default headers of the web connections. These headers are used by each `POST` or `GET` methods.
+Get the default headers (post) of the mirror.
+
+---
+
+### <IconObjType type="param"/> `headers_get`
+
+```python
+headers_get: ChainMap[str, str] = buffer.headers_get
+```
+
+Get the default headers (get) of the mirror.
+
+---
+
+### <IconObjType type="param"/> `closed`
+
+```python
+is_closed: bool = buffer.closed
+```
+
+Check whether the buffer has been closed.
 
 ## Example
 
-See [`LineHostBuffer`](./LineHostBuffer.mdx#example).
+### <IconObjType type="term"/> Write the server-side buffer with the mirror
+
+<Tabs
+  defaultValue="codes-server"
+  values={[
+    { label: 'Codes (server)', value: 'codes-server', },
+    { label: 'Codes (client)', value: 'codes-client', },
+    { label: 'Results', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes-server">
+
+Use [`LineHostBuffer`](./LineHostBuffer.mdx) to start a server with an empty buffer.
+
+```python showLineNumbers title="start_a_server.py"
+import flask
+from syncstream.host import LineHostBuffer
+
+
+app = flask.Flask(__name__)
+hbuf = LineHostBuffer("/sync-stream", maxlen=10)
+hbuf.serve(app)
+
+
+@app.route("/test", methods=["GET"])
+def load_data():
+    hbuf_items = hbuf.read()
+    return {"message": "success", "items": hbuf_items}, 200
+
+
+if __name__ == "__main__":
+    app.run(host="localhost", port=5000)  # Run the Flask service.
+```
+
+</TabItem>
+
+<TabItem value="codes-client">
+
+While the [`LineHostBuffer`](./LineHostBuffer.mdx) is running, run the following codes to write the buffer.
+
+```python showLineNumbers title="write_the_host_buffer.py"
+from syncstream import LineHostMirror
+
+
+with LineHostMirror('http://localhost:5000/sync-stream') as buffer:
+    print("test line 1")
+    print("test line 2")
+    print("test line 3")
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+Access
+
+```html
+http://localhost:5000/test
+```
+
+The response should be
+
+```json
+{
+  "items": ["test line 1", "test line 2", "test line 3"],
+  "message": "success"
+}
+```
+
+</TabItem>
+</Tabs>
 
 [link-logging-warning]: https://docs.python.org/3/library/logging.html#logging.Logger.warning

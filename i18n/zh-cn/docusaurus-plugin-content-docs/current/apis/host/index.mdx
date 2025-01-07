@@ -3,7 +3,7 @@ id: index
 title: host
 sidebar_label: host
 slug: /apis/host
-description: 网络服务信息同步，基于Flask-RESTful和urllib3实现。
+description: 网络服务信息同步，基于Flask和urllib3实现。
 ---
 
 import IconExternalLink from "@theme/Icon/ExternalLink";
@@ -12,7 +12,7 @@ import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 
 <APITopBar type="module" source="host" />
 
-该模块基于[`Flask-RESTful`<IconExternalLink/>][link-flask-restful]和[`urllib3`<IconExternalLink/>][link-urllib3]。透过Flask服务来收集信息，并将流重定向到网络请求句柄。
+该模块基于[`Flask`<IconExternalLink/>][link-flask]和[`urllib3`<IconExternalLink/>][link-urllib3]。透过Flask服务来收集信息，并将流重定向到网络请求句柄。
 
 ## 类 {#classes}
 
@@ -22,5 +22,5 @@ import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 | [<IconObjType type="class" hasText={true} text="LineHostBuffer"/>](./LineHostBuffer.mdx) | 网络服务驱动的、以行为单元的缓存。 |
 | [<IconObjType type="class" hasText={true} text="LineHostBuffer"/>](./LineHostReader.mdx) | 用来读取网络服务缓存的读取器。     |
 
-[link-flask-restful]: https://flask-restful.readthedocs.io/en/latest/
+[link-flask]: https://flask.palletsprojects.com/en/stable/
 [link-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html

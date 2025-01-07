@@ -45,6 +45,16 @@ syncstream.mproc.LineProcBuffer
 
 ## Methods
 
+### <IconObjType type="method"/> `close`
+
+```python
+pbuf.close()
+```
+
+Close the IO. This method only takes effects once. The second call will do nothing.
+
+---
+
 ### <IconObjType type="method"/> `clear`
 
 ```python
@@ -72,6 +82,29 @@ This operation is used for terminating the sub-processes safely. However, this m
 Since this method does not send `TERMINATE` or `KILL` signals, it does not guarantee that the processes would be closed instantly. If users want to use this method, please ensure that the `StopIteration` exception is catched by the `LineProcMirror.send_error()`. The error would not be catched automatically. If users do not catch the error, the main process would stuck at `wait()`.
 
 :::
+
+---
+
+### <IconObjType type="method"/> `force_stop`
+
+```python
+pbuf.force_stop()
+```
+
+Force the buffer stopped.
+
+Calling this method will force the `receive()` exit with `False` returned.
+After that, all mirrors sent to the previous processes will be detached.
+
+Note that calling this method is unsafe and may cause the subprocesses with
+mirrors blocked. If not necessary, it is better to call `stop_all_mirrors()`
+instead of using this method.
+
+Calling this method means that the multi-processing functionalities of this
+buffer will be disposed, unless `self.reset_states()` is used.
+
+Recommend that this method should be used when all subprocesses will be
+stopped by `Process.terminate()` or `Process.kill()`.
 
 ---
 
@@ -202,6 +235,38 @@ n_mirrors: int = pbuf.n_mirrors
 
 Current living mirrors. The buffer should still need to receive message until `n_mirrors` becomes 0. Each time `pbuf.mirror` is invoked, this value would be increased by 1.
 
+---
+
+### <IconObjType type="param"/> `maxlen`
+
+```python
+maxlen: int | None = pbuf.maxlen
+```
+
+The maximal length (number of lines) of the buffer.
+
+When this value is `None`, it means that there is no maximal length limit.
+
+---
+
+### <IconObjType type="param"/> `closed`
+
+```python
+is_closed: bool = pbuf.closed
+```
+
+Check whether the buffer has been closed.
+
+## Operators
+
+### <IconObjType type="op"/> `__len__`
+
+```python
+n_buffer_items: int = len(pbuf)
+```
+
+Number of lines/items in the buffer.
+
 ## Example
 
 ### <IconObjType type="term"/> Synchronize messages among processes
@@ -217,15 +282,13 @@ Current living mirrors. The buffer should still need to receive message until `n
 <TabItem value="codes">
 
 ```python showLineNumbers title="sync_among_processes.py"
-import contextlib
 import multiprocessing
-from syncstream.mproc import LineProcBuffer
+from syncstream.mproc import LineProcBuffer, LineProcMirror
 
 
-def f(buffer):
-    with contextlib.redirect_stdout(buffer):
+def f(buffer: LineProcMirror):
+    with buffer:
         print('example')
-    buffer.send_eof()
 
 
 if __name__ == '__main__':

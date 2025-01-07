@@ -15,7 +15,12 @@ import vsiCheckIcon from "@iconify-icons/codicon/check";
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
-<APITopBar type="class" isPrivate={true} source="mproc.LineProcMirror" />
+<APITopBar
+  type="class"
+  isPrivate={true}
+  isContext={true}
+  source="mproc.LineProcMirror"
+/>
 
 ```python
 pbuf: syncstream.LineProcBuffer
@@ -54,6 +59,22 @@ syncstream.mproc.LineProcMirror
 | `_state_lock` |      `Lock \| None`      |          | The reading / writing lock of the state dictionary given by `multiprocessing.Manager()`. The lock object should be created by the [`LineProcBuffer`](./LineProcBuffer.mdx) object.                                                                  |
 
 ## Methods
+
+### <IconObjType type="method"/> `close`
+
+```python
+buffer.close(exc: BaseException | None = None)
+```
+
+Close the IO. This method only takes effects once. The second call will do nothing.
+
+#### Requires
+
+| Argument |      Type       | Required | <center>Description</center>                                                                              |
+| :------: | :-------------: | :------: | :-------------------------------------------------------------------------------------------------------- |
+|  `exc`   | `BaseException` |          | If `exc` is not `None`, will call `send_error()` before closing the buffer. Otherwise, call `send_eof()`. |
+
+---
 
 ### <IconObjType type="method"/> `clear`
 
@@ -119,7 +140,7 @@ The signal should be used at the end of the sub-process. This method is used for
 ### <IconObjType type="method"/> `send_error`
 
 ```python
-buffer.send_error(error: Exception)
+buffer.send_error(error: BaseException)
 ```
 
 Send the exception object to the main buffer.
@@ -134,9 +155,9 @@ See [`send_eof()`](#-send_eof).
 
 #### Requires
 
-| Argument |    Type     |             Required              | <center>Description</center>             |
-| :------: | :---------: | :-------------------------------: | :--------------------------------------- |
-| `error`  | `Exception` | <InlineIcon icon={vsiCheckIcon}/> | The exception object that would be sent. |
+| Argument |      Type       |             Required              | <center>Description</center>             |
+| :------: | :-------------: | :-------------------------------: | :--------------------------------------- |
+| `error`  | `BaseException` | <InlineIcon icon={vsiCheckIcon}/> | The exception object that would be sent. |
 
 ---
 
@@ -191,10 +212,16 @@ This method is used by other methods implicitly, and should not be used by users
 ### <IconObjType type="method"/> `read`
 
 ```python
-line: str = buffer.read()
+line: str = buffer.read(size: int | None = None)
 ```
 
 This method would only read the current bufferred values in the mirror storage. If the property `aggressive` is `True`, the `read()` method would always return empty value.
+
+#### Requires
+
+| Argument | Type  | Required | <center>Description</center>                                                                              |
+| :------: | :---: | :------: | :-------------------------------------------------------------------------------------------------------- |
+|  `size`  | `int` |          | If set `None`, would return the whole storage. If set an `int` value, would return the last `size` items. |
 
 #### Returns
 
@@ -226,6 +253,98 @@ The method is thread-safe.
 | :-------: | :---: | :------------------------------------------------------------------------------------------------------------- |
 | `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
 
+---
+
+### <IconObjType type="method"/> `fileno`
+
+```python
+buffer.fileno() -> Never
+```
+
+Return the file ID.
+
+This buffer will not use file ID, so this method will raise an `OSError`.
+
+---
+
+### <IconObjType type="method"/> `isatty`
+
+```python
+is_atty: False = buffer.fileno()
+```
+
+Whether the stream is connected to terminal/TTY. Return `False`.
+
+#### Returns
+
+| Argument  |  Type  | <center>Description</center> |
+| :-------: | :----: | :--------------------------- |
+| `is_atty` | `bool` | Always `False`.              |
+
+---
+
+### <IconObjType type="method"/> `readable`
+
+```python
+is_readable: bool = buffer.readable()
+```
+
+Whether the stream is readable. The stream is readable as long as the buffer
+is not closed.
+
+If the stream is not readable, calling `read()` will raise an `OSError`.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center>                                          |
+| :-----------: | :----: | :-------------------------------------------------------------------- |
+| `is_readable` | `bool` | Return `True` if the buffer is not closed. Otherwise, return `False`. |
+
+---
+
+### <IconObjType type="method"/> `writable`
+
+```python
+is_writable: bool = buffer.writable()
+```
+
+Whether the stream is writable. The stream is writable as long as the buffer
+is not closed.
+
+If the stream is not writable, calling `write()` will raise an `OSError`.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center>                                          |
+| :-----------: | :----: | :-------------------------------------------------------------------- |
+| `is_writable` | `bool` | Return `True` if the buffer is not closed. Otherwise, return `False`. |
+
+---
+
+### <IconObjType type="method"/> `seekable`
+
+```python
+is_seekable: False = buffer.seekable()
+```
+
+Whether the stream support random access. This buffer does not.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center> |
+| :-----------: | :----: | :--------------------------- |
+| `is_seekable` | `bool` | Always `False`.              |
+
+---
+
+### <IconObjType type="method"/> `seek`
+
+```python
+buffer.seek() -> Never
+```
+
+Will raise an `OSError` since this buffer does not support random access.
+
 ## Properties
 
 ### <IconObjType type="param"/> `aggressive`
@@ -249,6 +368,16 @@ tiemout: int = buffer.timeout
 The timeout configuration of the queue. This value has the same meaning of [`queue.put(timeout)`<IconExternalLink/>][link-queue-put].
 
 In current implementation, this value is always configured as `None`. However, users could change this value when using the mirror.
+
+---
+
+### <IconObjType type="param"/> `closed`
+
+```python
+is_closed: bool = buffer.closed
+```
+
+Check whether the buffer has been closed.
 
 ## Example
 

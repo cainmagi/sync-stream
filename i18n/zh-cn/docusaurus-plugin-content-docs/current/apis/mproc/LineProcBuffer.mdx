@@ -45,6 +45,16 @@ syncstream.mproc.LineProcBuffer
 
 ## 方法 {#methods}
 
+### <IconObjType type="method"/> `close` {#-close}
+
+```python
+pbuf.close()
+```
+
+关闭IO。该方法只会生效一次。第二次调用则无任何效果。
+
+---
+
 ### <IconObjType type="method"/> `clear` {#-clear}
 
 ```python
@@ -72,6 +82,24 @@ pbuf.stop_all_mirrors()
 由于该方法不会发送`TERMINATE`或`KILL`信号，它并不能保证进程会立刻结束。若用户决意使用该方法，请确保正确地使用`LineProcMirror.send_error()`捕获了`StopIteration`。该异常不会被自动捕获。若用户不去捕获该异常，主进程将会死锁在`wait()`上。
 
 :::
+
+---
+
+### <IconObjType type="method"/> `force_stop` {#-force_stop}
+
+```python
+pbuf.force_stop()
+```
+
+强制停止缓存。
+
+调用该方法，将会导致`receive()`强迫返回`False`。此后，所有向该缓存发送信息的镜像都会被分离（detached）。
+
+需要注意的是，该方法并不安全，而且有可能造成带有镜像的子进程阻塞。如无必要，更推荐使用`stop_all_mirrors()`、而非此方法。
+
+调用该方法就意味着、该缓存的多进程功能被释放，除非再调用`self.reset_states()`。
+
+如果用户打算将所有的子进程透过`Process.terminate()`或`Process.kill()`中断，则建议使用该方法停止主缓存。
 
 ---
 
@@ -202,6 +230,38 @@ n_mirrors: int = pbuf.n_mirrors
 
 当前存活的镜像。缓存需要持续地获取信息，直到`n_mirrors`变为0。每当调用`pbuf.mirror`一次时，该值就会自增1。
 
+---
+
+### <IconObjType type="param"/> `maxlen` {#-maxlen}
+
+```python
+maxlen: int | None = pbuf.maxlen
+```
+
+缓存中的最大长度（即行数）。
+
+若该值为`None`，则表明缓存没有最大长度限制。
+
+---
+
+### <IconObjType type="param"/> `closed` {#-closed}
+
+```python
+is_closed: bool = pbuf.closed
+```
+
+检查缓存是否已经被关闭。
+
+## 运算符 {#operators}
+
+### <IconObjType type="op"/> `__len__`
+
+```python
+n_buffer_items: int = len(pbuf)
+```
+
+缓存中的行/条目数。
+
 ## 范例 {#example}
 
 ### <IconObjType type="term"/> 在进程之间同步信息 {#-synchronize-messages-among-processes}
@@ -217,15 +277,13 @@ n_mirrors: int = pbuf.n_mirrors
 <TabItem value="codes">
 
 ```python showLineNumbers title="sync_among_processes.py"
-import contextlib
 import multiprocessing
-from syncstream.mproc import LineProcBuffer
+from syncstream.mproc import LineProcBuffer, LineProcMirror
 
 
-def f(buffer):
-    with contextlib.redirect_stdout(buffer):
+def f(buffer: LineProcMirror):
+    with buffer:
         print('example')
-    buffer.send_eof()
 
 
 if __name__ == '__main__':

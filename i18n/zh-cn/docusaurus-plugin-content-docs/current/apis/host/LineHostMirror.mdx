@@ -15,7 +15,7 @@ import vsiCheckIcon from "@iconify-icons/codicon/check";
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
-<APITopBar type="class" source="host.LineHostMirror" />
+<APITopBar type="class" isContext={true} source="host.LineHostMirror" />
 
 ```python
 buffer = LineHostMirror(
@@ -23,6 +23,9 @@ buffer = LineHostMirror(
     aggressive: bool = False,
     timeout: int | None = None,
 )
+
+with buffer:
+    ...
 ```
 
 网络服务缓存的镜像。
@@ -50,6 +53,22 @@ syncstream.host.LineHostMirror
 |  `timeout`   | `int \| None` |                                   | 网络同步事件的时限。若不设置，则执行同步操作将持续阻塞当前进程。                                                                                 |
 
 ## 方法 {#methods}
+
+### <IconObjType type="method"/> `close` {#-close}
+
+```python
+buffer.close(exc: BaseException | None = None)
+```
+
+关闭IO。该方法只会生效一次。第二次调用则无任何效果。
+
+#### 输入 {#requires}
+
+| 参数  |      类型       | 必选 | <center>说明</center>                                                       |
+| :---: | :-------------: | :--: | :-------------------------------------------------------------------------- |
+| `exc` | `BaseException` |      | 若`exc`非`None`，则在关闭缓存前调用`send_error()`。否则，调用`send_eof()`。 |
+
+---
 
 ### <IconObjType type="method"/> `clear` {#-clear}
 
@@ -127,7 +146,7 @@ buffer.send_error(error: Exception)
 
 :::
 
-#### 输入 {#requires}
+#### 输入 {#requires-1}
 
 |  参数   |    类型     |               必选                | <center>说明</center> |
 | :-----: | :---------: | :-------------------------------: | :-------------------- |
@@ -151,7 +170,7 @@ buffer.send_warning(warning: Warning)
 
 :::
 
-#### 输入 {#requires-1}
+#### 输入 {#requires-2}
 
 |   参数    |   类型    |               必选                | <center>说明</center> |
 | :-------: | :-------: | :-------------------------------: | :-------------------- |
@@ -171,7 +190,7 @@ buffer.send_data(data: str)
 
 该方法被其他方法隐式调用，故用户不应使用该方法。
 
-#### 输入 {#requires-2}
+#### 输入 {#requires-3}
 
 |  参数  | 类型  |               必选                | <center>说明</center>   |
 | :----: | :---: | :-------------------------------: | :---------------------- |
@@ -201,6 +220,12 @@ line: str = buffer.read()
 
 该方法只会读取、当前保留在mirror的临时缓存内的数据。若属性`aggressive`为`True`，则`read()`方法将总是返回空值。
 
+#### 输入 {#requires-4}
+
+|  参数  | 类型  | 必选 | <center>说明</center>                                                                                     |
+| :----: | :---: | :--: | :-------------------------------------------------------------------------------------------------------- |
+| `size` | `int` |      | If set `None`, would return the whole storage. If set an `int` value, would return the last `size` items. |
+
 #### 输出 {#returns}
 
 |  参数  | 类型  | <center>说明</center>                                            |
@@ -219,7 +244,7 @@ n_bytes: int = buffer.write(data: str)
 
 该方法是线程安全的。但信息同步的过程是主机安全的。
 
-#### 输入 {#requires-3}
+#### 输入 {#requires-5}
 
 |  参数  | 类型  |               必选                | <center>说明</center>                      |
 | :----: | :---: | :-------------------------------: | :----------------------------------------- |
@@ -230,6 +255,96 @@ n_bytes: int = buffer.write(data: str)
 |   参数    | 类型  | <center>说明</center>                              |
 | :-------: | :---: | :------------------------------------------------- |
 | `n_bytes` | `int` | 所要写入缓存的byte数目。该值直接从输入`data`计算。 |
+
+---
+
+### <IconObjType type="method"/> `fileno` {#-fileno}
+
+```python
+buffer.fileno() -> Never
+```
+
+返回文件ID。
+
+由于该缓存不使用文件ID，故而该方法会抛出`OSError`。
+
+---
+
+### <IconObjType type="method"/> `isatty` {#-isatty}
+
+```python
+is_atty: False = buffer.fileno()
+```
+
+流是否连接到了终端/TTY上。返回`False`。
+
+#### 输出 {#returns-2}
+
+|   参数    |  类型  | <center>说明</center> |
+| :-------: | :----: | :-------------------- |
+| `is_atty` | `bool` | 恒为`False`.          |
+
+---
+
+### <IconObjType type="method"/> `readable` {#-readable}
+
+```python
+is_readable: bool = buffer.readable()
+```
+
+流是否可读。只要流还未关闭，其就是可读的。
+
+若流不再可读，调用`read()`会抛出`OSError`。
+
+#### 输出 {#returns-3}
+
+|     参数      |  类型  | <center>说明</center>                         |
+| :-----------: | :----: | :-------------------------------------------- |
+| `is_readable` | `bool` | 若缓存未关闭，返回`True`。否则，返回`False`。 |
+
+---
+
+### <IconObjType type="method"/> `writable` {#-writable}
+
+```python
+is_writable: bool = buffer.writable()
+```
+
+流是否可写。只要流还未关闭，其就是可读的。
+
+若流不再可写，调用`read()`会抛出`OSError`。
+
+#### 输出 {#returns-4}
+
+|     参数      |  类型  | <center>说明</center>                         |
+| :-----------: | :----: | :-------------------------------------------- |
+| `is_writable` | `bool` | 若缓存未关闭，返回`True`。否则，返回`False`。 |
+
+---
+
+### <IconObjType type="method"/> `seekable` {#-seekable}
+
+```python
+is_seekable: False = buffer.seekable()
+```
+
+流是否支持随机访问。该缓存不支持。
+
+#### 输出 {#returns-5}
+
+|     参数      |  类型  | <center>说明</center> |
+| :-----------: | :----: | :-------------------- |
+| `is_seekable` | `bool` | 恒为`False`。         |
+
+---
+
+### <IconObjType type="method"/> `seek` {#-seek}
+
+```python
+buffer.seek() -> Never
+```
+
+由于缓存不支持随机访问，调用该方法会抛出`OSError`。
 
 ## 属性 {#properties}
 
@@ -248,13 +363,104 @@ is_aggressive: bool = buffer.aggressive
 ### <IconObjType type="param"/> `headers` {#-headers}
 
 ```python
-headers: dict[str, str] = buffer.headers
+headers: ChainMap[str, str] = buffer.headers
 ```
 
-网络连接的默认请求头。这些头信息将会用于每个`POST`或`GET`方法中。
+网络连接的默认请求头。这些头信息将会用于每个`POST`方法中。
+
+---
+
+### <IconObjType type="param"/> `headers_get` {#-headers_get}
+
+```python
+headers_get: ChainMap[str, str] = buffer.headers_get
+```
+
+网络连接的默认请求头。这些头信息将会用于每个`GET`方法中。
+
+---
+
+### <IconObjType type="param"/> `closed` {#-closed}
+
+```python
+is_closed: bool = buffer.closed
+```
+
+检查缓存是否已经被关闭。
 
 ## 范例 {#example}
 
-参见[`LineHostBuffer`](./LineHostBuffer.mdx#example)。
+### <IconObjType type="term"/> 使用mirror向服务端缓存写入数据 {#-write-the-server-side-buffer-with-the-mirror}
+
+<Tabs
+  defaultValue="codes-server"
+  values={[
+    { label: '代码（服务端）', value: 'codes-server', },
+    { label: '代码（客户端）', value: 'codes-client', },
+    { label: '结果', value: 'results', },
+  ]
+}>
+
+<TabItem value="codes-server">
+
+使用[`LineHostBuffer`](./LineHostBuffer.mdx)启动一个带有空缓存的服务。
+
+```python showLineNumbers title="start_a_server.py"
+import flask
+from syncstream.host import LineHostBuffer
+
+
+app = flask.Flask(__name__)
+hbuf = LineHostBuffer("/sync-stream", maxlen=10)
+hbuf.serve(app)
+
+
+@app.route("/test", methods=["GET"])
+def load_data():
+    hbuf_items = hbuf.read()
+    return {"message": "success", "items": hbuf_items}, 200
+
+
+if __name__ == "__main__":
+    app.run(host="localhost", port=5000)  # 运行Flask服务。
+```
+
+</TabItem>
+
+<TabItem value="codes-client">
+
+当[`LineHostBuffer`](./LineHostBuffer.mdx)正在运行时，可以使用以下代码来写入缓存。
+
+```python showLineNumbers title="write_the_host_buffer.py"
+from syncstream import LineHostMirror
+
+
+with LineHostMirror('http://localhost:5000/sync-stream') as buffer:
+    print("test line 1")
+    print("test line 2")
+    print("test line 3")
+```
+
+</TabItem>
+
+<TabItem value="results">
+
+访问
+
+```html
+http://localhost:5000/test
+```
+
+响应应当为
+
+```json
+{
+  "items": ["test line 1", "test line 2", "test line 3"],
+  "message": "success"
+}
+```
+
+</TabItem>
+</Tabs>
 
 [link-logging-warning]: https://docs.python.org/zh-cn/3/library/logging.html#logging.Logger.warning

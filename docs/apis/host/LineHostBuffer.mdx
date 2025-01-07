@@ -43,27 +43,119 @@ syncstream.host.LineHostBuffer
 
 ## Arguments
 
-|  Argument   |     Type      | Required | <center>Description</center>                                                                                                                                                                                     |
-| :---------: | :-----------: | :------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api_route` |     `str`     |          | The route path of the api. It has the same meaning of the parameter [`Api.add_resource(url)`<IconExternalLink/>][link-addresource].                                                                              |
-| `endpoint`  | `str \| None` |          | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`. It has the same meaning of the parameter [`Api.add_resource(endpoint)`<IconExternalLink/>][link-addresource]. |
-|  `maxlen`   |     `int`     |          | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen].                                                                                   |
+|  Argument   |     Type      | Required | <center>Description</center>                                                                                                   |
+| :---------: | :-----------: | :------: | :----------------------------------------------------------------------------------------------------------------------------- |
+| `api_route` |     `str`     |          | The route path of the api.                                                                                                     |
+| `endpoint`  | `str \| None` |          | The endpoint name of the api. If set `None`, the endpoint name would be inferred from `api_route`.                             |
+|  `maxlen`   |     `int`     |          | The maximal number of stored lines. This value has the same meaning of [`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]. |
 
 ## Methods
+
+### <IconObjType type="method"/> `close`
+
+```python
+hbuf.close()
+```
+
+Close the IO. This method only takes effects once. The second call will do nothing.
+
+---
+
+### <IconObjType type="method"/> `read_serialized`
+
+```python
+lines: tuple[str | GroupedMessage, ...] = hbuf.read_serialized(size: int | None = None)
+```
+
+Read the records (serialized).
+
+It has the same functionalities of `read(...)`. However, all the data returned
+by this method has been serialized and compatible with jsonifying.
+
+This method should be used for providing query services.
+
+#### Requires
+
+| Argument |     Type      | Required | <center>Description</center>                                                                              |
+| :------: | :-----------: | :------: | :-------------------------------------------------------------------------------------------------------- |
+|  `size`  | `int \| None` |          | If set `None`, would return the whole storage. If set an `int` value, would return the last `size` items. |
+
+#### Returns
+
+| Argument |                Type                 | <center>Description</center>                                              |
+| :------: | :---------------------------------: | :------------------------------------------------------------------------ |
+| `lines`  | `tuple[str \| GroupedMessage, ...]` | A sequence of fetched record items. Results are sorted in the FIFO order. |
+
+---
 
 ### <IconObjType type="method"/> `serve`
 
 ```python
-hbuf.serve(api: flask_restful.Api)
+hbuf.serve(api: flask.Flask)
 ```
 
-Load the services to the flask app.
+Provide the service of the host buffer.
+
+The service would be equipped as an independent thread. Each time the request
+is received, the service would be triggered, and the thread-safe results would
+be saved.
 
 #### Requires
 
-| Argument |                           Type                            |             Required              | <center>Description</center>                                                                                       |
-| :------: | :-------------------------------------------------------: | :-------------------------------: | :----------------------------------------------------------------------------------------------------------------- |
-|  `api`   | [`flask_restful.Api`<IconExternalLink/>][link-restfulapi] | <InlineIcon icon={vsiCheckIcon}/> | The Flask `Api` object. All web services related to this `LineHostBuffer` would be registered to the `Api` object. |
+| Argument |                      Type                      |             Required              | <center>Description</center>                                                                                     |
+| :------: | :--------------------------------------------: | :-------------------------------: | :--------------------------------------------------------------------------------------------------------------- |
+|  `api`   | [`flask.Flask`<IconExternalLink/>][link-flask] | <InlineIcon icon={vsiCheckIcon}/> | The `Flask` object. All web services related to this `LineHostBuffer` would be registered to the `Flask` object. |
+
+---
+
+### <IconObjType type="method"/> `stop_all_mirrors`
+
+```python
+flag: bool = hbuf.stop_all_mirrors()
+```
+
+Send stop signals to all mirrors.
+
+This operation is used for terminating the mirrors safely. It does not
+guarantee that the processes would be closed instantly. Each time when the new
+message is written by the mirrors, a check would be triggered.
+
+If users want to use this method, please ensure that the `StopIteration` error
+is catched by the process. The error would not be sent back to the buffer.
+
+#### Returns
+
+| Argument |  Type  | <center>Description</center>                                                                                                                   |
+| :------: | :----: | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+|  `flag`  | `bool` | Return `True` if the stopping is successful. Return `False` if the stopping is rejected. Raise Error if there is anything wrong on the server. |
+
+---
+
+### <IconObjType type="method"/> `reset_states`
+
+```python
+flag: bool = hbuf.reset_states()
+```
+
+Reset the states of the buffer.
+
+This method should be used if the buffer needs to be reused.
+
+#### Returns
+
+| Argument |  Type  | <center>Description</center>                                                                                                                     |
+| :------: | :----: | :----------------------------------------------------------------------------------------------------------------------------------------------- |
+|  `flag`  | `bool` | Return `True` if the resetting is successful. Return `False` if the resetting is rejected. Raise Error if there is anything wrong on the server. |
+
+## Operators
+
+### <IconObjType type="op"/> `__len__`
+
+```python
+n_buffer_items: int = len(hbuf)
+```
+
+Number of lines/items in the buffer.
 
 ## Services
 
@@ -108,25 +200,21 @@ The states are shared by different clients. Each time the clients interact with 
 <TabItem value="codes">
 
 ```python showLineNumbers title="sync_by_web_services.py"
-import os
-import contextlib
 import multiprocessing
 import flask
-from flask_restful import Api
 from syncstream.host import LineHostMirror, LineHostBuffer
 
 
 def f(address):
     buffer = LineHostMirror(address=address, timeout=5)
-    with contextlib.redirect_stdout(buffer):
+    with buffer:
         print('example')
     buffer.send_eof()
 
 
 app = flask.Flask(__name__)
-api = Api(app)
 hbuf = LineHostBuffer('/sync-stream', maxlen=10)
-hbuf.serve(api)
+hbuf.serve(app)
 
 
 @app.route('/test', methods=['GET'])
@@ -161,6 +249,5 @@ The response should be
 </TabItem>
 </Tabs>
 
-[link-addresource]: https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource
-[link-restfulapi]: https://flask-restful.readthedocs.io/en/latest/api.html?highlight=api#id1
+[link-flask]: https://flask.palletsprojects.com/en/stable/api/#flask.Flask
 [link-deque-maxlen]: https://docs.python.org/3/library/collections.html#collections.deque.maxlen

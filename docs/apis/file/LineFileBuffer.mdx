@@ -14,14 +14,17 @@ import vsiCheckIcon from "@iconify-icons/codicon/check";
 import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 import InlineIcon from "@site/src/components/InlineIcon";
 
-<APITopBar type="class" source="file.LineFileBuffer" />
+<APITopBar type="class" isContext={true} source="file.LineFileBuffer" />
 
 ```python
 fbuf = LineFileBuffer(
-    file_path: str,
+    file_path: str | os.PathLike,
     maxlen: int = 20,
     tmp_id: str = "tmp",
 )
+
+with fbuf:
+    ...
 ```
 
 The file-driven line-based buffer handle.
@@ -50,13 +53,29 @@ syncstream.file.LineFileBuffer
 
 ## Arguments
 
-|  Argument   | Type  |             Required              | <center>Description</center>                                                                                                                                                |
-| :---------: | :---: | :-------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `file_path` | `str` | <InlineIcon icon={vsiCheckIcon}/> | The basic path of the saved records, including the saved storage and the file locks. The file suffix would be automatically set as `.log`.                                  |
-|  `maxlen`   | `int` |                                   | The maximal number of records. Each record would be saved as one file.                                                                                                      |
-|  `tmp_id`   | `str` |                                   | The identifier for the temporary file. Each process should holds one unique id. A conflict id may cause the written flows from different processes to interrupt each other. |
+|  Argument   |         Type         |             Required              | <center>Description</center>                                                                                                                                                |
+| :---------: | :------------------: | :-------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file_path` | `str \| os.PathLike` | <InlineIcon icon={vsiCheckIcon}/> | The basic path of the saved records, including the saved storage and the file locks. The file suffix would be automatically set as `.log`.                                  |
+|  `maxlen`   |        `int`         |                                   | The maximal number of records. Each record would be saved as one file.                                                                                                      |
+|  `tmp_id`   |        `str`         |                                   | The identifier for the temporary file. Each process should holds one unique id. A conflict id may cause the written flows from different processes to interrupt each other. |
 
 ## Methods
+
+### <IconObjType type="method"/> `close`
+
+```python
+fbuf.close(exc: BaseException | None = None)
+```
+
+Close the IO. This method only takes effects once. The second call will do nothing.
+
+#### Requires
+
+| Argument |      Type       | Required | <center>Description</center>                                                                            |
+| :------: | :-------------: | :------: | :------------------------------------------------------------------------------------------------------ |
+|  `exc`   | `BaseException` |          | If `exc` is not `None`, will call `send_exc()` before closing the buffer. Otherwise, call `new_line()`. |
+
+---
 
 ### <IconObjType type="method"/> `clear`
 
@@ -171,6 +190,147 @@ The writting method of the buffer. The source data is the same as that of a text
 | :-------: | :---: | :------------------------------------------------------------------------------------------------------------- |
 | `n_bytes` | `int` | The number of bytes that would be written to the buffer. This value is counted from the input `data` directly. |
 
+---
+
+### <IconObjType type="method"/> `send_exc`
+
+```python
+fbuf.send_exc(exc: BaseException)
+```
+
+Send an exception/warning object to the records.
+
+The object will be written as a long string with its traceback. Even if the
+long string contains line break, this item will be still viewed as one record.
+
+#### Requires
+
+| Argument |      Type       |             Required              | <center>Description</center>                     |
+| :------: | :-------------: | :-------------------------------: | :----------------------------------------------- |
+|  `exc`   | `BaseException` | <InlineIcon icon={vsiCheckIcon}/> | The exception object to be saved in the records. |
+
+---
+
+### <IconObjType type="method"/> `fileno`
+
+```python
+fbuf.fileno() -> Never
+```
+
+Return the file ID.
+
+This buffer will not use file ID, so this method will raise an `OSError`.
+
+---
+
+### <IconObjType type="method"/> `isatty`
+
+```python
+is_atty: False = fbuf.fileno()
+```
+
+Whether the stream is connected to terminal/TTY. Return `False`.
+
+#### Returns
+
+| Argument  |  Type  | <center>Description</center> |
+| :-------: | :----: | :--------------------------- |
+| `is_atty` | `bool` | Always `False`.              |
+
+---
+
+### <IconObjType type="method"/> `readable`
+
+```python
+is_readable: bool = fbuf.readable()
+```
+
+Whether the stream is readable. The stream is readable as long as the buffer
+is not closed.
+
+If the stream is not readable, calling `read()` will raise an `OSError`.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center>                                          |
+| :-----------: | :----: | :-------------------------------------------------------------------- |
+| `is_readable` | `bool` | Return `True` if the buffer is not closed. Otherwise, return `False`. |
+
+---
+
+### <IconObjType type="method"/> `writable`
+
+```python
+is_writable: bool = fbuf.writable()
+```
+
+Whether the stream is writable. The stream is writable as long as the buffer
+is not closed.
+
+If the stream is not writable, calling `write()` will raise an `OSError`.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center>                                          |
+| :-----------: | :----: | :-------------------------------------------------------------------- |
+| `is_writable` | `bool` | Return `True` if the buffer is not closed. Otherwise, return `False`. |
+
+---
+
+### <IconObjType type="method"/> `seekable`
+
+```python
+is_seekable: False = fbuf.seekable()
+```
+
+Whether the stream support random access. This buffer does not.
+
+#### Returns
+
+|   Argument    |  Type  | <center>Description</center> |
+| :-----------: | :----: | :--------------------------- |
+| `is_seekable` | `bool` | Always `False`.              |
+
+---
+
+### <IconObjType type="method"/> `seek`
+
+```python
+fbuf.seek() -> Never
+```
+
+Will raise an `OSError` since this buffer does not support random access.
+
+## Properties
+
+### <IconObjType type="param"/> `maxlen`
+
+```python
+maxlen: int = fbuf.maxlen
+```
+
+The maximal length (number of lines) of the buffer.
+
+---
+
+### <IconObjType type="param"/> `closed`
+
+```python
+is_closed: bool = fbuf.closed
+```
+
+Check whether the buffer has been closed.
+
+## Operators
+
+### <IconObjType type="op"/> `__len__`
+
+```python
+n_buffer_items: int = len(fbuf)
+```
+
+Number of lines/items in the buffer.
+
 ## Example
 
 ### <IconObjType type="term"/> Synchronize messages by shared log files
@@ -187,20 +347,17 @@ The writting method of the buffer. The source data is the same as that of a text
 
 ```python showLineNumbers title="sync_by_files.py"
 import os
-import contextlib
 import multiprocessing
 from syncstream.file import LineFileBuffer
 
 
 def f(f_path, f_len=10):
-    fbuf = LineFileBuffer(f_path, maxlen=f_len, tmp_id=os.getpid())
-    with contextlib.redirect_stdout(fbuf):
-        print('example')
-    fbuf.new_line()
+    with LineFileBuffer(f_path, maxlen=f_len, tmp_id=os.getpid()):
+        print("example")
 
 
-if __name__ == '__main__':
-    f_path = os.path.join('logs', 'test_file')
+if __name__ == "__main__":
+    f_path = os.path.join("logs", "test_file")
     f_len = 10
     with multiprocessing.Pool(4) as p:
         p.starmap(f, tuple((f_path, f_len) for _ in range(4)))

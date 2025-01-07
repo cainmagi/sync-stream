@@ -44,27 +44,111 @@ syncstream.host.LineHostBuffer
 
 ## 参数 {#arguments}
 
-|    参数     |     类型      | 必选 | <center>说明</center>                                                                                                                                              |
-| :---------: | :-----------: | :--: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `api_route` |     `str`     |      | API 的路由路径。它的含义和[`Api.add_resource(url)`<IconExternalLink/>][link-addresource]的参数相同。                                                               |
-| `endpoint`  | `str \| None` |      | API 的 endpoint 名称。若设为`None`，则会从`api_route`推断 endpoint 名称。它的含义和[`Api.add_resource(endpoint)`<IconExternalLink/>][link-addresource]的参数相同。 |
-|  `maxlen`   |     `int`     |      | 所存储的最大行数。该值和[`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]的含义相同。                                                                         |
+|    参数     |     类型      | 必选 | <center>说明</center>                                                                      |
+| :---------: | :-----------: | :--: | :----------------------------------------------------------------------------------------- |
+| `api_route` |     `str`     |      | API的路由路径。                                                                            |
+| `endpoint`  | `str \| None` |      | API的endpoint名称。若设为`None`，则会从`api_route`推断endpoint名称。                       |
+|  `maxlen`   |     `int`     |      | 所存储的最大行数。该值和[`deque.maxlen`<IconExternalLink/>][link-deque-maxlen]的含义相同。 |
 
 ## 方法 {#methods}
+
+### <IconObjType type="method"/> `close` {#-close}
+
+```python
+hbuf.close(exc: BaseException | None = None)
+```
+
+关闭 IO。该方法只会生效一次。第二次调用则无任何效果。
+
+---
+
+### <IconObjType type="method"/> `read_serialized` {#-read_serialized}
+
+```python
+lines: tuple[str | SerializedMessage, ...] = hbuf.read_serialized(size: int | None = None)
+```
+
+读取信息（序列化）。
+
+和`read(...)`的功能相同。不过，该方法返回的所有数据都是已经序列化过、可以和JSON兼容的数据。
+
+该方法用来提供查询服务。
+
+#### 输入 {#requires}
+
+|  参数  |     类型      | 必选 | <center>说明</center>                                                        |
+| :----: | :-----------: | :--: | :--------------------------------------------------------------------------- |
+| `size` | `int \| None` |      | 若设为`None`，则会返回整个存储区。若设为一个整数，则会返回最后`size`条信息。 |
+
+#### 输出 {#returns}
+
+|  参数   |                  类型                  | <center>说明</center>                              |
+| :-----: | :------------------------------------: | :------------------------------------------------- |
+| `lines` | `tuple[str \| SerializedMessage, ...]` | 所获取的多项记录信息。结果按照先入先出的顺序排序。 |
+
+---
 
 ### <IconObjType type="method"/> `serve` {#-serve}
 
 ```python
-hbuf.serve(api: flask_restful.Api)
+hbuf.serve(api: flask.Flask)
 ```
 
 向Flask应用载入服务。
 
-#### 输入 {#requires}
+#### 输入 {#requires-1}
 
-| 参数  |                           类型                            |               必选                | <center>说明</center>                                                            |
-| :---: | :-------------------------------------------------------: | :-------------------------------: | :------------------------------------------------------------------------------- |
-| `api` | [`flask_restful.Api`<IconExternalLink/>][link-restfulapi] | <InlineIcon icon={vsiCheckIcon}/> | Flask `Api`对象。所有与该`LineHostBuffer`关联的网络服务、都会注册到`Api`对象上。 |
+| 参数  |                      类型                      |               必选                | <center>说明</center>                                                          |
+| :---: | :--------------------------------------------: | :-------------------------------: | :----------------------------------------------------------------------------- |
+| `api` | [`flask.Flask`<IconExternalLink/>][link-flask] | <InlineIcon icon={vsiCheckIcon}/> | `Flask`对象。所有与该`LineHostBuffer`关联的网络服务、都会注册到`Flask`对象上。 |
+
+---
+
+### <IconObjType type="method"/> `stop_all_mirrors` {#-stop_all_mirrors}
+
+```python
+flag: bool = hbuf.stop_all_mirrors()
+```
+
+向所有的mirror发送中断信号。
+
+该操作用于安全中断进程。它并不能保证进程会立刻结束。针对每个mirror，在每次要写信息的时候，检查中断信号。
+
+若用户打算使用该方法，请确保在进程中捕获了`StopIteration`。该异常不会回送到缓存中。
+
+#### 输出 {#returns-1}
+
+|  参数  |  类型  | <center>说明</center>                                                                 |
+| :----: | :----: | :------------------------------------------------------------------------------------ |
+| `flag` | `bool` | 若中断成功，返回`True`。若中断遭到了拒绝，返回`False`。若服务端有任何异常，抛出错误。 |
+
+---
+
+### <IconObjType type="method"/> `reset_states` {#-reset_states}
+
+```python
+flag: bool = hbuf.reset_states()
+```
+
+重置缓存的状态。
+
+若需要复用缓存，则应当调用该方法。
+
+#### 输出 {#returns-2}
+
+|  参数  |  类型  | <center>说明</center>                                                                 |
+| :----: | :----: | :------------------------------------------------------------------------------------ |
+| `flag` | `bool` | 若重置成功，返回`True`。若重置遭到了拒绝，返回`False`。若服务端有任何异常，抛出错误。 |
+
+## 运算符 {#operators}
+
+### <IconObjType type="op"/> `__len__`
+
+```python
+n_buffer_items: int = len(hbuf)
+```
+
+缓存中的行/条目数。
 
 ## 服务 {#services}
 
@@ -109,25 +193,21 @@ hbuf.serve(api: flask_restful.Api)
 <TabItem value="codes">
 
 ```python showLineNumbers title="sync_by_web_services.py"
-import os
-import contextlib
 import multiprocessing
 import flask
-from flask_restful import Api
 from syncstream.host import LineHostMirror, LineHostBuffer
 
 
 def f(address):
     buffer = LineHostMirror(address=address, timeout=5)
-    with contextlib.redirect_stdout(buffer):
+    with buffer:
         print('example')
     buffer.send_eof()
 
 
 app = flask.Flask(__name__)
-api = Api(app)
 hbuf = LineHostBuffer('/sync-stream', maxlen=10)
-hbuf.serve(api)
+hbuf.serve(app)
 
 
 @app.route('/test', methods=['GET'])
@@ -162,6 +242,5 @@ http://localhost:5000/test
 </TabItem>
 </Tabs>
 
-[link-addresource]: https://flask-restful.readthedocs.io/en/latest/api.html#flask_restful.Api.add_resource
-[link-restfulapi]: https://flask-restful.readthedocs.io/en/latest/api.html?highlight=api#id1
+[link-flask]: https://flask.palletsprojects.com/en/stable/api/#flask.Flask
 [link-deque-maxlen]: https://docs.python.org/zh-cn/3/library/collections.html#collections.deque.maxlen

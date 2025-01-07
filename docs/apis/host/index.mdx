@@ -3,7 +3,7 @@ id: index
 title: host
 sidebar_label: host
 slug: /apis/host
-description: The web-service-based message synchronization, implemented based on Flask-RESTful and urllib3.
+description: The web-service-based message synchronization, implemented based on Flask and urllib3.
 ---
 
 import IconExternalLink from "@theme/Icon/ExternalLink";
@@ -12,7 +12,7 @@ import APITopBar, {IconObjType} from "@site/src/components/APITopBar";
 
 <APITopBar type="module" source="host" />
 
-This module is based on [`Flask-RESTful`<IconExternalLink/>][link-flask-restful] and [`urllib3`<IconExternalLink/>][link-urllib3]. The message is collected by a Flask service, and the stream is redirected to a web request handle.
+This module is based on [`Flask`<IconExternalLink/>][link-flask] and [`urllib3`<IconExternalLink/>][link-urllib3]. The message is collected by a Flask service, and the stream is redirected to a web request handle.
 
 ## Classes
 
@@ -22,5 +22,5 @@ This module is based on [`Flask-RESTful`<IconExternalLink/>][link-flask-restful]
 | [<IconObjType type="class" hasText={true} text="LineHostBuffer"/>](./LineHostBuffer.mdx) | The web service driven line-based buffer.                |
 | [<IconObjType type="class" hasText={true} text="LineHostBuffer"/>](./LineHostReader.mdx) | The reader for the host-service line-based buffer.       |
 
-[link-flask-restful]: https://flask-restful.readthedocs.io/en/latest/
+[link-flask]: https://flask.palletsprojects.com/en/stable/
 [link-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html
