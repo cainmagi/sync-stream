@@ -14,12 +14,12 @@ const variables = {
   repoURL: "https://github.com/cainmagi/sync-stream",
   rawURL: "https://raw.githubusercontent.com/cainmagi/sync-stream",
   sourceVersion: {
-    "0.3.x": "v0.3.3",
+    "0.3.x": "0.3.3",
     "1.2.1": "v1.2.1",
     main: "main",
   },
   sourceURIs: {
-    "v0.3.3": {
+    "0.3.3": {
       ".": "__init__.py",
       base: "base.py",
       "base.is_end_line_break": "base.py#L25",
