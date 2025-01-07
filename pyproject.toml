@@ -1,0 +1,122 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "syncstream"
+authors = [{ name = "Yuchen Jin", email = "cainmagi@gmail.com" }]
+maintainers = [{ name = "Yuchen Jin", email = "cainmagi@gmail.com" }]
+dynamic = [
+  "version",
+  "readme",
+  "description",
+  "classifiers",
+  "dependencies",
+  "optional-dependencies",
+]
+keywords = [
+  "python",
+  "python3",
+  "python-library",
+  "stdout",
+  "stdout-redirection",
+  "multiprocessing",
+  "synchronization",
+  "stream",
+]
+license = { text = "MIT" }
+requires-python = ">=3.6"
+
+[project.urls]
+Homepage = "https://github.com/cainmagi/sync-stream"
+Documentation = "https://cainmagi.github.io/sync-stream/"
+Repository = "https://github.com/cainmagi/sync-stream.git"
+Issues = "https://github.com/cainmagi/sync-stream/issues"
+Changelog = "https://github.com/cainmagi/sync-stream/blob/main/Changelog.md"
+
+[tool.setuptools]
+zip-safe = true
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = { attr = "version.__version__" }
+description = { file = "py-description.txt" }
+readme = { file = ["README.md"], content-type = "text/markdown" }
+classifiers = { file = "classifiers.txt" }
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.dynamic.optional-dependencies]
+file = { file = ["requirements-file.txt"] }
+host = { file = ["requirements-host.txt"] }
+test = { file = ["tests/requirements.txt"] }
+dev = { file = ["requirements-dev.txt"] }
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["syncstream"]
+exclude = [
+  "version",
+  "docker",
+  "tests*",
+  "examples*",
+  "docs*",
+  "instance",
+]
+namespaces = false
+
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+# 'extend-exclude' excludes files or directories in addition to the defaults
+extend-exclude = '''
+# A regex preceded with ^/ will apply only to files and directories
+# in the root of the project.
+(
+  ^/docs
+  |^/syncstream\.egg-info
+  |^/instance
+)
+'''
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = "tests/"
+addopts = "-rsxX -vv"
+log_level = "INFO"
+log_format = "%(name)s | %(filename)s - %(funcName)s @ %(asctime)s: %(levelname)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+log_cli = true
+log_cli_level = "INFO"
+filterwarnings = []
+
+[tool.pyright]
+include = ["syncstream", "tests"]
+exclude = [
+  "**/__pycache__",
+  "alpha-*",
+  "data-*",
+  "logs",
+  "outputs",
+  "docs",
+  "instance",
+  ".VSCodeCounter",
+  ".github",
+  ".git",
+  "deps",
+  "inst/deps",
+  "man",
+  "env",
+  "ENV",
+  "venv",
+  "VENV",
+  ".env",
+  ".venv",
+  "typestubs",
+  "setup.py",
+  "version",
+
+]
+ignore = ["version", "setup.py"]
+defineConstant = { DEBUG = true }
+reportMissingImports = "error"
+reportMissingTypeStubs = false

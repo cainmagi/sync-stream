@@ -5,3 +5,9 @@ max-line-length = 88
 extend-ignore =
     # See https://github.com/PyCQA/pycodestyle/issues/373
     E203, E501, W503, E701, E704
+exclude =
+    ./deps
+    ./inst
+    ./man
+    ./docs
+    ./alpha-*.py

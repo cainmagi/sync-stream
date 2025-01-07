@@ -2,18 +2,21 @@
 """
 Version
 =======
-@ Sync-stream
+@ SyncStream
 
 Author
 ------
-Yuchen Jin
-- cainmagi@gmail.com
-- yjin4@uh.edu
+Yuchen Jin (cainmagi)
+cainmagi@gmail.com
+
+License
+-------
+MIT License
 
 Description
 -----------
 
-Use this module to get the version number without importing `syncstream`.
+Use this module to get the version number without importing the project.
 """
 
 import os
@@ -68,6 +71,9 @@ def import_dummy(
 
 
 version = import_dummy(
-    os.path.join(sys.path[0], "syncstream", "version.py"), "syncstream.version"
+    os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "syncstream", "version.py"
+    ),
+    "syncstream.version",
 )
 __version__ = version.__version__

@@ -4,6 +4,12 @@
 
 ## CHANGELOG
 
+### 1.2.1 @ 1/7/2025
+
+#### :mega: New
+
+1. Use the new `pyproject.toml` configuration style to replace the old style `setup.cfg`.
+
 ### 1.2.0 @ 2/27/2024
 
 #### :mega: New
