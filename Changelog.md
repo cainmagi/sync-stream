@@ -11,6 +11,10 @@
 1. Upgrade the document to the a new version `v1.2.1`.
 2. Add the reference link to the `SECURITY.md` for the future version.
 
+#### :wrench: Fix
+
+1. Fix: Correct typos in the legacy document `v0.3.3`.
+
 #### :floppy_disk: Change
 
 1. Add special configurations to the legacy document `v0.3.3`.
