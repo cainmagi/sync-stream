@@ -17,7 +17,7 @@ import {repoURL} from "@site/src/envs/variables";
 To install the package, just run
 
 ```shell
-pip install syncstream
+pip install syncstream==0.3.3
 ```
 
 The basic tier of this package does not require any dependencies. It only supports the `syncstream` for the multi-thread and the multi-process cases.
@@ -27,7 +27,7 @@ The basic tier of this package does not require any dependencies. It only suppor
 The basic package would not contain the `file` and `host` modules. To install the package, please use the following options:
 
 ```shell
-pip install syncstream[option1,option2...]
+pip install syncstream[option1,option2...]==0.3.3
 ```
 
 | Option | <center>Supports</center>                                                                                                     |
@@ -52,7 +52,7 @@ pip install git+https://github.com/cainmagi/sync-stream.git
 To verify whether the package is compatible with your device, please clone the project and run the tests:
 
 ```shell
-git clone https://github.com/cainmagi/sync-stream.git
+git clone -b v0.3.3 https://github.com/cainmagi/sync-stream.git
 cd sync-stream
 pip install -r requirements.txt
 python -m pytest

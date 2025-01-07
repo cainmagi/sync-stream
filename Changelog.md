@@ -4,12 +4,16 @@
 
 ## CHANGELOG
 
-### 1.2.1 @ 01/06/2025
+### 1.2.1 @ 01/07/2025
 
 #### :mega: New
 
 1. Upgrade the document to the a new version `v1.2.1`.
 2. Add the reference link to the `SECURITY.md` for the future version.
+
+#### :floppy_disk: Change
+
+1. Add special configurations to the legacy document `v0.3.3`.
 
 ### 0.3.3 @ 01/06/2025
 

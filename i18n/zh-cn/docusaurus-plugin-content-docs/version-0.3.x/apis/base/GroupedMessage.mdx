@@ -60,6 +60,8 @@ jdata: dict[str, Any] = gpm.serialize()
 gpm: GroupedMessage = GroupedMessage.deserialize(jdata: dict[str, Any])
 ```
 
+将JSON兼容的字典逆序列化为该类的实例。
+
 #### 输入 {#requires-1}
 
 |  参数   |       类型       |               必选                | <center>说明</center>                                      |

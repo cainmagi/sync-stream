@@ -17,7 +17,7 @@ import {repoURL} from "@site/src/envs/variables";
 只需运行以下命令，即可安装模块包：
 
 ```shell
-pip install syncstream
+pip install syncstream==0.3.3
 ```
 
 本包的基础功能不需要任何依赖项。它只支持`syncstream`的多线程和多进程版本。
@@ -27,7 +27,7 @@ pip install syncstream
 基础包不包含`file`和`host`模块。要安装这些功能，请追加以下可选依赖项：
 
 ```shell
-pip install syncstream[option1,option2...]
+pip install syncstream[option1,option2...]==0.3.3
 ```
 
 |  选项  | <center>支持的功能</center>                                                                                                   |
@@ -50,7 +50,7 @@ pip install git+https://github.com/cainmagi/sync-stream.git
 要检查此项目是否兼容当前设备，请clone本项目并运行测试：
 
 ```shell
-git clone https://github.com/cainmagi/sync-stream.git
+git clone -b v0.3.3 https://github.com/cainmagi/sync-stream.git
 cd sync-stream
 pip install -r requirements.txt
 python -m pytest
