@@ -11,7 +11,7 @@ import IconExternalLink from "@theme/Icon/ExternalLink";
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-In some cases, we need to synchornize the messages among differrent devices. Each device could not get access to the file system of the other devices. The synchronization needs to be implemented by the web service. We design the [`LineHostBuffer`](../apis/host/LineHostBuffer.mdx) based on [`flask`<IconExternalLink/>][doc-flask] and [`flask-restful`<IconExternalLink/>][doc-flask-restful], and the [`LineHostMirror`](../apis/host/LineHostMirror.mdx) based on [`urllib3`<IconExternalLink/>][doc-urllib3].
+In some cases, we need to synchornize the messages among differrent devices. Each device could not get access to the file system of the other devices. The synchronization needs to be implemented by the web service. We design the [`LineHostBuffer`](../apis/host/LineHostBuffer.mdx) based on [`flask`<IconExternalLink/>][doc-flask] and the [`LineHostMirror`](../apis/host/LineHostMirror.mdx) based on [`urllib3`<IconExternalLink/>][doc-urllib3].
 
 In the following example, we provide two scripts (`client.py` and `host.py`). The host should be launched before the client starts. Then the messages from the client would be catched by the host.
 
@@ -53,14 +53,12 @@ for mitem in data:
 
 ```python showLineNumbers title="host.py"
 import flask
-from flask_restful import Api
 import syncstream
 
 app = flask.Flask('test')
-api = Api(app)
 
 # highlight-next-line
-syncstream.LineHostBuffer(api_route='/sync-stream', maxlen=10).serve(api)
+syncstream.LineHostBuffer(api_route='/sync-stream', maxlen=10).serve(app)
 
 if __name__ == '__main__':
     app.run('localhost', port=5000)
@@ -79,6 +77,5 @@ Some packages (like [`pytest`<IconExternalLink/>][link-pytest]) may redirect the
 :::
 
 [doc-flask]: https://flask.palletsprojects.com/en/ "Flask"
-[doc-flask-restful]: https://flask-restful.readthedocs.io/en/latest/index.html "Flask-RESTful"
 [doc-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html "urllib3"
 [link-pytest]: https://docs.pytest.org/ "pytest"

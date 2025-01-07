@@ -11,7 +11,7 @@ import IconExternalLink from "@theme/Icon/ExternalLink";
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
-某些情形下，需要在不同的设备之间同步信息。设备之间互相无法访问对方的文件系统，这使得需要使用网络服务来实现同步。基于[`flask`<IconExternalLink/>][doc-flask]和[`flask-restful`<IconExternalLink/>][doc-flask-restful]，本项目实现了[`LineHostBuffer`](../apis/host/LineHostBuffer.mdx)；基于[`urllib3`<IconExternalLink/>][doc-urllib3]，本项目实现了[`LineHostMirror`](../apis/host/LineHostMirror.mdx)。
+某些情形下，需要在不同的设备之间同步信息。设备之间互相无法访问对方的文件系统，这使得需要使用网络服务来实现同步。基于[`flask`<IconExternalLink/>][doc-flask]，本项目实现了[`LineHostBuffer`](../apis/host/LineHostBuffer.mdx)；基于[`urllib3`<IconExternalLink/>][doc-urllib3]，本项目实现了[`LineHostMirror`](../apis/host/LineHostMirror.mdx)。
 
 下例提供了两个脚本（`client.py`和`host.py`）。服务端（host）需要在客户端（client）之前启动。接下来，所有来自client的信息都会被host捕获。
 
@@ -53,14 +53,12 @@ for mitem in data:
 
 ```python showLineNumbers title="host.py"
 import flask
-from flask_restful import Api
 import syncstream
 
 app = flask.Flask('test')
-api = Api(app)
 
 # highlight-next-line
-syncstream.LineHostBuffer(api_route='/sync-stream', maxlen=10).serve(api)
+syncstream.LineHostBuffer(api_route='/sync-stream', maxlen=10).serve(app)
 
 if __name__ == '__main__':
     app.run('localhost', port=5000)
@@ -79,6 +77,5 @@ if __name__ == '__main__':
 :::
 
 [doc-flask]: https://flask.palletsprojects.com/en/ "Flask"
-[doc-flask-restful]: https://flask-restful.readthedocs.io/en/latest/index.html "Flask-RESTful"
 [doc-urllib3]: https://urllib3.readthedocs.io/en/latest/index.html "urllib3"
 [link-pytest]: https://www.osgeo.cn/pytest/contents.html "pytest"
