@@ -55,13 +55,16 @@ git clone -b docs --single-branch https://github.com/<your-name>/sync-stream.git
 You need to install `nodejs` and `yarn` first. We suggest to create an isolated conda environment:
 
 ```shell
-conda create -n docs -c conda-forge git python=3.9 nodejs=15.14.0 yarn=1.22.10
+conda create -n docs -c conda-forge git python=3.9 nodejs
 ```
 
 Then you could initialize the docs project by
 
 ```shell
 cd syncstream-docs
+npm install -g corepack
+corepack enable
+corepack prepare yarn --activate
 yarn install
 ```
 

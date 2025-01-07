@@ -9,6 +9,7 @@
 #### :mega: New
 
 1. Use the new `pyproject.toml` configuration style to replace the old style `setup.cfg`.
+2. Add more information in the readme documents.
 
 ### 1.2.0 @ 2/27/2024
 
