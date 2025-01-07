@@ -11,6 +11,10 @@
 1. Use the new `pyproject.toml` configuration style to replace the old style `setup.cfg`.
 2. Add more information in the readme documents.
 
+#### :floppy_disk: Change
+
+1. Adjust the workflow configurations and use the new standard of PyPI publishing.
+
 ### 1.2.0 @ 2/27/2024
 
 #### :mega: New
