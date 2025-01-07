@@ -73,8 +73,14 @@ class ModuleReplaceError(ImportError):
 
 class _LazyModule(__LazyModule):
     """Private class: LazyModule
+
     Used for providing lazy import.
     """
+
+    __file__: Optional[str] = None
+    """The `file` attribute of this placeholder module is empty."""
+
+    removed_kw = set(("__path__",))
 
     protected_kw = set(
         (
@@ -139,6 +145,12 @@ class _LazyModule(__LazyModule):
         be replaced by the actual module class, this method will not be used
         any more.
         """
+        if attr in _LazyModule.removed_kw:
+            raise AttributeError(
+                "{0} does not offer the attribute {1}".format(
+                    object.__getattribute__(self, "__class__").__name__, attr
+                )
+            )
         if attr in _LazyModule.protected_kw:
             try:
                 return ModuleType.__getattribute__(self, attr)
@@ -251,6 +263,29 @@ class _ModulePlaceholder(ModuleType):
     the __spec__ property.
     """
 
+    __file__: Optional[str] = None
+    """The `file` attribute of this placeholder module is empty."""
+
+    removed_kw = set(("__path__",))
+
+    protected_kw = set(
+        (
+            "__repr__",
+            "__str__",
+            "__name__",
+            "__qualname__",
+            "__annotations__",
+            "__spec__",
+            "__origin__",
+            "__weakref__",
+            "__weakrefoffset__",
+            "force_load",
+            "__class__",
+            "__dict__",
+            "abstract",
+        )
+    )
+
     def __init__(self, name: str, doc: Optional[str] = None) -> None:
         """Initialization.
 
@@ -292,6 +327,15 @@ class _ModulePlaceholder(ModuleType):
 
     def __getattribute__(self, attr: str):
         """Add more error information to the attribute error."""
+        if attr in _ModulePlaceholder.removed_kw:
+            raise AttributeError(
+                "{0} does not offer the attribute {1}".format("ModulePlaceholder", attr)
+            )
+        if attr in _ModulePlaceholder.protected_kw:
+            try:
+                return object.__getattribute__(self, attr)
+            except AttributeError:
+                pass
         try:
             return super().__getattribute__(attr)
         except AttributeError as err:

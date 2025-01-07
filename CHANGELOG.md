@@ -14,6 +14,7 @@
 #### :wrench: Fix
 
 1. Fix: Correct docstrings and bad definitions of some APIs.
+2. Fix: Attempt to solve the lazy-load issue that only happens when using the workflow.
 
 #### :floppy_disk: Change
 
