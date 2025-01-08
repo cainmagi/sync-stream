@@ -4,6 +4,12 @@
 
 ## CHANGELOG
 
+### 1.2.2 @ 1/8/2025
+
+#### :wrench: Fix
+
+1. Fix: Correct a bug that `mprocs.LineProcMirror` does not response to the early stop signal.
+
 ### 1.2.1 @ 1/7/2025
 
 #### :mega: New

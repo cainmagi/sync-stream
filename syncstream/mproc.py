@@ -34,11 +34,11 @@ from typing import Union, Optional, Any, Generic, TypeVar
 from typing import TextIO
 
 try:
-    from typing import Tuple, Dict, Type, Sequence, Mapping
+    from typing import Tuple, Type, Sequence, MutableMapping
     from typing import Deque
 except ImportError:
-    from builtins import tuple as Tuple, dict as Dict, type as Type
-    from collections.abc import Sequence, Mapping
+    from builtins import tuple as Tuple, type as Type
+    from collections.abc import Sequence, MutableMapping
     from collections import deque as Deque
 
 from typing_extensions import Literal, Never
@@ -397,7 +397,7 @@ class LineProcMirror(contextlib.AbstractContextManager):
         aggressive: bool = False,
         timeout: Optional[float] = None,
         _queue: Optional[_Queue] = None,
-        _state: Optional[Mapping[str, Any]] = None,
+        _state: Optional[MutableMapping[str, Any]] = None,
         _state_lock: Optional[_Lock] = None,
     ) -> None:
         """Initialization.
@@ -440,10 +440,10 @@ class LineProcMirror(contextlib.AbstractContextManager):
             multiprocessing.Queue(maxsize=q_maxsize) if _queue is None else _queue
         )
         self.__state_lock: Optional[_Lock] = None
-        self.__state: Optional[Dict[str, Any]] = dict()
+        self.__state: Optional[MutableMapping[str, Any]] = dict()
         if _state is not None and _state_lock is not None:
             self.__state_lock = _state_lock
-            self.__state = dict(_state)
+            self.__state = _state
 
         # stdout/stderr configs
         self.__stdout: Optional[TextIO] = None
