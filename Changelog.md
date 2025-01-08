@@ -14,6 +14,7 @@
 
 1. Fix: Correct atitle and its sidebar in the `zh-cn` document.
 2. Fix: Correct the algolia configurations and make them up-to-date.
+3. Fix: Correct a typo on the page `/docs/derivation`.
 
 ### 1.2.1 @ 01/07/2025
 

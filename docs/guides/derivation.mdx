@@ -79,7 +79,7 @@ if __name__ == "__main__":
     with multiprocessing.Pool(1) as pool:
         pool.map_async(
             worker_process, tuple(pbuf.mirror for _ in range(1))
-        )  # Run 4 procs.
+        )  # Run only one process.
         # Move the wait method to the background.
         thd = threading.Thread(target=pbuf.wait, daemon=True)
         thd.start()
