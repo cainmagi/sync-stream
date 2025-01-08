@@ -19,6 +19,7 @@
 #### :floppy_disk: Change
 
 1. Add the keyword metadata.
+2. Add the algolia styles.
 
 ### 1.2.1 @ 01/07/2025
 
