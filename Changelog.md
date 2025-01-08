@@ -4,6 +4,12 @@
 
 ## CHANGELOG
 
+### 1.2.2 @ 01/07/2025
+
+#### :mega: New
+
+1. Upgrade the document to the a new version `v1.2.2`.
+
 ### 1.2.1 @ 01/07/2025
 
 #### :mega: New

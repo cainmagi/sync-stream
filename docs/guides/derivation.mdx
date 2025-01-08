@@ -25,31 +25,32 @@ import syncstream
 
 
 class CustomedBuffer(syncstream.LineProcBuffer):
-    '''Customized buffer, used for catching the progress of a program.'''
+    """Customized buffer, used for catching the progress of a program."""
 
     def __init__(self, maxlen: int = 10) -> None:
-        '''Initialization.'''
+        """Initialization."""
         super().__init__(maxlen=maxlen)
-        self.__r_prog = re.compile(pattern=r'\>\>\> Progress: ([\d]*?)%\.')
+        self.__r_prog = re.compile(pattern=r"\>\>\> Progress: ([\d]*?)%\.")
         self.__info_lock = threading.Lock()
         self.__progress = 0
-    
+
     @property
     def progress(self) -> int:
-        '''Get the current progress.'''
+        """Get the current progress."""
         with self.__info_lock:
             return self.__progress
 
     def parse_lines(
         self, lines: Sequence[Union[str, syncstream.GroupedMessage]]
     ) -> None:
-        '''Parse the lines
+        """Parse the lines
         This method would be triggered each time a new line is written to the buffer.
         The overriding method would catch the useful information from specific patterns.
-        '''
+        """
         remained_lines = list()
         for line in lines:
             if not isinstance(line, str):
+                remained_lines.append(line)
                 continue
             # Catch the progress.
             res = self.__r_prog.fullmatch(line)
@@ -63,34 +64,33 @@ class CustomedBuffer(syncstream.LineProcBuffer):
 
 
 def worker_process(buffer: syncstream.LineProcMirror):
-    '''Define the workder_process.'''
+    """Define the workder_process."""
     with buffer:
         for i in range(10):
             time.sleep(0.5)
-            print('>>> Progress: {0:d}%.'.format(i * 10))
+            print(">>> Progress: {0:d}%.".format(i * 10))
         time.sleep(0.5)
-        print('Message', 'item')
-        print('>>> Progress: 100%.')
+        print("Message", "item")
+        print(">>> Progress: 100%.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pbuf = CustomedBuffer(10)  # Initialization.
     with multiprocessing.Pool(1) as pool:
         pool.map_async(
-            worker_process,
-            tuple(pbuf.mirror for _ in range(1))
+            worker_process, tuple(pbuf.mirror for _ in range(1))
         )  # Run 4 procs.
         # Move the wait method to the background.
         thd = threading.Thread(target=pbuf.wait, daemon=True)
         thd.start()
-        print('Start to wait.')
+        print("Start to wait.")
         prev_progress = 10
         while pbuf.progress < 100:
             if pbuf.progress >= prev_progress:
                 print("Progress >= {0}%.".format(prev_progress))
                 prev_progress += 10
             time.sleep(0.1)
-        print('Progress is 100%.')
+        print("Progress is 100%.")
         thd.join()
 
     messages = pbuf.read()  # Get results.

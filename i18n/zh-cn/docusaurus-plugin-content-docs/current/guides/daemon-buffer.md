@@ -12,11 +12,11 @@ description: 进阶教程，展示如何提前中断mirrors。
 ...
 thd = threading.Thread(target=pbuf.wait, daemon=True)
 thd.start()
-print('开始等待。')
+print("开始等待。")
 while pbuf.progress < 100:
     ...
     time.sleep(0.1)
-print('进度达到100%。')
+print("进度达到100%。")
 thd.join()
 ...
 ```
@@ -26,7 +26,7 @@ thd.join()
 ```python
 thd = threading.Thread(target=pbuf.wait, daemon=True)
 thd.start()
-print('开始等待。')
+print("开始等待。")
 prog = pbuf.progress
 while prog < 100:
     time.sleep(0.1)
@@ -35,8 +35,9 @@ while prog < 100:
         # highlight-next-line
         pbuf.stop_all_mirrors()
         break
-print('进度未达到100%。')
+print("进度未达到100%。")
 thd.join()
+print("最终进度：{0}%".format(pbuf.progress))
 ```
 
 则子进程会提前中断。相应地，buffer也无法接收到子进程的正常终结信息。取而代之的是，捕获到来自子进程的`StopIteration`异常。

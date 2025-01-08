@@ -62,7 +62,7 @@ const config: Config = {
           lastVersion: "current",
           versions: {
             current: {
-              label: "1.2.1",
+              label: "1.2.2",
             },
           },
         },
