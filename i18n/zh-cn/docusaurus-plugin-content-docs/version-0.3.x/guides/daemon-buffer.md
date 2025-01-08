@@ -1,7 +1,7 @@
 ---
 id: daemon-buffer
-title: 安全关闭mirrors
-sidebar_label: 安全关闭镜像（mirror）
+title: 安全关闭镜像（mirror）
+sidebar_label: 安全关闭mirrors
 slug: /daemon-buffer
 description: 进阶教程，展示如何提前中断mirrors。
 ---
