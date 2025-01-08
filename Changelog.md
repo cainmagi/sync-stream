@@ -4,7 +4,7 @@
 
 ## CHANGELOG
 
-### 1.2.2 @ 01/07/2025
+### 1.2.2 @ 01/08/2025
 
 #### :mega: New
 
@@ -13,6 +13,7 @@
 #### :wrench: Fix
 
 1. Fix: Correct atitle and its sidebar in the `zh-cn` document.
+2. Fix: Correct the algolia configurations and make them up-to-date.
 
 ### 1.2.1 @ 01/07/2025
 

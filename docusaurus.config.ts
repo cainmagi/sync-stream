@@ -223,12 +223,12 @@ const config: Config = {
       ],
     },
     algolia: {
-      apiKey: "5ace7b8ade4114b9411c58d6301a1c98",
+      apiKey: "***********removed-key**********",
       indexName: "sync-stream",
       // APP id
-      appId: "BH4D9OD16A",
+      appId: "85CM583BTZ",
       // Optional: make the search sensitive to sub-routing.
-      // contextualSearch: true,
+      contextualSearch: true,
       // Optional: Algolia search parameters
       searchParameters: {facetFilters: ["type:content"]},
     },
