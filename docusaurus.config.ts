@@ -230,7 +230,7 @@ const config: Config = {
       ],
     },
     algolia: {
-      apiKey: "***********removed-key**********",
+      apiKey: "59fdab167eac01956c660c4cde6c19f2",
       indexName: "sync-stream",
       // APP id
       appId: "85CM583BTZ",
