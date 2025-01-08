@@ -92,6 +92,13 @@ const config: Config = {
   themeConfig: {
     // Replace with your project's social card
     image: "img/social-card.webp",
+    metadata: [
+      {
+        name: "keywords",
+        content:
+          "python, python3, python-library, stdout, stdout-redirection, multiprocessing, synchronization, stream",
+      },
+    ],
     navbar: {
       title: "SyncStream",
       logo: {

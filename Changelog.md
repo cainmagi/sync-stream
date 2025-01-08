@@ -16,6 +16,10 @@
 2. Fix: Correct the algolia configurations and make them up-to-date.
 3. Fix: Correct a typo on the page `/docs/derivation`.
 
+#### :floppy_disk: Change
+
+1. Add the keyword metadata.
+
 ### 1.2.1 @ 01/07/2025
 
 #### :mega: New
